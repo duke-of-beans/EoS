@@ -1,0 +1,139 @@
+/**
+ * Purpose: Traces and logs execution paths during scans for diagnostics and optimization
+ * Dependencies: Node.js standard library only
+ * Public API:
+ *   - new SauronExecutionTracer(config) - Creates tracer instance
+ *     config.maxDepth: number (default 1000)
+ *     config.includeTimestamps: boolean (default true)
+ *     config.highResTimestamps: boolean (default false) - Uses process.hrtime.bigint()
+ *     config.logCloneFailures: boolean (default false) - Logs when cloning fails
+ *     config.maxEventSize: number|null (future enhancement)
+ *   - log(event, data) - Records execution event
+ *   - getTrace() - Returns deep clone of trace array
+ *   - clear() - Clears all trace data
+ */
+
+export class SauronExecutionTracer {
+  constructor(config = {}) {
+    this.maxDepth = config.maxDepth ?? 1000;
+    this.includeTimestamps = config.includeTimestamps ?? true;
+    this.highResTimestamps = config.highResTimestamps ?? false;
+    this.maxEventSize = config.maxEventSize ?? null; // Future enhancement
+    this.logCloneFailures = config.logCloneFailures ?? false;
+    this.trace = [];
+  }
+
+  /**
+   * Logs an execution event with optional data
+   * @param {string} event - Event name or description
+   * @param {object} data - Optional event data (will be cloned)
+   * @returns {void}
+   */
+  log(event, data = {}) {
+    const entry = {
+      event,
+      data: this._deepClone(data)
+    };
+
+    if (this.includeTimestamps) {
+      if (this.highResTimestamps && typeof process !== 'undefined' && process.hrtime) {
+        // High-resolution timestamp using process.hrtime.bigint()
+        entry.timestamp = process.hrtime.bigint();
+        entry.timestampType = 'hrtime';
+      } else {
+        // Standard millisecond timestamp
+        entry.timestamp = Date.now();
+        entry.timestampType = 'ms';
+      }
+    }
+
+    this.trace.push(entry);
+
+    // Cap at maxDepth, drop oldest
+    if (this.trace.length > this.maxDepth) {
+      this.trace.shift();
+    }
+  }
+
+  /**
+   * Returns a deep clone of the trace array
+   * @returns {Array} Deep clone of all trace entries
+   */
+  getTrace() {
+    return this._deepClone(this.trace);
+  }
+
+  /**
+   * Clears all trace data
+   * @returns {void}
+   */
+  clear() {
+    this.trace = [];
+  }
+
+  /**
+   * Deep clones an object using structured cloning algorithm
+   * Falls back to JSON serialization for compatibility
+   * @private
+   * @param {*} obj - Object to clone
+   * @returns {*} Deep clone of object
+   */
+  _deepClone(obj) {
+    // Use structuredClone if available (Node 17+)
+    if (typeof structuredClone === 'function') {
+      try {
+        return structuredClone(obj);
+      } catch (e) {
+        if (this.logCloneFailures) {
+          console.warn('[SauronExecutionTracer] structuredClone failed:', e.message);
+        }
+        // Fall through to JSON method
+      }
+    }
+    
+    // Fallback to JSON serialization
+    // Note: This won't preserve functions, undefined values, symbols, etc.
+    try {
+      return JSON.parse(JSON.stringify(obj));
+    } catch (e) {
+      if (this.logCloneFailures) {
+        console.warn('[SauronExecutionTracer] JSON clone failed:', e.message);
+      }
+      
+      // If even JSON fails, return a basic clone attempt
+      if (obj === null || typeof obj !== 'object') {
+        return obj;
+      }
+      
+      if (Array.isArray(obj)) {
+        return obj.map(item => this._deepClone(item));
+      }
+      
+      const clone = {};
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          clone[key] = this._deepClone(obj[key]);
+        }
+      }
+      return clone;
+    }
+  }
+}
+
+// Example usage (commented out for production):
+/*
+const tracer = new SauronExecutionTracer({ 
+  maxDepth: 500,
+  highResTimestamps: true,
+  logCloneFailures: true
+});
+tracer.log('scan-start', { file: 'example.js' });
+tracer.log('pattern-found', { pattern: 'console.log', line: 42 });
+tracer.log('scan-complete', { issuesFound: 3 });
+
+const trace = tracer.getTrace();
+console.log(trace);
+
+// Future enhancement: maxEventSize would limit data size per event
+// to prevent memory issues with large objects
+*/

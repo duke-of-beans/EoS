@@ -1,0 +1,151 @@
+🟣 Core Engine
+✅ EyeOfSauronOmniscient.js
+
+Calls:
+
+CharacterForensics.js
+
+PatternPrecognition.js
+
+BatchProcessor.js
+
+FileDiscovery.js
+
+ScanProfileManager.js
+
+ScanReportAssembler.js
+
+ErrorLogger.js
+
+IncrementalScanCache.js
+
+MetricsExporter.js
+
+WebhookNotifier.js
+
+TimeEffortOptimizer.js
+
+TechnicalDebtCalculator.js
+
+PatternLearningEngine.js
+
+FixImpactAnalyzer.js
+
+DependencyImpactAnalyzer.js
+
+KaizenSnapshot.js
+
+OneClickHealing.js
+
+ScanHistoryManager.js
+
+ScanTemplateEngine.js
+
+ScanPolicyManager.js
+
+SauronModuleRegistry.js
+
+SauronPluginManager.js
+
+SauronComplianceChecker.js
+
+SauronTelemetryReporter.js
+
+🟣 CLI
+✅ cli/EyeOfSauronCLI.js
+
+Calls:
+
+EyeOfSauronOmniscient.js
+
+Config.js
+
+OmniReporterFormatter.js (typo in structure: OmniReporterFormatter.js vs manifest OmniReportFormatter.js)
+
+HTMLReportFormatter.js
+
+SauronInsightReporter.js
+
+PolicyViolationReporter.js
+
+GitHookInstaller.js
+
+SauronReportArchiver.js
+
+SauronReportExporter.js
+
+SauronReportCompressor.js
+
+SauronScanMerger.js
+
+SauronScanSplitter.js
+
+SauronTelemetryReporter.js
+
+SauronScheduler.js
+
+SauronAPI.js
+
+✅ cli/SauronReportArchiverCLI.js
+
+Calls:
+
+SauronReportArchiver.js
+
+SauronReportCompressor.js
+
+SauronReportExporter.js
+
+🟣 Utils
+✅ ScanReportAssembler.js
+
+Aggregates results from:
+
+CharacterForensics.js
+
+PatternPrecognition.js
+
+Metrics + cache + technical debt analysis
+
+✅ BatchProcessor.js
+
+Powers:
+
+Parallel scanning in EyeOfSauronOmniscient.js
+
+✅ SauronAPI.js
+
+Exposes:
+
+API routes for report access, scheduling, telemetry
+
+✅ SauronScheduler.js
+
+Provides:
+
+Recurring scan scheduling
+
+✅ SauronTelemetryReporter.js
+
+Pushes telemetry to external systems
+
+✅ SauronPluginManager.js
+
+Loads/manages external plugins
+
+✅ SauronComplianceChecker.js
+
+Validates reports against compliance templates
+
+✅ SauronModuleRegistry.js
+
+Tracks module health/status
+
+✅ MetricsExporter.js
+
+Exports Prometheus/DataDog/NewRelic metrics
+
+✅ WebhookNotifier.js
+
+Sends webhooks on scan events
+

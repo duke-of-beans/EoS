@@ -1,0 +1,18 @@
+{
+  "bin": {
+    "sauron-scan": "./cli/EyeOfSauronCLI.js",
+    "sauron-archive": "./cli/SauronReportArchiverCLI.js"
+  },
+  "scripts": {
+    "start": "node ./cli/EyeOfSauronCLI.js",
+    "scan": "node ./cli/EyeOfSauronCLI.js scan ./",
+    "scan:json": "node ./cli/EyeOfSauronCLI.js scan ./ --format json",
+    "scan:html": "node ./cli/EyeOfSauronCLI.js scan ./ --format html",
+    "archive": "node ./cli/SauronReportArchiverCLI.js",
+    "validate": "node ./cli/EyeOfSauronCLI.js validate",
+    "full-validate": "node ./cli/EyeOfSauronCLI.js full-validate",
+    "api": "node ./server/SauronAPI.js",
+    "schedule": "node ./server/SauronScheduler.js",
+    "test": "node ./testing/SauronTestHarness.js simulateRun"
+  }
+}

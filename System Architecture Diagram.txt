@@ -1,0 +1,78 @@
+graph TD
+
+subgraph CLI
+  A1(EyeOfSauronCLI.js)
+  A2(SauronReportArchiverCLI.js)
+end
+
+subgraph Core
+  B1(EyeOfSauronOmniscient.js)
+  B2(CharacterForensics.js)
+  B3(PatternPrecognition.js)
+  B4(BatchProcessor.js)
+  B5(FileDiscovery.js)
+  B6(ScanProfileManager.js)
+  B7(ScanReportAssembler.js)
+  B8(ErrorLogger.js)
+  B9(IncrementalScanCache.js)
+  B10(MetricsExporter.js)
+  B11(WebhookNotifier.js)
+  B12(TimeEffortOptimizer.js)
+  B13(TechnicalDebtCalculator.js)
+  B14(PatternLearningEngine.js)
+  B15(FixImpactAnalyzer.js)
+  B16(DependencyImpactAnalyzer.js)
+  B17(KaizenSnapshot.js)
+  B18(OneClickHealing.js)
+  B19(ScanHistoryManager.js)
+  B20(ScanTemplateEngine.js)
+  B21(ScanPolicyManager.js)
+  B22(SauronModuleRegistry.js)
+  B23(SauronPluginManager.js)
+  B24(SauronComplianceChecker.js)
+  B25(SauronTelemetryReporter.js)
+end
+
+A1 --> B1
+A2 --> B7
+A1 --> B7
+A1 --> B10
+A1 --> B11
+A1 --> B12
+A1 --> B13
+A1 --> B15
+A1 --> B16
+A1 --> B17
+A1 --> B18
+A1 --> B19
+A1 --> B20
+A1 --> B21
+A1 --> B22
+A1 --> B23
+A1 --> B24
+A1 --> B25
+
+B1 --> B2
+B1 --> B3
+B1 --> B4
+B1 --> B5
+B1 --> B6
+B1 --> B7
+B1 --> B8
+B1 --> B9
+B1 --> B10
+B1 --> B11
+B1 --> B12
+B1 --> B13
+B1 --> B14
+B1 --> B15
+B1 --> B16
+B1 --> B17
+B1 --> B18
+B1 --> B19
+B1 --> B20
+B1 --> B21
+B1 --> B22
+B1 --> B23
+B1 --> B24
+B1 --> B25

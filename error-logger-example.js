@@ -1,0 +1,60 @@
+/**
+ * ErrorLogger Usage Example
+ * Location: eye-of-sauron/docs/examples/ErrorLogger-example.js
+ */
+
+import { ErrorLogger } from '../../utils/ErrorLogger.js';
+
+// Create a new ErrorLogger instance
+const logger = new ErrorLogger();
+
+// Example 1: Log an Error object
+try {
+  throw new Error('Syntax error: unexpected token');
+} catch (err) {
+  logger.log('/src/components/Header.js', err);
+}
+
+// Example 2: Log a string message
+logger.log('/src/utils/parser.js', 'Custom validation error: invalid input format');
+
+// Example 3: Log multiple errors from different files
+logger.log('/src/api/endpoints.js', new Error('Network timeout'));
+logger.log('/src/database/connection.js', 'Connection refused to database');
+
+// Get error summary
+const summary = logger.getSummary();
+
+console.log(`Total errors logged: ${summary.count}`);
+console.log('\nError details:');
+
+summary.errors.forEach((err, index) => {
+  console.log(`\n[${index + 1}] File: ${err.file}`);
+  console.log(`    Message: ${err.message}`);
+  if (err.stack) {
+    console.log(`    Stack trace available: ${err.stack.split('\n')[0]}`);
+  } else {
+    console.log(`    Stack trace: Not available`);
+  }
+});
+
+// Example output:
+// Total errors logged: 4
+// 
+// Error details:
+// 
+// [1] File: /src/components/Header.js
+//     Message: Syntax error: unexpected token
+//     Stack trace available: Error: Syntax error: unexpected token
+// 
+// [2] File: /src/utils/parser.js
+//     Message: Custom validation error: invalid input format
+//     Stack trace: Not available
+// 
+// [3] File: /src/api/endpoints.js
+//     Message: Network timeout
+//     Stack trace available: Error: Network timeout
+// 
+// [4] File: /src/database/connection.js
+//     Message: Connection refused to database
+//     Stack trace: Not available

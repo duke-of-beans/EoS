@@ -1,0 +1,407 @@
+/**
+ * Purpose: Fetches latest CVE data from remote sources for dependency vulnerability auditing
+ * Dependencies: Node.js standard library (https, fs, path)
+ * Public API:
+ *   - new SauronCveFetcher(config) - Constructor with optional config
+ *   - fetchLatest() - Fetches latest CVE data from configured endpoint
+ *   - loadCache() - Loads CVE data from local cache if available
+ *   - saveCache(data) - Saves CVE data to local cache
+ */
+
+import https from 'https';
+import fs from 'fs/promises';
+import path from 'path';
+import { URL } from 'url';
+
+export class SauronCveFetcher {
+  constructor(config = {}) {
+    // Default to NVD API endpoint for CVE data
+    this.endpoint = config.endpoint || 'https://services.nvd.nist.gov/rest/json/cves/2.0';
+    this.cachePath = config.cachePath || null;
+    this.cacheMaxAge = config.cacheMaxAge || 3600000; // 1 hour default
+    this.apiKey = config.apiKey || null; // Optional API key for NVD
+    this.resultsPerPage = config.resultsPerPage || 100;
+    this.userAgent = config.userAgent || 'SauronCveFetcher/1.0';
+    this.requestDelay = config.requestDelay || 1000; // 1 second delay between requests (NVD recommendation)
+  }
+
+  /**
+   * Fetches the latest CVE data from the configured endpoint
+   * @returns {Promise<Array>} Array of structured CVE objects
+   */
+  async fetchLatest() {
+    try {
+      // Check cache first if configured
+      if (this.cachePath) {
+        const cachedData = await this._checkCache();
+        if (cachedData) {
+          console.log('[SauronCveFetcher] Using cached CVE data');
+          return cachedData;
+        }
+      }
+
+      console.log(`[SauronCveFetcher] Fetching CVE data from ${this.endpoint}`);
+      
+      // Fetch recent CVEs (last 7 days by default)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const startDate = sevenDaysAgo.toISOString();
+      
+      const allCves = [];
+      let startIndex = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        const url = new URL(this.endpoint);
+        url.searchParams.append('startIndex', startIndex.toString());
+        url.searchParams.append('resultsPerPage', this.resultsPerPage.toString());
+        url.searchParams.append('lastModStartDate', startDate);
+        
+        const data = await this._fetchFromApi(url.toString());
+        
+        if (data && data.vulnerabilities) {
+          const cves = this._normalizeCveData(data.vulnerabilities);
+          allCves.push(...cves);
+          
+          // Check if there are more results
+          const totalResults = data.totalResults || 0;
+          startIndex += this.resultsPerPage;
+          hasMore = startIndex < totalResults;
+          
+          // Rate limiting: delay between requests to be respectful to the API
+          if (hasMore && this.requestDelay > 0) {
+            console.log(`[SauronCveFetcher] Waiting ${this.requestDelay}ms before next request...`);
+            await new Promise(resolve => setTimeout(resolve, this.requestDelay));
+          }
+        } else {
+          hasMore = false;
+        }
+      }
+
+      // Cache the results if configured
+      if (this.cachePath && allCves.length > 0) {
+        await this.saveCache(allCves);
+      }
+
+      console.log(`[SauronCveFetcher] Fetched ${allCves.length} CVEs`);
+      return allCves;
+
+    } catch (error) {
+      console.error('[SauronCveFetcher] Error fetching CVE data:', error.message);
+      
+      // Fallback to cache if available
+      if (this.cachePath) {
+        console.log('[SauronCveFetcher] Attempting to load from cache as fallback');
+        const cachedData = await this.loadCache();
+        if (cachedData && cachedData.length > 0) {
+          return cachedData;
+        }
+      }
+      
+      // Return empty array on complete failure
+      return [];
+    }
+  }
+
+  /**
+   * Loads CVE data from local cache
+   * @returns {Promise<Array>} Array of cached CVE objects or empty array
+   */
+  async loadCache() {
+    if (!this.cachePath) {
+      console.warn('[SauronCveFetcher] No cache path configured');
+      return [];
+    }
+
+    try {
+      const cacheFile = path.join(this.cachePath, 'cve-cache.json');
+      const data = await fs.readFile(cacheFile, 'utf8');
+      const parsed = JSON.parse(data);
+      
+      if (parsed && parsed.cves && Array.isArray(parsed.cves)) {
+        console.log(`[SauronCveFetcher] Loaded ${parsed.cves.length} CVEs from cache`);
+        return parsed.cves;
+      }
+      
+      return [];
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        console.error('[SauronCveFetcher] Error loading cache:', error.message);
+      }
+      return [];
+    }
+  }
+
+  /**
+   * Saves CVE data to local cache
+   * @param {Array} data - Array of CVE objects to cache
+   * @returns {Promise<void>}
+   */
+  async saveCache(data) {
+    if (!this.cachePath) {
+      console.warn('[SauronCveFetcher] No cache path configured');
+      return;
+    }
+
+    if (!Array.isArray(data)) {
+      console.error('[SauronCveFetcher] Invalid data format for caching');
+      return;
+    }
+
+    try {
+      // Ensure cache directory exists
+      await fs.mkdir(this.cachePath, { recursive: true });
+      
+      const cacheFile = path.join(this.cachePath, 'cve-cache.json');
+      const cacheData = {
+        timestamp: new Date().toISOString(),
+        count: data.length,
+        cves: data
+      };
+      
+      await fs.writeFile(cacheFile, JSON.stringify(cacheData, null, 2), 'utf8');
+      console.log(`[SauronCveFetcher] Cached ${data.length} CVEs to ${cacheFile}`);
+      
+    } catch (error) {
+      console.error('[SauronCveFetcher] Error saving cache:', error.message);
+    }
+  }
+
+  /**
+   * Private: Checks if cache exists and is still valid
+   * @returns {Promise<Array|null>} Cached data if valid, null otherwise
+   */
+  async _checkCache() {
+    try {
+      const cacheFile = path.join(this.cachePath, 'cve-cache.json');
+      const stats = await fs.stat(cacheFile);
+      
+      // Check if cache is expired
+      const age = Date.now() - stats.mtime.getTime();
+      if (age > this.cacheMaxAge) {
+        console.log('[SauronCveFetcher] Cache expired');
+        return null;
+      }
+      
+      // Load and return cache
+      return await this.loadCache();
+      
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * Private: Fetches data from API endpoint
+   * @param {string} url - Full URL to fetch from
+   * @returns {Promise<Object>} Parsed JSON response
+   */
+  async _fetchFromApi(url) {
+    return new Promise((resolve, reject) => {
+      const options = {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': this.userAgent
+        }
+      };
+
+      // Add API key if configured (for NVD API)
+      if (this.apiKey) {
+        options.headers['apiKey'] = this.apiKey;
+      }
+
+      https.get(url, options, (res) => {
+        let data = '';
+
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+
+        res.on('end', () => {
+          if (res.statusCode !== 200) {
+            reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(data);
+            resolve(parsed);
+          } catch (error) {
+            reject(new Error(`JSON parse error: ${error.message}`));
+          }
+        });
+
+      }).on('error', (error) => {
+        reject(error);
+      });
+    });
+  }
+
+  /**
+   * Private: Normalizes CVE data from NVD format to simplified structure
+   * @param {Array} vulnerabilities - Raw vulnerability data from NVD
+   * @returns {Array} Normalized CVE objects
+   */
+  _normalizeCveData(vulnerabilities) {
+    return vulnerabilities.map(vuln => {
+      const cve = vuln.cve || {};
+      const metrics = cve.metrics || {};
+      const descriptions = cve.descriptions || [];
+      const references = cve.references || [];
+      
+      // Extract CVSS scores
+      let cvssScore = 0;
+      let severity = 'UNKNOWN';
+      
+      if (metrics.cvssMetricV31 && metrics.cvssMetricV31.length > 0) {
+        const cvss31 = metrics.cvssMetricV31[0];
+        cvssScore = cvss31.cvssData?.baseScore || 0;
+        severity = cvss31.cvssData?.baseSeverity || 'UNKNOWN';
+      } else if (metrics.cvssMetricV30 && metrics.cvssMetricV30.length > 0) {
+        const cvss30 = metrics.cvssMetricV30[0];
+        cvssScore = cvss30.cvssData?.baseScore || 0;
+        severity = cvss30.cvssData?.baseSeverity || 'UNKNOWN';
+      } else if (metrics.cvssMetricV2 && metrics.cvssMetricV2.length > 0) {
+        const cvss2 = metrics.cvssMetricV2[0];
+        cvssScore = cvss2.cvssData?.baseScore || 0;
+        severity = cvss2.baseSeverity || 'UNKNOWN';
+      }
+
+      // Get English description
+      const description = descriptions.find(d => d.lang === 'en')?.value || 
+                         descriptions[0]?.value || 
+                         'No description available';
+
+      // Extract affected products
+      const configurations = cve.configurations || [];
+      const affectedProducts = this._extractAffectedProducts(configurations);
+
+      return {
+        id: cve.id || 'UNKNOWN',
+        sourceIdentifier: cve.sourceIdentifier || 'nvd',
+        published: cve.published || new Date().toISOString(),
+        lastModified: cve.lastModified || new Date().toISOString(),
+        description: description,
+        cvssScore: cvssScore,
+        severity: severity,
+        references: references.map(ref => ref.url),
+        affectedProducts: affectedProducts,
+        weaknesses: cve.weaknesses || []
+      };
+    });
+  }
+
+  /**
+   * Private: Extracts affected products from CVE configurations
+   * @param {Array} configurations - CVE configuration data
+   * @returns {Array} List of affected products
+   */
+  _extractAffectedProducts(configurations) {
+    const products = [];
+    
+    for (const config of configurations) {
+      if (config.nodes) {
+        for (const node of config.nodes) {
+          if (node.cpeMatch) {
+            for (const cpe of node.cpeMatch) {
+              if (cpe.vulnerable && cpe.criteria) {
+                // Parse CPE string to extract vendor/product/version
+                const parts = cpe.criteria.split(':');
+                if (parts.length >= 5) {
+                  const vendor = parts[3];
+                  const product = parts[4];
+                  const version = parts[5] || '*';
+                  
+                  const productEntry = {
+                    vendor: vendor,
+                    product: product,
+                    version: version,
+                    versionEndExcluding: cpe.versionEndExcluding,
+                    versionEndIncluding: cpe.versionEndIncluding,
+                    versionStartExcluding: cpe.versionStartExcluding,
+                    versionStartIncluding: cpe.versionStartIncluding
+                  };
+                  
+                  // Check for potential version range conflicts
+                  if (this._hasVersionRangeConflict(productEntry)) {
+                    console.warn(`[SauronCveFetcher] Version range conflict detected for ${vendor}:${product}:`, {
+                      versionEndExcluding: cpe.versionEndExcluding,
+                      versionEndIncluding: cpe.versionEndIncluding,
+                      versionStartExcluding: cpe.versionStartExcluding,
+                      versionStartIncluding: cpe.versionStartIncluding
+                    });
+                  }
+                  
+                  products.push(productEntry);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return products;
+  }
+
+  /**
+   * Private: Checks for logical conflicts in version ranges
+   * @param {Object} product - Product entry with version ranges
+   * @returns {boolean} True if conflict detected
+   */
+  _hasVersionRangeConflict(product) {
+    const {
+      versionStartIncluding,
+      versionStartExcluding,
+      versionEndIncluding,
+      versionEndExcluding
+    } = product;
+    
+    // Check for excluding and including the same version
+    if (versionStartIncluding && versionStartExcluding && 
+        versionStartIncluding === versionStartExcluding) {
+      return true;
+    }
+    
+    if (versionEndIncluding && versionEndExcluding && 
+        versionEndIncluding === versionEndExcluding) {
+      return true;
+    }
+    
+    // Check if start is after end (when both are specified)
+    if (versionStartIncluding && versionEndExcluding) {
+      try {
+        // Simple version comparison (may need enhancement for complex versions)
+        if (this._compareVersions(versionStartIncluding, versionEndExcluding) >= 0) {
+          return true;
+        }
+      } catch (e) {
+        // Ignore comparison errors for complex version strings
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Private: Simple version comparison (numeric parts only)
+   * @param {string} v1 - First version
+   * @param {string} v2 - Second version
+   * @returns {number} -1 if v1 < v2, 0 if equal, 1 if v1 > v2
+   */
+  _compareVersions(v1, v2) {
+    const parts1 = v1.split('.').map(p => parseInt(p) || 0);
+    const parts2 = v2.split('.').map(p => parseInt(p) || 0);
+    
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+      const p1 = parts1[i] || 0;
+      const p2 = parts2[i] || 0;
+      if (p1 < p2) return -1;
+      if (p1 > p2) return 1;
+    }
+    return 0;
+  }
+}
+
+// Export as default for convenience
+export default SauronCveFetcher;

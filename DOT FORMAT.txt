@@ -1,0 +1,80 @@
+digraph EyeOfSauron {
+  subgraph cluster_CLI {
+    label="CLI";
+    A1 [label="EyeOfSauronCLI.js"];
+    A2 [label="SauronReportArchiverCLI.js"];
+  }
+
+  subgraph cluster_Core {
+    label="Core/Utils";
+    B1 [label="EyeOfSauronOmniscient.js"];
+    B2 [label="CharacterForensics.js"];
+    B3 [label="PatternPrecognition.js"];
+    B4 [label="BatchProcessor.js"];
+    B5 [label="FileDiscovery.js"];
+    B6 [label="ScanProfileManager.js"];
+    B7 [label="ScanReportAssembler.js"];
+    B8 [label="ErrorLogger.js"];
+    B9 [label="IncrementalScanCache.js"];
+    B10 [label="MetricsExporter.js"];
+    B11 [label="WebhookNotifier.js"];
+    B12 [label="TimeEffortOptimizer.js"];
+    B13 [label="TechnicalDebtCalculator.js"];
+    B14 [label="PatternLearningEngine.js"];
+    B15 [label="FixImpactAnalyzer.js"];
+    B16 [label="DependencyImpactAnalyzer.js"];
+    B17 [label="KaizenSnapshot.js"];
+    B18 [label="OneClickHealing.js"];
+    B19 [label="ScanHistoryManager.js"];
+    B20 [label="ScanTemplateEngine.js"];
+    B21 [label="ScanPolicyManager.js"];
+    B22 [label="SauronModuleRegistry.js"];
+    B23 [label="SauronPluginManager.js"];
+    B24 [label="SauronComplianceChecker.js"];
+    B25 [label="SauronTelemetryReporter.js"];
+  }
+
+  A1 -> B1
+  A2 -> B7
+  A1 -> B7
+  A1 -> B10
+  A1 -> B11
+  A1 -> B12
+  A1 -> B13
+  A1 -> B15
+  A1 -> B16
+  A1 -> B17
+  A1 -> B18
+  A1 -> B19
+  A1 -> B20
+  A1 -> B21
+  A1 -> B22
+  A1 -> B23
+  A1 -> B24
+  A1 -> B25
+
+  B1 -> B2
+  B1 -> B3
+  B1 -> B4
+  B1 -> B5
+  B1 -> B6
+  B1 -> B7
+  B1 -> B8
+  B1 -> B9
+  B1 -> B10
+  B1 -> B11
+  B1 -> B12
+  B1 -> B13
+  B1 -> B14
+  B1 -> B15
+  B1 -> B16
+  B1 -> B17
+  B1 -> B18
+  B1 -> B19
+  B1 -> B20
+  B1 -> B21
+  B1 -> B22
+  B1 -> B23
+  B1 -> B24
+  B1 -> B25
+}

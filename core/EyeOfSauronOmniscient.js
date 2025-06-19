@@ -1,0 +1,382 @@
+/**
+ * Purpose: Master scanner engine for Eye of Sauron - orchestrates all analyzers and aggregates results
+ * Dependencies: Node.js std lib (fs, path), CharacterForensics, PatternPrecognition, BatchProcessor
+ * Public API: 
+ *   - new EyeOfSauronOmniscient(config)
+ *   - async scan(rootPath, mode) → Promise<report>
+ *   - async scanFile(filePath, profile) → Promise<void>
+ */
+
+import { readdir, stat, readFile } from 'fs/promises';
+import { join, relative, extname } from 'path';
+import { CharacterForensics } from './CharacterForensics.js';
+import { PatternPrecognition } from './PatternPrecognition.js';
+import { BatchProcessor } from '../utils/BatchProcessor.js';
+
+export class EyeOfSauronOmniscient {
+  constructor(config = {}) {
+    this.config = {
+      maxFileSize: config.maxFileSize || 1024 * 1024, // 1MB default
+      excludePatterns: config.excludePatterns || [
+        /node_modules/,
+        /\.git/,
+        /dist/,
+        /build/,
+        /coverage/
+      ],
+      fileExtensions: config.fileExtensions || ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'],
+      batchSize: config.batchSize || 10,
+      ...config
+    };
+
+    // Initialize analyzers
+    this.characterForensics = new CharacterForensics();
+    this.patternPrecognition = new PatternPrecognition();
+    this.batchProcessor = new BatchProcessor();
+
+    // Initialize vision state
+    this.vision = {
+      files: new Map(),
+      stats: {
+        filesScanned: 0,
+        totalCharacters: 0,
+        startTime: null,
+        endTime: null,
+        duration: null
+      },
+      prophecies: []
+    };
+
+    // Scan profiles
+    this.profiles = {
+      quick: {
+        name: 'Quick Scan',
+        maxDepth: 3,
+        skipTests: true,
+        analyzers: ['basic'],
+        timeout: 100
+      },
+      deep: {
+        name: 'Deep Analysis',
+        maxDepth: Infinity,
+        skipTests: false,
+        analyzers: ['all'],
+        timeout: 5000
+      },
+      quantum: {
+        name: 'Quantum Entanglement Analysis',
+        maxDepth: Infinity,
+        skipTests: false,
+        analyzers: ['all', 'experimental'],
+        timeout: 10000,
+        crossFileAnalysis: true
+      }
+    };
+  }
+
+  /**
+   * Main scan method - analyzes a directory tree
+   * @param {string} rootPath - Root directory to scan
+   * @param {string} mode - Scan mode: 'quick', 'deep', or 'quantum'
+   * @returns {Promise<Object>} Complete analysis report
+   */
+  async scan(rootPath, mode = 'deep') {
+    const profile = this.profiles[mode] || this.profiles.deep;
+    this.lastUsedMode = mode;
+    
+    // Reset vision for new scan
+    this.vision = {
+      files: new Map(),
+      stats: {
+        filesScanned: 0,
+        totalCharacters: 0,
+        startTime: Date.now(),
+        endTime: null,
+        duration: null
+      },
+      prophecies: []
+    };
+
+    // Discover all files
+    const files = await this.discoverFiles(rootPath, profile);
+    
+    // Process files in batches
+    await this.batchProcessor.process(
+      files,
+      async (filePath) => await this.scanFile(filePath, profile),
+      { batchSize: this.config.batchSize }
+    );
+
+    // Finalize stats
+    this.vision.stats.endTime = Date.now();
+    this.vision.stats.duration = this.vision.stats.endTime - this.vision.stats.startTime;
+
+    // Generate cross-file prophecies if in quantum mode
+    if (profile.crossFileAnalysis) {
+      await this.generateCrossFileProphecies();
+    }
+
+    // Return complete report
+    return this.generateReport();
+  }
+
+  /**
+   * Scan a single file with the given profile
+   * @param {string} filePath - Path to file
+   * @param {Object} profile - Scan profile settings
+   */
+  async scanFile(filePath, profile) {
+    try {
+      const content = await readFile(filePath, 'utf-8');
+      const fileStats = await stat(filePath);
+      
+      // Skip if file is too large
+      if (fileStats.size > this.config.maxFileSize) {
+        this.vision.files.set(filePath, {
+          path: filePath,
+          size: fileStats.size,
+          skipped: true,
+          reason: 'File too large'
+        });
+        return;
+      }
+
+      // Run character forensics
+      const characterAnalysis = await this.characterForensics.analyze(content, filePath);
+      
+      // Run pattern precognition
+      const patterns = await this.patternPrecognition.detect(content, filePath);
+
+      // Aggregate results (analyzers return arrays directly)
+      const fileResult = {
+        path: filePath,
+        size: fileStats.size,
+        lines: content.split('\n').length,
+        characters: content.length,
+        issues: [
+          ...(Array.isArray(characterAnalysis) ? characterAnalysis : []),
+          ...(Array.isArray(patterns) ? patterns : [])
+        ],
+        metrics: {
+          characterCount: content.length,
+          lineCount: content.split('\n').length,
+          issueCount: 0 // Will be updated below
+        },
+        timestamp: Date.now()
+      };
+      
+      // Update issue count
+      fileResult.metrics.issueCount = fileResult.issues.length;
+
+      // Store in vision
+      this.vision.files.set(filePath, fileResult);
+      this.vision.stats.filesScanned++;
+      this.vision.stats.totalCharacters += content.length;
+
+      // Generate file-level prophecies
+      const fileProphecies = this.generateFileProphecies(fileResult);
+      this.vision.prophecies.push(...fileProphecies);
+
+    } catch (error) {
+      // Store error result
+      this.vision.files.set(filePath, {
+        path: filePath,
+        error: true,
+        errorMessage: error.message,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Discover all files to scan
+   * @private
+   */
+  async discoverFiles(rootPath, profile, depth = 0) {
+    const files = [];
+    
+    if (depth > profile.maxDepth) {
+      return files;
+    }
+
+    try {
+      const entries = await readdir(rootPath, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        const fullPath = join(rootPath, entry.name);
+        
+        // Check exclusion patterns
+        if (this.shouldExclude(fullPath)) {
+          continue;
+        }
+
+        if (entry.isDirectory()) {
+          // Recurse into directory
+          const subFiles = await this.discoverFiles(fullPath, profile, depth + 1);
+          files.push(...subFiles);
+        } else if (entry.isFile()) {
+          // Check file extension
+          const ext = extname(entry.name);
+          if (this.config.fileExtensions.includes(ext)) {
+            // Skip test files if configured
+            if (profile.skipTests && this.isTestFile(fullPath)) {
+              continue;
+            }
+            files.push(fullPath);
+          }
+        }
+      }
+    } catch (error) {
+      // Silently skip inaccessible directories
+    }
+
+    return files;
+  }
+
+  /**
+   * Check if path should be excluded
+   * @private
+   */
+  shouldExclude(path) {
+    return this.config.excludePatterns.some(pattern => pattern.test(path));
+  }
+
+  /**
+   * Check if file is a test file
+   * @private
+   */
+  isTestFile(path) {
+    return /\.(test|spec)\.(js|jsx|ts|tsx|mjs|cjs)$/.test(path) ||
+           path.includes('__tests__') ||
+           path.includes('__mocks__');
+  }
+
+  /**
+   * Generate prophecies for a single file
+   * @private
+   */
+  generateFileProphecies(fileResult) {
+    const prophecies = [];
+    
+    // High issue density prophecy
+    if (fileResult.issues.length > 10) {
+      prophecies.push({
+        type: 'warning',
+        file: fileResult.path,
+        message: `High issue density detected: ${fileResult.issues.length} issues in ${fileResult.lines} lines`,
+        severity: 'DANGER',
+        category: 'quality'
+      });
+    }
+
+    // Character anomaly prophecy
+    const criticalIssues = fileResult.issues.filter(i => 
+      i.severity === 'APOCALYPSE' || i.severity === 'DANGER'
+    );
+    if (criticalIssues.length > 0) {
+      prophecies.push({
+        type: 'danger',
+        file: fileResult.path,
+        message: `Critical character anomalies detected: ${criticalIssues.length} critical issues`,
+        severity: 'APOCALYPSE',
+        category: 'security'
+      });
+    }
+
+    return prophecies;
+  }
+
+  /**
+   * Generate cross-file prophecies (quantum mode only)
+   * @private
+   */
+  async generateCrossFileProphecies() {
+    const allFiles = Array.from(this.vision.files.values());
+    
+    // Pattern clustering analysis
+    const patternClusters = new Map();
+    
+    for (const file of allFiles) {
+      if (file.issues) {
+        for (const issue of file.issues) {
+          const key = `${issue.type}:${issue.subType || 'default'}`;
+          if (!patternClusters.has(key)) {
+            patternClusters.set(key, []);
+          }
+          patternClusters.get(key).push({
+            file: file.path,
+            issue
+          });
+        }
+      }
+    }
+
+    // Generate prophecies for pattern clusters
+    for (const [pattern, occurrences] of patternClusters.entries()) {
+      if (occurrences.length > 5) {
+        this.vision.prophecies.push({
+          type: 'pattern',
+          message: `Pattern "${pattern}" detected across ${occurrences.length} files`,
+          severity: 'WARNING',
+          category: 'cross-file',
+          files: occurrences.map(o => o.file),
+          timestamp: Date.now()
+        });
+      }
+    }
+
+    // Codebase health prophecy
+    const totalIssues = allFiles.reduce((sum, f) => sum + (f.issues?.length || 0), 0);
+    const avgIssuesPerFile = totalIssues / this.vision.stats.filesScanned;
+    
+    if (avgIssuesPerFile > 5) {
+      this.vision.prophecies.push({
+        type: 'health',
+        message: `Codebase health warning: Average ${avgIssuesPerFile.toFixed(1)} issues per file`,
+        severity: 'DANGER',
+        category: 'overall',
+        metric: avgIssuesPerFile,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Generate final report
+   * @private
+   */
+  generateReport() {
+    // Convert files Map to object for serialization
+    const filesObject = {};
+    for (const [path, data] of this.vision.files.entries()) {
+      filesObject[path] = data;
+    }
+
+    // Calculate summary statistics
+    const summary = {
+      totalFiles: this.vision.stats.filesScanned,
+      totalCharacters: this.vision.stats.totalCharacters,
+      totalIssues: Array.from(this.vision.files.values())
+        .reduce((sum, f) => sum + (f.issues?.length || 0), 0),
+      criticalIssues: Array.from(this.vision.files.values())
+        .reduce((sum, f) => sum + (f.issues?.filter(i => 
+          i.severity === 'APOCALYPSE' || i.severity === 'DANGER'
+        ).length || 0), 0),
+      duration: this.vision.stats.duration,
+      propheciesGenerated: this.vision.prophecies.length
+    };
+
+    return {
+      metadata: {
+        scanDate: new Date(this.vision.stats.startTime).toISOString(),
+        duration: this.vision.stats.duration,
+        version: '1.0.0',
+        profile: this.profiles[this.lastUsedMode] || this.profiles.deep
+      },
+      summary,
+      files: filesObject,
+      prophecies: this.vision.prophecies,
+      stats: this.vision.stats
+    };
+  }
+}

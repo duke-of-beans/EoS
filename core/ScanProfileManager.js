@@ -1,0 +1,88 @@
+/**
+ * Purpose: Provides and manages scan profiles for Eye of Sauron
+ * Dependencies: Node.js std lib only
+ * API: ScanProfileManager(customProfiles).getProfile(mode)
+ * Features: Deep merge for custom profiles, case-insensitive mode matching
+ */
+
+export class ScanProfileManager {
+  constructor(customProfiles = {}) {
+    // Default scan profiles
+    this.defaultProfiles = {
+      quick: {
+        characterLevel: false,
+        patternAnalysis: true,
+        predictive: false,
+        quantumAnalysis: false,
+        timelinePrediction: false,
+        crossFileAnalysis: true
+      },
+      deep: {
+        characterLevel: true,
+        patternAnalysis: true,
+        predictive: true,
+        quantumAnalysis: false,
+        timelinePrediction: true,
+        crossFileAnalysis: true
+      },
+      quantum: {
+        characterLevel: true,
+        patternAnalysis: true,
+        predictive: true,
+        quantumAnalysis: true,
+        timelinePrediction: true,
+        crossFileAnalysis: true
+      }
+    };
+
+    // Deep merge custom profiles with defaults
+    this.profiles = this.deepMerge(this.defaultProfiles, this.normalizeProfileKeys(customProfiles));
+  }
+
+  /**
+   * Deep merge two objects (pure function)
+   * @private
+   */
+  deepMerge(target, source) {
+    const result = { ...target };
+    
+    for (const key in source) {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        result[key] = this.deepMerge(target[key] || {}, source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+    
+    return result;
+  }
+
+  /**
+   * Normalize profile keys to lowercase
+   * @private
+   */
+  normalizeProfileKeys(profiles) {
+    const normalized = {};
+    for (const key in profiles) {
+      normalized[key.toLowerCase()] = profiles[key];
+    }
+    return normalized;
+  }
+
+  /**
+   * Get scan profile by mode (case-insensitive)
+   * @param {string} mode - Profile mode (quick, deep, quantum, or custom)
+   * @returns {object} Profile configuration object
+   * @throws {Error} If profile mode not found
+   */
+  getProfile(mode) {
+    const normalizedMode = mode.toLowerCase();
+    
+    if (!this.profiles[normalizedMode]) {
+      throw new Error(`Scan profile "${mode}" not found. Available profiles: ${Object.keys(this.profiles).join(', ')}`);
+    }
+    
+    // Return a deep copy to maintain immutability
+    return this.deepMerge({}, this.profiles[normalizedMode]);
+  }
+}

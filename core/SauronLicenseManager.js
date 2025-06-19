@@ -1,0 +1,216 @@
+/**
+ * Purpose: Validates Sauron license keys and manages activation state
+ * Dependencies: Node.js std lib (http, https, url)
+ * API: 
+ *   - new SauronLicenseManager(config)
+ *     - config.licenseKey: string (optional)
+ *     - config.validationEndpoint: string (optional)
+ *     - config.acceptLocalOnRemoteFailure: boolean (optional, default: true)
+ *     - config.remoteTimeout: number ms (optional, default: 10000)
+ *   - async validate() → { valid: boolean, source: string, details?: string }
+ *   - isActivated() → boolean
+ */
+
+import { createHash } from 'crypto';
+import https from 'https';
+import http from 'http';
+import { URL } from 'url';
+
+export class SauronLicenseManager {
+  constructor(config = {}) {
+    this.licenseKey = config.licenseKey || '';
+    this.validationEndpoint = config.validationEndpoint || null;
+    this.acceptLocalOnRemoteFailure = config.acceptLocalOnRemoteFailure !== false; // Default: true
+    this.remoteTimeout = config.remoteTimeout || 10000; // Default: 10 seconds
+    this._activationStatus = false;
+    this._lastValidationResult = null;
+  }
+
+  /**
+   * Validates the license key using local format checks and optional remote validation
+   * @returns {Promise<{valid: boolean, source: string, details?: string}>}
+   */
+  async validate() {
+    // Reset activation status
+    this._activationStatus = false;
+
+    // Check if license key is provided
+    if (!this.licenseKey) {
+      this._lastValidationResult = {
+        valid: false,
+        source: 'local',
+        details: 'No license key provided'
+      };
+      return this._lastValidationResult;
+    }
+
+    // Local format validation
+    const localValidation = this._validateFormat(this.licenseKey);
+    if (!localValidation.valid) {
+      this._lastValidationResult = {
+        valid: false,
+        source: 'local',
+        details: localValidation.reason
+      };
+      return this._lastValidationResult;
+    }
+
+    // If no remote endpoint, return local validation success
+    if (!this.validationEndpoint) {
+      this._activationStatus = true;
+      this._lastValidationResult = {
+        valid: true,
+        source: 'local',
+        details: 'License format valid'
+      };
+      return this._lastValidationResult;
+    }
+
+    // Perform remote validation
+    try {
+      const remoteResult = await this._validateRemote(this.licenseKey);
+      this._activationStatus = remoteResult.valid;
+      this._lastValidationResult = {
+        valid: remoteResult.valid,
+        source: 'remote',
+        details: remoteResult.message || (remoteResult.valid ? 'License validated remotely' : 'Remote validation failed')
+      };
+      return this._lastValidationResult;
+    } catch (error) {
+      // Handle remote validation failure based on config
+      if (this.acceptLocalOnRemoteFailure) {
+        this._activationStatus = true; // Accept local validation
+        this._lastValidationResult = {
+          valid: true,
+          source: 'local',
+          details: `Remote validation failed (${error.message}), accepted local validation`
+        };
+      } else {
+        this._activationStatus = false;
+        this._lastValidationResult = {
+          valid: false,
+          source: 'remote',
+          details: `Remote validation failed: ${error.message}`
+        };
+      }
+      return this._lastValidationResult;
+    }
+  }
+
+  /**
+   * Returns the current activation status
+   * @returns {boolean}
+   */
+  isActivated() {
+    return this._activationStatus;
+  }
+
+  /**
+   * Validates license key format locally
+   * Expected format: XXXX-XXXX-XXXX-XXXX (16 chars + 3 hyphens = 19 total)
+   * Last 4 chars are a checksum
+   * NOTE: Using 4 chars of SHA-256 gives 65,536 possible checksums (collision risk ~1.5% at 1000 keys)
+   * @param {string} key
+   * @returns {{valid: boolean, reason?: string}}
+   * @private
+   */
+  _validateFormat(key) {
+    // Check basic format
+    if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(key)) {
+      return { valid: false, reason: 'Invalid license key format' };
+    }
+
+    // Extract key parts
+    const keyWithoutHyphens = key.replace(/-/g, '');
+    const mainPart = keyWithoutHyphens.substring(0, 12);
+    const checksum = keyWithoutHyphens.substring(12, 16);
+
+    // Calculate expected checksum
+    const hash = createHash('sha256').update(mainPart).digest('hex');
+    const expectedChecksum = hash.substring(0, 4).toUpperCase();
+
+    // Validate checksum
+    if (checksum !== expectedChecksum) {
+      return { valid: false, reason: 'Invalid license key checksum' };
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Validates license key with remote endpoint
+   * @param {string} key
+   * @returns {Promise<{valid: boolean, message?: string}>}
+   * @private
+   */
+  async _validateRemote(key) {
+    return new Promise((resolve, reject) => {
+      try {
+        const url = new URL(this.validationEndpoint);
+        const protocol = url.protocol === 'https:' ? https : http;
+
+        const postData = JSON.stringify({ licenseKey: key });
+        
+        const options = {
+          hostname: url.hostname,
+          port: url.port || (url.protocol === 'https:' ? 443 : 80),
+          path: url.pathname + url.search,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+          },
+          timeout: this.remoteTimeout
+        };
+
+        const req = protocol.request(options, (res) => {
+          let data = '';
+
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+
+          res.on('end', () => {
+            try {
+              const response = JSON.parse(data);
+              resolve({
+                valid: response.valid === true,
+                message: response.message || response.details
+              });
+            } catch (e) {
+              resolve({
+                valid: res.statusCode === 200,
+                message: `Status ${res.statusCode}`
+              });
+            }
+          });
+        });
+
+        req.on('error', (error) => {
+          reject(new Error(`Network error: ${error.message}`));
+        });
+
+        req.on('timeout', () => {
+          req.destroy();
+          reject(new Error('Request timeout'));
+        });
+
+        req.write(postData);
+        req.end();
+      } catch (error) {
+        reject(new Error(`Invalid endpoint: ${error.message}`));
+      }
+    });
+  }
+}
+
+// Example usage:
+// const manager = new SauronLicenseManager({
+//   licenseKey: 'ABCD-1234-WXYZ-8B5A',
+//   validationEndpoint: 'https://api.example.com/validate',
+//   acceptLocalOnRemoteFailure: true,  // Default: true
+//   remoteTimeout: 15000               // Default: 10000ms
+// });
+// const result = await manager.validate();
+// console.log(result); // { valid: true, source: 'remote', details: 'License validated remotely' }
+// console.log(manager.isActivated()); // true

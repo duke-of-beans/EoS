@@ -1,0 +1,155 @@
+/**
+ * Purpose: Manages scan history storage and retrieval for Eye of Sauron
+ * Dependencies: Node.js std lib (fs/promises, path)
+ * API: ScanHistoryManager(path).saveSummary(), listSummaries(), getSummary()
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+
+export class ScanHistoryManager {
+    constructor(historyPath) {
+        if (!historyPath) {
+            throw new Error('ScanHistoryManager: historyPath is required');
+        }
+        this.historyPath = historyPath;
+    }
+
+    /**
+     * Saves a scan summary to the history directory
+     * @param {object} summary - Summary object with required 'id' field
+     * @returns {Promise<void>}
+     */
+    async saveSummary(summary) {
+        if (!summary || typeof summary !== 'object') {
+            throw new Error('saveSummary: summary must be an object');
+        }
+        
+        if (!summary.id) {
+            throw new Error('saveSummary: summary must have an id field');
+        }
+
+        // Ensure history directory exists
+        await this._ensureDirectory();
+
+        // Create filename from ID
+        const filename = `${summary.id}.json`;
+        const filepath = path.join(this.historyPath, filename);
+
+        // Add metadata if not present
+        const enrichedSummary = {
+            ...summary,
+            savedAt: summary.savedAt || new Date().toISOString(),
+            version: summary.version || '1.0'
+        };
+
+        // Write file with safe atomic operation
+        const tempPath = `${filepath}.tmp`;
+        try {
+            await fs.writeFile(tempPath, JSON.stringify(enrichedSummary, null, 2), 'utf8');
+            await fs.rename(tempPath, filepath);
+        } catch (error) {
+            // Clean up temp file on error
+            try {
+                await fs.unlink(tempPath);
+            } catch (unlinkError) {
+                // Ignore unlink errors
+            }
+            throw new Error(`saveSummary: failed to save ${summary.id} at ${filepath} - ${error.message}`);
+        }
+    }
+
+    /**
+     * Lists all saved summaries with basic metadata
+     * @returns {Promise<Array>} Array of summary metadata objects
+     */
+    async listSummaries() {
+        // Ensure history directory exists
+        await this._ensureDirectory();
+
+        try {
+            const files = await fs.readdir(this.historyPath);
+            const jsonFiles = files.filter(f => f.endsWith('.json'));
+
+            const summaries = [];
+            
+            for (const file of jsonFiles) {
+                const filepath = path.join(this.historyPath, file);
+                try {
+                    // Read file first to avoid race condition
+                    const data = await fs.readFile(filepath, 'utf8');
+                    const summary = JSON.parse(data);
+                    const stats = await fs.stat(filepath);
+                    
+                    // Extract basic metadata
+                    summaries.push({
+                        id: summary.id,
+                        savedAt: summary.savedAt || stats.mtime.toISOString(),
+                        fileSize: stats.size,
+                        version: summary.version || '1.0',
+                        // Include key metadata if available
+                        totalIssues: summary.totalIssues || 0,
+                        scanDate: summary.scanDate || null,
+                        projectPath: summary.projectPath || null
+                    });
+                } catch (error) {
+                    // Skip files that can't be read or parsed
+                    console.error(`listSummaries: skipping ${filepath} - ${error.message}`);
+                }
+            }
+
+            // Sort by savedAt date, newest first
+            summaries.sort((a, b) => {
+                const dateA = new Date(a.savedAt);
+                const dateB = new Date(b.savedAt);
+                return dateB - dateA;
+            });
+
+            return summaries;
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                return [];
+            }
+            throw new Error(`listSummaries: failed to list summaries - ${error.message}`);
+        }
+    }
+
+    /**
+     * Retrieves a specific summary by ID
+     * @param {string} id - Summary ID to retrieve
+     * @returns {Promise<object|null>} Summary object or null if not found
+     */
+    async getSummary(id) {
+        if (!id || typeof id !== 'string') {
+            throw new Error('getSummary: id must be a non-empty string');
+        }
+
+        const filename = `${id}.json`;
+        const filepath = path.join(this.historyPath, filename);
+
+        try {
+            const data = await fs.readFile(filepath, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                return null;
+            }
+            if (error instanceof SyntaxError) {
+                throw new Error(`getSummary: corrupted summary file at ${filepath} for ID ${id}`);
+            }
+            throw new Error(`getSummary: failed to retrieve ${id} from ${filepath} - ${error.message}`);
+        }
+    }
+
+    /**
+     * Ensures the history directory exists
+     * @private
+     */
+    async _ensureDirectory() {
+        try {
+            await fs.mkdir(this.historyPath, { recursive: true });
+        } catch (error) {
+            throw new Error(`_ensureDirectory: failed to create history directory - ${error.message}`);
+        }
+    }
+}

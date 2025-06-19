@@ -1,0 +1,572 @@
+{
+  "timestamp": "2025-06-19T06:28:13.357Z",
+  "root": "C:\\Users\\DKdKe\\OneDrive\\Desktop\\T-App\\eye-of-sauron",
+  "stats": {
+    "totalDirs": 10,
+    "totalFiles": 76,
+    "filesByExtension": {
+      ".js": 73,
+      ".sh": 1,
+      ".json": 1,
+      ".cjs": 1
+    },
+    "largestFiles": [],
+    "deepestPath": {
+      "path": "analyzers",
+      "depth": 1
+    }
+  },
+  "structure": {
+    "name": ".",
+    "path": ".",
+    "type": "directory",
+    "children": [
+      {
+        "name": "analyzers",
+        "path": "analyzers",
+        "type": "directory",
+        "children": [],
+        "fileCount": 0,
+        "dirCount": 0
+      },
+      {
+        "name": "cli",
+        "path": "cli",
+        "type": "directory",
+        "children": [
+          {
+            "name": "EyeOfSauronCLI.js",
+            "path": "cli\\EyeOfSauronCLI.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportArchiverCLI.js",
+            "path": "cli\\SauronReportArchiverCLI.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 2,
+        "dirCount": 0
+      },
+      {
+        "name": "config",
+        "path": "config",
+        "type": "directory",
+        "children": [
+          {
+            "name": "Config.js",
+            "path": "config\\Config.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 1,
+        "dirCount": 0
+      },
+      {
+        "name": "core",
+        "path": "core",
+        "type": "directory",
+        "children": [
+          {
+            "name": "CharacterForensics.js",
+            "path": "core\\CharacterForensics.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "ComponentMarketplace.js",
+            "path": "core\\ComponentMarketplace.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "DependencyImpactAnalyzer.js",
+            "path": "core\\DependencyImpactAnalyzer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "EyeOfSauronOmniscient.js",
+            "path": "core\\EyeOfSauronOmniscient.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "FixImpactAnalyzer.js",
+            "path": "core\\FixImpactAnalyzer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "KaizenSettingsPanel.js",
+            "path": "core\\KaizenSettingsPanel.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "KaizenSnapshot.js",
+            "path": "core\\KaizenSnapshot.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "OneClickHealing.js",
+            "path": "core\\OneClickHealing.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "PatternLearningEngine.js",
+            "path": "core\\PatternLearningEngine.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "PatternPrecognition.js",
+            "path": "core\\PatternPrecognition.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronConfigLoader.js",
+            "path": "core\\SauronConfigLoader.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronLicenseManager.js",
+            "path": "core\\SauronLicenseManager.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronModuleRegistry.js",
+            "path": "core\\SauronModuleRegistry.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronPluginManager.js",
+            "path": "core\\SauronPluginManager.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "ScanPolicyManager.js",
+            "path": "core\\ScanPolicyManager.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "ScanProfileManager.js",
+            "path": "core\\ScanProfileManager.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "TribunalSentinel.js",
+            "path": "core\\TribunalSentinel.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 17,
+        "dirCount": 0
+      },
+      {
+        "name": "docs",
+        "path": "docs",
+        "type": "directory",
+        "children": [],
+        "fileCount": 0,
+        "dirCount": 0
+      },
+      {
+        "name": "performance",
+        "path": "performance",
+        "type": "directory",
+        "children": [
+          {
+            "name": "BatchProcessor.js",
+            "path": "performance\\BatchProcessor.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 1,
+        "dirCount": 0
+      },
+      {
+        "name": "reporters",
+        "path": "reporters",
+        "type": "directory",
+        "children": [
+          {
+            "name": "HTMLReportFormatter.js",
+            "path": "reporters\\HTMLReportFormatter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "OmniReporterFormatter.js",
+            "path": "reporters\\OmniReporterFormatter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "PolicyViolationReporter.js",
+            "path": "reporters\\PolicyViolationReporter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronInsightReporter.js",
+            "path": "reporters\\SauronInsightReporter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportViewer.js",
+            "path": "reporters\\SauronReportViewer.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 5,
+        "dirCount": 0
+      },
+      {
+        "name": "server",
+        "path": "server",
+        "type": "directory",
+        "children": [
+          {
+            "name": "SauronAPI.js",
+            "path": "server\\SauronAPI.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScheduler.js",
+            "path": "server\\SauronScheduler.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 2,
+        "dirCount": 0
+      },
+      {
+        "name": "testing",
+        "path": "testing",
+        "type": "directory",
+        "children": [
+          {
+            "name": "SauronScanSimulator.js",
+            "path": "testing\\SauronScanSimulator.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronTestHarness.js",
+            "path": "testing\\SauronTestHarness.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 2,
+        "dirCount": 0
+      },
+      {
+        "name": "utils",
+        "path": "utils",
+        "type": "directory",
+        "children": [
+          {
+            "name": "AuditTrailManager.js",
+            "path": "utils\\AuditTrailManager.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "CodeEvolutionTracker.js",
+            "path": "utils\\CodeEvolutionTracker.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "ErrorLogger.js",
+            "path": "utils\\ErrorLogger.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "FileDiscovery.js",
+            "path": "utils\\FileDiscovery.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "GitHookInstaller.js",
+            "path": "utils\\GitHookInstaller.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "IncrementalScanCache.js",
+            "path": "utils\\IncrementalScanCache.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "MetricsExporter.js",
+            "path": "utils\\MetricsExporter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronAlertNotifier.js",
+            "path": "utils\\SauronAlertNotifier.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronAutoTuner.js",
+            "path": "utils\\SauronAutoTuner.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronComplianceChecker.js",
+            "path": "utils\\SauronComplianceChecker.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronCveFetcher.js",
+            "path": "utils\\SauronCveFetcher.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronDataSanitizer.js",
+            "path": "utils\\SauronDataSanitizer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronDependencyAuditor.js",
+            "path": "utils\\SauronDependencyAuditor.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronDependencyGraph.js",
+            "path": "utils\\SauronDependencyGraph.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronDependencyVisualizer.js",
+            "path": "utils\\SauronDependencyVisualizer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronErrorAggregator.js",
+            "path": "utils\\SauronErrorAggregator.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronExecutionTracer.js",
+            "path": "utils\\SauronExecutionTracer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronHealthDashboard.js",
+            "path": "utils\\SauronHealthDashboard.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronIntegrityChecker.js",
+            "path": "utils\\SauronIntegrityChecker.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronPerformanceProfiler.js",
+            "path": "utils\\SauronPerformanceProfiler.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportAnalyzer.js",
+            "path": "utils\\SauronReportAnalyzer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportArchiver.js",
+            "path": "utils\\SauronReportArchiver.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportCompressor.js",
+            "path": "utils\\SauronReportCompressor.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportExporter.js",
+            "path": "utils\\SauronReportExporter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportIndexer.js",
+            "path": "utils\\SauronReportIndexer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportNormalizer.js",
+            "path": "utils\\SauronReportNormalizer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportPruner.js",
+            "path": "utils\\SauronReportPruner.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronReportSplitter.js",
+            "path": "utils\\SauronReportSplitter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScanExporter.js",
+            "path": "utils\\SauronScanExporter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScanMerger.js",
+            "path": "utils\\SauronScanMerger.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScanOptimizer.js",
+            "path": "utils\\SauronScanOptimizer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScanProfiler.js",
+            "path": "utils\\SauronScanProfiler.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScanScheduler.js",
+            "path": "utils\\SauronScanScheduler.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScanSessionManager.js",
+            "path": "utils\\SauronScanSessionManager.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronScanVisualizer.js",
+            "path": "utils\\SauronScanVisualizer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "SauronTelemetryReporter.js",
+            "path": "utils\\SauronTelemetryReporter.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "ScanHistoryManager.js",
+            "path": "utils\\ScanHistoryManager.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "ScanReportAssembler.js",
+            "path": "utils\\ScanReportAssembler.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "ScanTemplateEngine.js",
+            "path": "utils\\ScanTemplateEngine.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "TechnicalDebtCalculator.js",
+            "path": "utils\\TechnicalDebtCalculator.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "TimeEffortOptimizer.js",
+            "path": "utils\\TimeEffortOptimizer.js",
+            "type": "file",
+            "extension": ".js"
+          },
+          {
+            "name": "WebhookNotifier.js",
+            "path": "utils\\WebhookNotifier.js",
+            "type": "file",
+            "extension": ".js"
+          }
+        ],
+        "fileCount": 42,
+        "dirCount": 0
+      },
+      {
+        "name": "cli-usage-example.sh",
+        "path": "cli-usage-example.sh",
+        "type": "file",
+        "extension": ".sh"
+      },
+      {
+        "name": "error-logger-example.js",
+        "path": "error-logger-example.js",
+        "type": "file",
+        "extension": ".js"
+      },
+      {
+        "name": "package.json",
+        "path": "package.json",
+        "type": "file",
+        "extension": ".json"
+      },
+      {
+        "name": "structure-mapper.cjs",
+        "path": "structure-mapper.cjs",
+        "type": "file",
+        "extension": ".cjs"
+      }
+    ],
+    "fileCount": 4,
+    "dirCount": 10
+  }
+}

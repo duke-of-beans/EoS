@@ -1,0 +1,49 @@
+name: Eye of Sauron CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate-scan-archive:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Validate config + policy
+        run: npm run validate
+
+      - name: Full scan
+        run: npm run scan:json
+
+      - name: Archive reports
+        run: npm run archive
+
+      - name: Run test harness
+        run: npm run test
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: eye-of-sauron-artifacts
+          path: |
+            ./eye-of-sauron-report.json
+            ./eye-of-sauron-report.html
+            ./scan-artifacts.zip
+            ./telemetry-log.json

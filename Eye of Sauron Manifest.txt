@@ -1,0 +1,52 @@
+# Eye of Sauron Manifest
+
+👁️ **The all-seeing static analysis engine for code integrity, security, and quality.**
+
+---
+
+## Purpose
+
+Eye of Sauron is a modular, distributed-config code scanning tool designed for:
+- Multi-layered static analysis (character forensics, pattern detection)
+- Cross-file and cross-project health reporting
+- Automated telemetry, archiving, and CI validation
+- API + CLI + scheduler-driven operations
+
+---
+
+## Design Principles
+
+- **Distributed Configuration:** Each module (CLI, API, scanner, policy manager) maintains its own configuration context.
+- **Resilience:** No single point of failure for configuration or policy loading.
+- **Extensibility:** Plugins, policies, analyzers can be added without refactoring core engine.
+- **Consistency:** Shared defaults ensure baseline alignment across modules.
+- **Automation-Ready:** Fully compatible with CI/CD and API-driven workflows.
+
+---
+
+## Core Components
+
+- `EyeOfSauronOmniscient` — master scanner orchestrator
+- `ScanPolicyManager` — enforces scan policies at runtime
+- `Config` / `SauronConfigLoader` — handles distributed config loading and merging
+- `SauronAPI` — provides REST/GraphQL interface
+- `SauronScheduler` — enables automated, recurring scans
+- `CLI` — user-facing scan runner
+
+---
+
+## Success Metrics
+
+- 100% config validation coverage
+- Zero scan crashes from config/policy errors
+- Consistent report format across CLI, API, CI
+- Resilience to missing config files (graceful fallback)
+- <5% config drift between modules (measurable via test harness)
+
+---
+
+## Operational Modes
+
+- **Quick Scan:** Fast, shallow, minimal analyzers
+- **Deep Scan:** Thorough analysis, all standard analyzers
+- **Quantum Scan:** Experimental, cross-file, extended-timeout
