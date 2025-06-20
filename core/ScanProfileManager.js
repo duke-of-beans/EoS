@@ -45,7 +45,7 @@ export class ScanProfileManager {
    */
   deepMerge(target, source) {
     const result = { ...target };
-    
+
     for (const key in source) {
       if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
         result[key] = this.deepMerge(target[key] || {}, source[key]);
@@ -53,7 +53,7 @@ export class ScanProfileManager {
         result[key] = source[key];
       }
     }
-    
+
     return result;
   }
 
@@ -77,11 +77,11 @@ export class ScanProfileManager {
    */
   getProfile(mode) {
     const normalizedMode = mode.toLowerCase();
-    
+
     if (!this.profiles[normalizedMode]) {
       throw new Error(`Scan profile "${mode}" not found. Available profiles: ${Object.keys(this.profiles).join(', ')}`);
     }
-    
+
     // Return a deep copy to maintain immutability
     return this.deepMerge({}, this.profiles[normalizedMode]);
   }

@@ -11,7 +11,7 @@ class SauronScanSimulator {
       fileCount: config.fileCount || 10,
       seed: config.seed || null
     };
-    
+
     // Initialize random number generator
     this.rng = this.config.seed ? this._createSeededRNG(this.config.seed) : Math.random;
   }
@@ -25,7 +25,7 @@ class SauronScanSimulator {
     const files = this._generateFileList();
     const scanResults = this._generateScanResults(files);
     const endTime = Date.now();
-    
+
     return {
       metadata: {
         scanId: this._generateId(),
@@ -57,14 +57,14 @@ class SauronScanSimulator {
     const files = [];
     const extensions = ['.js', '.jsx', '.ts', '.tsx', '.vue', '.svelte'];
     const directories = ['src/', 'lib/', 'components/', 'utils/', 'services/', 'hooks/'];
-    
+
     for (let i = 0; i < this.config.fileCount; i++) {
       const dir = this._randomChoice(directories);
       const name = this._generateFileName();
       const ext = this._randomChoice(extensions);
       files.push(`${dir}${name}${ext}`);
     }
-    
+
     return files;
   }
 
@@ -75,7 +75,7 @@ class SauronScanSimulator {
       issuesBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
       issuesByType: {}
     };
-    
+
     files.forEach(filePath => {
       const fileIssues = this._generateFileIssues(filePath);
       results.files[filePath] = {
@@ -83,7 +83,7 @@ class SauronScanSimulator {
         issues: fileIssues,
         metrics: this._generateFileMetrics()
       };
-      
+
       // Update aggregates
       fileIssues.forEach(issue => {
         results.totalIssues++;
@@ -91,7 +91,7 @@ class SauronScanSimulator {
         results.issuesByType[issue.type] = (results.issuesByType[issue.type] || 0) + 1;
       });
     });
-    
+
     return results;
   }
 
@@ -99,12 +99,12 @@ class SauronScanSimulator {
     const issues = [];
     const issueCount = this._getIssueCount();
     const issueTypes = Object.keys(this.config.issueDistribution);
-    
+
     for (let i = 0; i < issueCount; i++) {
       const type = this._weightedRandomChoice(issueTypes, this.config.issueDistribution);
       issues.push(this._createIssue(type, filePath));
     }
-    
+
     return issues.sort((a, b) => a.line - b.line);
   }
 
@@ -161,12 +161,12 @@ class SauronScanSimulator {
         ]
       }
     };
-    
+
     const template = issueTemplates[type] || {
       severities: ['low', 'medium'],
       messages: ['Generic issue detected']
     };
-    
+
     return {
       id: this._generateId(),
       type,
@@ -235,10 +235,10 @@ class SauronScanSimulator {
     const baseMemory = 50 * 1024 * 1024; // 50MB base
     const perFileMemory = 2 * 1024 * 1024; // 2MB per file
     const variability = this.rng() * 50 * 1024 * 1024; // 0-50MB random variance
-    
+
     const heapUsed = baseMemory + (this.config.fileCount * perFileMemory) + variability;
     const heapTotal = Math.max(256 * 1024 * 1024, heapUsed * 1.5); // At least 256MB, or 1.5x used
-    
+
     return {
       heapUsed: Math.floor(heapUsed),
       heapTotal: Math.floor(heapTotal),
@@ -253,7 +253,7 @@ class SauronScanSimulator {
     const perFileUser = 20;
     const baseSystem = 20;
     const perFileSystem = 5;
-    
+
     return {
       user: Math.floor(baseUser + (this.config.fileCount * perFileUser) + (this.rng() * 200)),
       system: Math.floor(baseSystem + (this.config.fileCount * perFileSystem) + (this.rng() * 50)),
@@ -279,12 +279,12 @@ class SauronScanSimulator {
   _weightedRandomChoice(choices, weights) {
     const total = Object.values(weights).reduce((sum, w) => sum + w, 0);
     let random = this.rng() * total;
-    
+
     for (const choice of choices) {
       random -= weights[choice];
       if (random <= 0) return choice;
     }
-    
+
     return choices[choices.length - 1];
   }
 

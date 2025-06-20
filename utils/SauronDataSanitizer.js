@@ -1,12 +1,12 @@
 /**
  * SauronDataSanitizer.js
- * 
+ *
  * Purpose: Validates and sanitizes Eye of Sauron scan report data before export,
  *          storage, or external transmission. Ensures reports are safe, well-formed,
  *          and free of sensitive or unsafe data.
- * 
+ *
  * Dependencies: Node.js standard library (path)
- * 
+ *
  * Public API:
  *   - new SauronDataSanitizer(config) - Create sanitizer with configuration
  *   - sanitize(report) - Clean and validate report data, returns sanitized copy
@@ -25,7 +25,7 @@ export class SauronDataSanitizer {
       redactedValue: config.redactedValue || '[REDACTED]',
       sensitivityThreshold: config.sensitivityThreshold || 0.5 // 0-1 score threshold
     };
-    
+
     this.changes = [];
     this.seen = new WeakSet(); // for circular reference detection
     this.circularRefs = []; // track all circular references found
@@ -105,7 +105,7 @@ export class SauronDataSanitizer {
         if (this.changes.length > 10) {
           console.log(`  ... and ${this.changes.length - 10} more changes`);
         }
-        
+
         // Report circular references if found
         if (this.circularRefs.length > 0) {
           console.log(`[SauronDataSanitizer] Found ${this.circularRefs.length} circular references:`);
@@ -138,11 +138,11 @@ export class SauronDataSanitizer {
     }
 
     const type = typeof value;
-    
+
     if (type === 'string') {
       return this._sanitizeString(value, path);
     }
-    
+
     if (type !== 'object') {
       return value; // numbers, booleans, etc. pass through
     }
@@ -157,19 +157,19 @@ export class SauronDataSanitizer {
 
     // Handle arrays
     if (Array.isArray(value)) {
-      return value.map((item, index) => 
+      return value.map((item, index) =>
         this._sanitizeValue(item, `${path}[${index}]`, depth + 1)
       );
     }
 
     // Handle objects
     const sanitized = {};
-    
+
     for (const key in value) {
       if (!value.hasOwnProperty(key)) continue;
 
       const keyPath = `${path}.${key}`;
-      
+
       // Check if key contains sensitive pattern
       if (this.config.stripSensitive && this._isSensitiveKey(key)) {
         this._recordChange(`${keyPath}: redacted sensitive field`);
@@ -270,7 +270,7 @@ export class SauronDataSanitizer {
     if (value.length > 20 && /^[A-Za-z0-9+/=_-]+$/.test(value)) {
       return true;
     }
-    
+
     // JWT pattern
     if (/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)) {
       return true;
@@ -287,7 +287,7 @@ export class SauronDataSanitizer {
   /**
    * Normalize file paths for cross-platform compatibility
    * @private
-   * 
+   *
    * Note: Handles common path formats across platforms. Exotic or encoded
    * paths (e.g. URL-encoded network shares, non-standard encodings) may
    * not be fully normalized but will be returned as-is without error.
@@ -299,7 +299,7 @@ export class SauronDataSanitizer {
 
     try {
       let normalized = filePath;
-      
+
       // Decode URL-encoded paths if present
       if (normalized.includes('%')) {
         try {
@@ -308,51 +308,51 @@ export class SauronDataSanitizer {
           // Keep original if decode fails
         }
       }
-      
+
       // Handle various path formats
       // Windows absolute paths (C:\, D:\, etc.)
       normalized = normalized.replace(/^[A-Z]:[\\\/]+/i, '');
-      
+
       // Windows network shares with forward slashes
       normalized = normalized.replace(/^\/\/[^\/]+\/[^\/]+\//, '');
-      
+
       // UNC paths (\\server\share or //server/share)
       normalized = normalized.replace(/^[\\\/]{2,}[^\\\/]+[\\\/]+[^\\\/]+[\\\/]*/, '');
-      
+
       // Unix absolute paths
       normalized = normalized.replace(/^\/+/, '');
-      
+
       // Cygwin/MSYS paths (/c/Users/...)
       normalized = normalized.replace(/^\/[a-z]\//i, '');
-      
+
       // WSL paths (/mnt/c/...)
       normalized = normalized.replace(/^\/mnt\/[a-z]\//i, '');
-      
+
       // Git Bash paths (/c/Users or /d/Projects)
       normalized = normalized.replace(/^\/[a-z]\//i, '');
-      
+
       // Docker volume paths (/var/lib/docker/volumes/...)
       normalized = normalized.replace(/^\/var\/lib\/docker\/volumes\/[^\/]+\//, '');
-      
+
       // Escaped spaces and special chars
       normalized = normalized.replace(/\\ /g, ' ');
       normalized = normalized.replace(/\\\(/g, '(');
       normalized = normalized.replace(/\\\)/g, ')');
-      
+
       // Convert all separators to forward slashes
       normalized = normalized.replace(/[\\\/]+/g, '/');
-      
+
       // Remove duplicate slashes
       normalized = normalized.replace(/\/+/g, '/');
-      
+
       // Remove trailing slashes (unless it's just "/")
       if (normalized.length > 1 && normalized.endsWith('/')) {
         normalized = normalized.slice(0, -1);
       }
-      
+
       // Handle relative path prefixes
       normalized = normalized.replace(/^\.\//, '');
-      
+
       // Handle parent directory references at start
       while (normalized.startsWith('../')) {
         normalized = normalized.substring(3);
@@ -381,7 +381,7 @@ export class SauronDataSanitizer {
     }
 
     const sanitized = {};
-    
+
     for (const key in env) {
       if (!env.hasOwnProperty(key)) continue;
 

@@ -1,0 +1,212 @@
+/**
+ * Purpose: Verifies integrity + success of full secure pipeline artifacts
+ * Dependencies: Node.js std lib + Sauron components
+ * API: SauronSecurePipelineValidator().validate(pipelineOutput)
+ */
+
+import crypto from 'crypto';
+import zlib from 'zlib';
+import { promisify } from 'util';
+
+const gunzip = promisify(zlib.gunzip);
+
+class SauronSecurePipelineValidator {
+  constructor(config = {}) {
+    this.signAlgorithm = config.signAlgorithm || 'sha256';
+    this.encryptionAlgorithm = config.encryptionAlgorithm || 'aes-256-gcm';
+    this.key = config.key;
+
+    if (!this.key || !Buffer.isBuffer(this.key)) {
+      throw new Error('SauronSecurePipelineValidator requires a Buffer key');
+    }
+
+    // Maximum size for verification (50MB)
+    this.maxArchiveSize = 50 * 1024 * 1024;
+  }
+
+  /**
+   * Validates the complete pipeline output
+   * @param {object} pipelineOutput - Output from secure pipeline
+   * @returns {Promise<object>} Validation result
+   */
+  async validate(pipelineOutput) {
+    const startTime = Date.now();
+    const metadata = {
+      verifiedAt: new Date().toISOString(),
+      algorithms: {
+        signature: this.signAlgorithm,
+        encryption: this.encryptionAlgorithm
+      }
+    };
+
+    try {
+      // Defensive: validate input structure
+      if (!pipelineOutput || typeof pipelineOutput !== 'object') {
+        return {
+          success: false,
+          signatureMatch: false,
+          integrity: false,
+          reason: 'Invalid pipeline output structure',
+          metadata
+        };
+      }
+
+      const {
+        encryptedArchive,
+        signature,
+        iv,
+        authTag,
+        originalSignature,
+        uploadResult
+      } = pipelineOutput;
+
+      // Check required fields
+      if (!encryptedArchive || !signature || !iv || !authTag) {
+        return {
+          success: false,
+          signatureMatch: false,
+          integrity: false,
+          reason: 'Missing required pipeline output fields',
+          metadata
+        };
+      }
+
+      // Validate upload result if present
+      if (uploadResult && !uploadResult.success) {
+        return {
+          success: false,
+          signatureMatch: false,
+          integrity: false,
+          reason: `Upload failed: ${uploadResult.error || 'Unknown error'}`,
+          metadata
+        };
+      }
+
+      // Check archive size
+      const archiveSize = encryptedArchive.length;
+      if (archiveSize > this.maxArchiveSize) {
+        return {
+          success: false,
+          signatureMatch: false,
+          integrity: false,
+          reason: `Archive size ${archiveSize} exceeds maximum ${this.maxArchiveSize}`,
+          metadata
+        };
+      }
+
+      // Verify signature of encrypted archive
+      const encryptedSignature = this._computeSignature(encryptedArchive);
+      const signatureMatch = signature === encryptedSignature;
+
+      if (!signatureMatch) {
+        return {
+          success: false,
+          signatureMatch: false,
+          integrity: false,
+          reason: 'Encrypted archive signature mismatch',
+          metadata
+        };
+      }
+
+      // Attempt decryption
+      let decryptedData;
+      try {
+        decryptedData = await this._decrypt(encryptedArchive, iv, authTag);
+      } catch (error) {
+        return {
+          success: false,
+          signatureMatch: true,
+          integrity: false,
+          reason: `Decryption failed: ${error.message}`,
+          metadata
+        };
+      }
+
+      // Attempt decompression
+      let originalData;
+      try {
+        originalData = await this._decompress(decryptedData);
+      } catch (error) {
+        return {
+          success: false,
+          signatureMatch: true,
+          integrity: false,
+          reason: `Decompression failed: ${error.message}`,
+          metadata
+        };
+      }
+
+      // Re-sign original data and compare
+      const recomputedSignature = this._computeSignature(originalData);
+      const originalMatch = originalSignature ?
+        recomputedSignature === originalSignature : true;
+
+      // Log verification details
+      const duration = Date.now() - startTime;
+
+
+      metadata.duration = duration;
+      metadata.archiveSize = archiveSize;
+      metadata.decompressedSize = originalData.length;
+
+      return {
+        success: true,
+        signatureMatch,
+        integrity: signatureMatch && originalMatch,
+        metadata
+      };
+
+    } catch (error) {
+      console.error('[SauronSecurePipelineValidator] Validation error:', error);
+      return {
+        success: false,
+        signatureMatch: false,
+        integrity: false,
+        reason: `Validation error: ${error.message}`,
+        metadata
+      };
+    }
+  }
+
+  /**
+   * Computes signature of data
+   * @private
+   */
+  _computeSignature(data) {
+    return crypto
+      .createHash(this.signAlgorithm)
+      .update(data)
+      .digest('hex');
+  }
+
+  /**
+   * Decrypts data using AES-GCM
+   * @private
+   */
+  async _decrypt(encryptedData, iv, authTag) {
+    const decipher = crypto.createDecipheriv(
+      this.encryptionAlgorithm,
+      this.key,
+      Buffer.from(iv, 'hex')
+    );
+
+    decipher.setAuthTag(Buffer.from(authTag, 'hex'));
+
+    const decrypted = Buffer.concat([
+      decipher.update(encryptedData),
+      decipher.final()
+    ]);
+
+    return decrypted;
+  }
+
+  /**
+   * Decompresses gzipped data
+   * @private
+   */
+  async _decompress(compressedData) {
+    return await gunzip(compressedData);
+  }
+}
+
+export default SauronSecurePipelineValidator;

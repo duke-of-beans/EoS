@@ -1,0 +1,24 @@
+// entrypoint.js
+const args = process.argv.slice(2);  // Get the words you typed after 'docker run'
+
+if (args[0] === 'api') {
+  console.log('🚀 Starting Eye of Sauron API server...');
+  import('./server.js');
+} else if (args[0] === 'cli') {
+  console.log('🚀 Running Eye of Sauron CLI...');
+  import('./sauron-cli.js');
+} else {
+  console.log(`
+👁️ Eye of Sauron Docker Scanner
+
+USAGE:
+  docker run eye-of-sauron api        # Run API server
+  docker run eye-of-sauron cli [args] # Run CLI tool
+
+EXAMPLES:
+  docker run -p 3000:3000 eye-of-sauron api
+  docker run -v \${PWD}:/app eye-of-sauron cli --input /app/src --output /app/report.json
+`);
+  process.exit(1);  // Stop if you didn't give a proper command
+}
+

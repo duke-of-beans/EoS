@@ -1,0 +1,184 @@
+#!/usr/bin/env node
+
+/**
+ * Install Corrected Working CLI
+ * Uses the exact working pattern with corrected import path
+ */
+
+import fs from 'fs/promises';
+import path from 'path';
+
+const CORRECTED_CLI = `#!/usr/bin/env node
+
+/**
+ * Eye of Sauron Scanner CLI - Working Version
+ * Uses the exact same pattern as working-pattern-cli.js but with correct import path
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+
+async function run() {
+  try {
+    console.log('🔍 Eye of Sauron Scanner CLI');
+    
+    // Import with the path Node.js suggested: ../core/EyeOfSauronOmniscient.js
+    console.log('📦 Importing scanner...');
+    const { createEye } = await import('../core/EyeOfSauronOmniscient.js');
+    console.log('✅ Scanner imported');
+    
+    // Parse arguments
+    const args = process.argv.slice(2);
+    const scanPath = args.find(arg => !arg.startsWith('--')) || '.';
+    const outputFile = args.includes('--output') ? args[args.indexOf('--output') + 1] : null;
+    const showHelp = args.includes('--help') || args.includes('-h');
+    
+    if (showHelp) {
+      console.log(\`
+🔍 Eye of Sauron Scanner CLI
+
+Usage: node cli/simple-cli.js [path] [options]
+
+Options:
+  [path]              Path to scan (default: current directory)
+  --output <file>     Save results to JSON file
+  --help, -h         Show this help
+
+Examples:
+  node cli/simple-cli.js
+  node cli/simple-cli.js ./src
+  node cli/simple-cli.js . --output results.json
+\`);
+      return;
+    }
+    
+    console.log(\`📁 Scanning: \${scanPath}\`);
+    
+    // Create scanner (same as working pattern)
+    console.log('🔧 Initializing scanner...');
+    const scanner = createEye();
+    console.log('✅ Scanner ready');
+    
+    // Run scan
+    console.log('⏳ Scanning (debug messages are normal)...');
+    console.log('');
+    
+    const startTime = Date.now();
+    const results = await scanner.scan(scanPath, 'deep');
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    
+    // Show results
+    console.log('\\n📊 Scan Results:');
+    console.log('═'.repeat(50));
+    
+    if (results?.summary) {
+      console.log(\`📊 Files scanned: \${results.summary.filesScanned || 0}\`);
+      console.log(\`🚨 Total issues: \${results.summary.totalIssues || 0}\`);
+      
+      if (results.summary.issuesBySeverity) {
+        console.log('\\n📋 Issues by severity:');
+        Object.entries(results.summary.issuesBySeverity).forEach(([severity, count]) => {
+          if (count > 0) {
+            const icon = severity === 'CRITICAL' ? '🔴' : severity === 'WARNING' ? '🟡' : '🔵';
+            console.log(\`  \${icon} \${severity}: \${count}\`);
+          }
+        });
+      }
+    }
+    
+    // Show files with issues
+    if (results?.files) {
+      const filesWithIssues = Object.entries(results.files)
+        .filter(([_, data]) => data.issues?.length > 0)
+        .sort(([_, a], [__, b]) => (b.issues?.length || 0) - (a.issues?.length || 0));
+      
+      if (filesWithIssues.length > 0) {
+        console.log('\\n📂 Files with Issues:');
+        console.log('-'.repeat(50));
+        
+        filesWithIssues.slice(0, 8).forEach(([file, data]) => {
+          const rel = path.relative(process.cwd(), file);
+          console.log(\`\\n📄 \${rel} (\${data.issues.length} issues):\`);
+          
+          data.issues.slice(0, 2).forEach((issue, idx) => {
+            const severity = issue.severity || 'INFO';
+            const type = issue.type || 'unknown';
+            const message = issue.message || 'No description';
+            const line = issue.line ? \`:\${issue.line}\` : '';
+            console.log(\`  \${idx + 1}. [\${severity}] \${type}\${line} - \${message}\`);
+          });
+          
+          if (data.issues.length > 2) {
+            console.log(\`     ... and \${data.issues.length - 2} more\`);
+          }
+        });
+        
+        if (filesWithIssues.length > 8) {
+          console.log(\`\\n... and \${filesWithIssues.length - 8} more files with issues\`);
+        }
+      } else {
+        console.log('\\n🎉 No issues found! Code is clean.');
+      }
+    }
+    
+    // Save if requested
+    if (outputFile) {
+      await fs.writeFile(outputFile, JSON.stringify(results, null, 2));
+      const stats = await fs.stat(outputFile);
+      console.log(\`\\n💾 Results saved: \${outputFile} (\${(stats.size/1024).toFixed(1)} KB)\`);
+    }
+    
+    console.log(\`\\n✅ Scan completed in \${duration}s\`);
+    
+    // Exit code based on issues found
+    process.exit(results?.summary?.totalIssues > 0 ? 1 : 0);
+    
+  } catch (error) {
+    console.error('\\n❌ Scan failed:', error.message);
+    if (process.env.DEBUG) console.error(error.stack);
+    process.exit(1);
+  }
+}
+
+run();`;
+
+async function main() {
+  try {
+    console.log('🔧 Installing Corrected Working CLI');
+    console.log('═'.repeat(40));
+    
+    const cliPath = path.join('cli', 'simple-cli.js');
+    
+    // Backup
+    const backupPath = `${cliPath}.backup.${Date.now()}`;
+    try {
+      const current = await fs.readFile(cliPath, 'utf8');
+      await fs.writeFile(backupPath, current, 'utf8');
+      console.log(`📁 Backup: ${backupPath}`);
+    } catch (e) {
+      console.log('⚠️  No existing CLI to backup');
+    }
+    
+    // Install
+    await fs.writeFile(cliPath, CORRECTED_CLI, 'utf8');
+    
+    console.log('✅ Corrected CLI installed!');
+    console.log('');
+    console.log('🔧 This version:');
+    console.log('   ✓ Uses ../core/ import path (as Node.js suggested)');
+    console.log('   ✓ Same working pattern as successful test');
+    console.log('   ✓ Beautiful formatted output');
+    console.log('   ✓ Argument parsing and help');
+    console.log('');
+    console.log('🧪 Test it now:');
+    console.log('   node cli/simple-cli.js');
+    console.log('   node cli/simple-cli.js --help');
+    console.log('   node cli/simple-cli.js . --output results.json');
+    
+  } catch (error) {
+    console.error('❌ Installation failed:', error.message);
+    process.exit(1);
+  }
+}
+
+main();

@@ -46,7 +46,7 @@ export class SauronScanProfiler {
 
     // Calculate memory deltas in megabytes
     const bytesToMb = (bytes) => Math.round((bytes / (1024 * 1024)) * 100) / 100;
-    
+
     // Build metrics object with comprehensive memory tracking
     this.metrics = {
       durationMs: Math.round(durationMs * 100) / 100, // Round to 2 decimal places
@@ -77,7 +77,7 @@ export class SauronScanProfiler {
     if (!this.metrics) {
       return null;
     }
-    
+
     // Return deep clone to prevent external mutation
     return JSON.parse(JSON.stringify(this.metrics));
   }

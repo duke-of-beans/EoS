@@ -1,0 +1,151 @@
+/**
+ * Webpack Detector - Detects deprecated Webpack plugins and configurations
+ * Dependencies: None  
+ * Public API: detect(content, filePath, config)
+ */
+
+class WebpackDetector {
+  constructor() {
+    this.name = 'WebpackDetector';
+    this.deprecatedPlugins = {
+      'webpack.optimize.CommonsChunkPlugin': { deprecated: '4.0.0', replacement: 'optimization.splitChunks' },
+      'webpack.optimize.UglifyJsPlugin': { deprecated: '4.0.0', replacement: 'optimization.minimizer with TerserPlugin' },
+      'webpack.optimize.DedupePlugin': { deprecated: '2.0.0', replacement: 'Removed - deduplication is automatic' },
+      'extract-text-webpack-plugin': { deprecated: '4.0.0', replacement: 'mini-css-extract-plugin' },
+      'webpack.DefinePlugin': { deprecated: null, replacement: null }, // Still valid
+      'webpack.NoErrorsPlugin': { deprecated: '2.0.0', replacement: 'webpack.NoEmitOnErrorsPlugin' },
+      'webpack.optimize.OccurenceOrderPlugin': { deprecated: '2.0.0', replacement: 'webpack.optimize.OccurrenceOrderPlugin' },
+      'webpack-dev-server/hot/dev-server': { deprecated: '4.0.0', replacement: 'webpack/hot/dev-server' }
+    };
+  }
+
+  detect(content, filePath, config = {}) {
+    const issues = [];
+    
+    // Only check webpack config files
+    if (!filePath.match(/webpack\.config\.(js|ts)|webpack\.[^.]+\.config\.(js|ts)$/i)) {
+      return [];
+    }
+
+    const webpackVersion = this.detectWebpackVersion(content, config);
+    
+    Object.entries(this.deprecatedPlugins).forEach(([plugin, info]) => {
+      if (!info.deprecated) return; // Skip non-deprecated plugins
+      
+      const pattern = new RegExp(plugin.replace(/\./g, '\\.'), 'g');
+      const matches = [...content.matchAll(pattern)];
+      
+      matches.forEach(match => {
+        if (this.isVersionAffected(webpackVersion, info.deprecated)) {
+          const line = content.substring(0, match.index).split('\n').length;
+          issues.push({
+            type: 'deprecated-webpack-plugin',
+            severity: 'warning',
+            message: `Deprecated Webpack plugin '${plugin}' detected (deprecated since v${info.deprecated})`,
+            file: filePath,
+            line: line,
+            column: match.index + 1,
+            snippet: this.getLineContent(content, match.index),
+            suggestion: `Replace with: ${info.replacement}`
+          });
+        }
+      });
+    });
+
+    // Check for deprecated configuration patterns
+    this.checkDeprecatedPatterns(content, filePath, webpackVersion, issues);
+
+    return issues;
+  }
+
+  detectWebpackVersion(content, config) {
+    // Check config first
+    if (config.webpackVersion) {
+      return config.webpackVersion;
+    }
+    
+    // Try to detect from content
+    const versionMatch = content.match(/webpack['"]\s*:\s*['"]([\d.]+)/);
+    if (versionMatch) {
+      return versionMatch[1];
+    }
+    
+    // Check for webpack 5 specific features
+    if (/module\.rules|optimization\.splitChunks/.test(content)) {
+      return '5.0.0'; // Assume webpack 5
+    }
+    
+    // Check for webpack 4 specific features  
+    if (/mode\s*:\s*['"](?:development|production)/.test(content)) {
+      return '4.0.0'; // Assume webpack 4
+    }
+    
+    return '5.0.0'; // Default to latest
+  }
+
+  isVersionAffected(currentVersion, deprecatedVersion) {
+    if (!currentVersion || !deprecatedVersion) return false;
+    
+    const current = this.parseVersion(currentVersion);
+    const deprecated = this.parseVersion(deprecatedVersion);
+    
+    return current.major >= deprecated.major;
+  }
+
+  parseVersion(version) {
+    const parts = version.split('.').map(Number);
+    return {
+      major: parts[0] || 0,
+      minor: parts[1] || 0,
+      patch: parts[2] || 0
+    };
+  }
+
+  checkDeprecatedPatterns(content, filePath, version, issues) {
+    const v = this.parseVersion(version);
+    
+    // Webpack 5 deprecations
+    if (v.major >= 5) {
+      // Check for node polyfills
+      if (/node:\s*{[^}]*process:\s*true/.test(content)) {
+        issues.push({
+          type: 'deprecated-webpack-config',
+          severity: 'warning',
+          message: 'Webpack 5 no longer includes node polyfills by default',
+          file: filePath,
+          line: 1,
+          column: 1,
+          snippet: 'node: { process: true }',
+          suggestion: 'Install and configure polyfills explicitly if needed'
+        });
+      }
+    }
+    
+    // Webpack 4 deprecations
+    if (v.major >= 4) {
+      // Check for CommonsChunkPlugin
+      if (/new\s+webpack\.optimize\.CommonsChunkPlugin/.test(content)) {
+        const match = content.match(/new\s+webpack\.optimize\.CommonsChunkPlugin/);
+        const line = content.substring(0, match.index).split('\n').length;
+        issues.push({
+          type: 'deprecated-webpack-config',
+          severity: 'warning',
+          message: 'CommonsChunkPlugin is deprecated in Webpack 4+',
+          file: filePath,
+          line: line,
+          column: 1,
+          snippet: match[0],
+          suggestion: 'Use optimization.splitChunks instead'
+        });
+      }
+    }
+  }
+
+  getLineContent(content, index) {
+    const lines = content.split('\n');
+    const lineNumber = content.substring(0, index).split('\n').length - 1;
+    return lines[lineNumber]?.trim() || '';
+  }
+}
+
+module.exports = WebpackDetector;

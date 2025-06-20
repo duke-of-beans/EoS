@@ -54,7 +54,7 @@ export class PatternLearningEngine {
   getLearnedPatterns() {
     // Create deep clone with Sets converted to Arrays
     const clone = {};
-    
+
     Object.entries(this.patternModel).forEach(([issueType, data]) => {
       clone[issueType] = {
         count: data.count,

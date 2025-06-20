@@ -40,21 +40,21 @@ summary.errors.forEach((err, index) => {
 
 // Example output:
 // Total errors logged: 4
-// 
+//
 // Error details:
-// 
+//
 // [1] File: /src/components/Header.js
 //     Message: Syntax error: unexpected token
 //     Stack trace available: Error: Syntax error: unexpected token
-// 
+//
 // [2] File: /src/utils/parser.js
 //     Message: Custom validation error: invalid input format
 //     Stack trace: Not available
-// 
+//
 // [3] File: /src/api/endpoints.js
 //     Message: Network timeout
 //     Stack trace available: Error: Network timeout
-// 
+//
 // [4] File: /src/database/connection.js
 //     Message: Connection refused to database
 //     Stack trace: Not available

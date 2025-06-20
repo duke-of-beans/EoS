@@ -1,0 +1,610 @@
+Manifest:
+
+### CharacterForensics.js
+- Purpose: Character-level forensic analyzer (invisible chars, homoglyphs, smart quotes, tabs/spaces, excessive newlines)
+- API: CharacterForensics(config).analyze(content, filePath) → Promise<issue[]>
+- Dependencies: Node.js standard lib
+- Integration: EyeOfSauronOmniscient.js
+
+### PatternPrecognition.js
+- Purpose: Contract + risk pattern detector (memory leaks, listener leaks, missing methods)
+- API: PatternPrecognition(config).detect(content, filePath) → Promise<issue[]>
+- Dependencies: Node.js standard lib
+- Integration: EyeOfSauronOmniscient.js
+
+### OmniReportFormatter.js
+- Purpose: Multi-format (console, json) report output
+- API: OmniReportFormatter(config).format(report, outputTypes) → Promise<object>
+- Integration: EyeOfSauronOmniscient.js
+- Dependencies: Node.js std lib, chalk (optional)
+
+### Config.js
+- Purpose: Config loader + merger
+- API: Config.load(customConfigPath, overrides) → object
+- Integration: index.js → EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### EyeOfSauronOmniscient.js
+- Purpose: Master scanner engine
+- API: EyeOfSauronOmniscient(config).scan(rootPath, mode) → Promise<report>
+- Integration: index.js
+- Dependencies: CharacterForensics, PatternPrecognition, BatchProcessor
+
+### BatchProcessor.js
+- Purpose: Parallel file processor
+- API: BatchProcessor(maxWorkers).process(items, processor) → Promise<void>
+- Integration: EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### FileDiscovery.js
+- Purpose: Utility for discovering scan-eligible files
+- API: FileDiscovery(config).discover(rootPath, maxDepth, skipTests) → Promise<string[]>
+- Integration: EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### ScanReportAssembler.js
+- Purpose: Final report assembler
+- API: ScanReportAssembler().assemble(vision, profiles, lastUsedMode) → object
+- Integration: EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### /cli/EyeOfSauronCLI.js
+- Purpose: CLI entry point
+- API: CLI executable only
+- Integration: Node bin entry, npm start
+- Dependencies: commander, chalk, ora, Config, EyeOfSauronOmniscient, OmniReportFormatter
+
+### ErrorLogger.js
+- Purpose: Internal error aggregation utility
+- API: ErrorLogger().log(file, error), getSummary()
+- Integration: EyeOfSauronOmniscient, BatchProcessor, CLI
+- Dependencies: Node.js std lib
+
+### HTMLReportFormatter.js
+- Purpose: Generates HTML report
+- API: HTMLReportFormatter(config).format(report) → string
+- Integration: CLI output writer
+- Dependencies: Node.js std lib
+
+### IncrementalScanCache.js
+- Purpose: Supports incremental scanning
+- API: IncrementalScanCache(cachePath).load(), save(), diff()
+- Integration: EyeOfSauronOmniscient, CLI
+- Dependencies: Node.js std lib
+
+### GitHookInstaller.js
+- Purpose: Installs/uninstalls Git hooks for auto-scanning
+- API: GitHookInstaller(repoRoot).installPreCommit(), installPrePush(), uninstallHook(), static checkInstallationStatus()
+- Integration: CLI setup, manual install
+- Dependencies: Node.js std lib
+
+### MetricsExporter.js
+- Purpose: Exports scan metrics for monitoring tools
+- API: MetricsExporter(config).generatePrometheus(), generateDataDog(), generateNewRelic()
+- Integration: CLI output, CI pipelines
+- Dependencies: Node.js std lib
+
+### WebhookNotifier.js
+- Purpose: Sends POST webhook notifications
+- API: WebhookNotifier(config).send(url, payload)
+- Integration: CLI, CI pipelines
+- Dependencies: Node.js std lib
+
+### ScanProfileManager.js
+- Purpose: Provides scan profiles
+- API: ScanProfileManager(custom).getProfile(mode)
+- Integration: EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### DependencyImpactAnalyzer.js
+- Purpose: Maps file dependencies and predicts impact of changes
+- API: DependencyImpactAnalyzer().buildGraph(files).getImpactedFiles(file)
+- Integration: EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### CodeEvolutionTracker.js
+- Purpose: Tracks issue evolution between scans
+- API: CodeEvolutionTracker().compareReports(prev, current)
+- Integration: CLI, reporting
+- Dependencies: Node.js std lib
+
+### TechnicalDebtCalculator.js
+- Purpose: Calculates tech debt + interest from scan report
+- API: TechnicalDebtCalculator(config).compute(report)
+- Integration: CLI, reporting
+- Dependencies: Node.js std lib
+
+### PatternLearningEngine.js
+- Purpose: Learns patterns across scans to improve detection
+- API: PatternLearningEngine().learn(report), getLearnedPatterns()
+- Integration: EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### FixImpactAnalyzer.js
+- Purpose: Predicts impact of fixes on dependent files/issues
+- API: FixImpactAnalyzer(graph).analyzeFixImpact(file, issues)
+- Integration: EyeOfSauronOmniscient, reporting
+- Dependencies: Node.js std lib
+
+### TribunalSentinel.js
+- Purpose: Runs pre-scan integrity + env validation
+- API: TribunalSentinel(config).runChecks()
+- Integration: CLI pre-run, CI hooks
+- Dependencies: Node.js std lib
+
+### KaizenSnapshot.js
+- Purpose: Saves + restores full scan state snapshot
+- API: KaizenSnapshot(path).save(vision, config, metadata), load()
+- Integration: CLI, audit tools
+- Dependencies: Node.js std lib
+
+### OneClickHealing.js
+- Purpose: Applies safe auto-fixes to code content
+- API: OneClickHealing().applyFixes(content)
+- Integration: CLI, IDE extensions
+- Dependencies: Node.js std lib
+
+### ComponentMarketplace.js
+- Purpose: Registers + retrieves modular components/plugins
+- API: ComponentMarketplace().registerComponent(name, instance), getComponent(name), listComponents()
+- Integration: EyeOfSauronOmniscient, CLI extensions
+- Dependencies: Node.js std lib
+
+### TimeEffortOptimizer.js
+- Purpose: Suggests optimal scan profile for speed vs depth
+- API: TimeEffortOptimizer().suggestProfile(metrics)
+- Integration: CLI, EyeOfSauronOmniscient
+- Dependencies: Node.js std lib
+
+### SauronReportViewer.js
+- Purpose: Renders scan reports to terminal or browser
+- API: SauronReportViewer(config).renderToConsole(report), renderToHtml(report)
+- Integration: CLI, reporting tools
+- Dependencies: Node.js std lib, chalk (optional)
+
+### KaizenSettingsPanel.js
+- Purpose: Manages runtime settings
+- API: KaizenSettingsPanel().setSetting(), getSetting(), getAllSettings(), resetSettings()
+- Integration: EyeOfSauronOmniscient, CLI runtime config
+- Dependencies: Node.js std lib
+
+### SauronAPI.js
+- Purpose: Exposes REST + GraphQL API
+- API: CLI/server run
+- Integration: External apps, CI
+- Dependencies: Node.js std lib, optional GraphQL
+
+### ScanHistoryManager.js
+- Purpose: Stores + retrieves scan history
+- API: ScanHistoryManager().saveSummary(), listSummaries(), getSummary()
+- Integration: SauronAPI, CLI
+- Dependencies: Node.js std lib
+
+### SauronScheduler.js
+- Purpose: Schedules recurring scans
+- API: SauronScheduler(scanner).start(), stop(), isRunning(), getStatus()
+- Integration: SauronAPI, CLI, CI
+- Dependencies: Node.js std lib
+
+### AuditTrailManager.js
+- Purpose: Records scan + API events for auditing
+- API: AuditTrailManager().recordEvent(), listEvents()
+- Integration: SauronAPI, reporting, compliance
+- Dependencies: Node.js std lib
+
+### SauronTestHarness.js
+- Purpose: Provides QA/testing harness for Sauron scans
+- API: SauronTestHarness().simulateRun(), stressTest()
+- Integration: CI, QA, test suites
+- Dependencies: Node.js std lib
+
+### ScanTemplateEngine.js
+- Purpose: Manages reusable scan templates
+- API: ScanTemplateEngine().addTemplate(), getTemplate(), listTemplates(), applyTemplate()
+- Integration: EyeOfSauronOmniscient, CLI
+- Dependencies: Node.js std lib
+
+### SauronReportArchiver.js
+- Purpose: Archives scan reports to FS or cloud
+- API: SauronReportArchiver().archiveReport(id, json, html)
+- Integration: CLI, API, reporting tools
+- Dependencies: Node.js std lib, optional S3 client
+
+### ScanPolicyManager.js
+- Purpose: Enforces org scan policies
+- API: ScanPolicyManager().validateReport(), getPolicies(), setPolicy()
+- Integration: EyeOfSauronOmniscient, CI hooks
+- Dependencies: Node.js std lib
+
+### SauronReportArchiverCLI.js
+- Purpose: CLI tool to archive scan reports
+- API: CLI executable
+- Integration: CI tools, API, manual use
+- Dependencies: Node.js std lib, SauronReportArchiver
+
+### PolicyViolationReporter.js
+- Purpose: Formats policy violations for human review
+- API: PolicyViolationReporter().formatText(), formatJson()
+- Integration: CLI, reporting tools
+- Dependencies: Node.js std lib
+
+### SauronConfigLoader.js
+- Purpose: Loads + merges config from file, env, defaults
+- API: SauronConfigLoader().load(path), mergeWithEnv(config)
+- Integration: CLI, SauronAPI
+- Dependencies: Node.js std lib
+
+### SauronIntegrityChecker.js
+- Purpose: Verifies installation + dependency integrity
+- API: SauronIntegrityChecker().runChecks()
+- Integration: CLI setup, diagnostics
+- Dependencies: Node.js std lib
+
+### SauronReportExporter.js
+- Purpose: Exports scan reports to external systems
+- API: SauronReportExporter().exportReport(report)
+- Integration: CLI, API, CI tools
+- Dependencies: Node.js std lib
+
+### SauronModuleRegistry.js
+- Purpose: Central registry of core modules + their health/status
+- API: SauronModuleRegistry().register(), get(), list(), getHealthStatus(), updateStatus(), getSummary()
+- Integration: EyeOfSauronOmniscient, CLI status tools
+- Dependencies: Node.js std lib
+
+### SauronDependencyVisualizer.js
+- Purpose: Generates visual maps of dependencies
+- API: SauronDependencyVisualizer().generateDot(), generateJson()
+- Integration: reporting, API
+- Dependencies: Node.js std lib
+
+### SauronScanOptimizer.js
+- Purpose: Dynamically tunes scan settings
+- API: SauronScanOptimizer().analyzeHistory(), suggestAdjustments()
+- Integration: CLI, API
+- Dependencies: Node.js std lib
+
+### SauronReportAnalyzer.js
+- Purpose: Analyzes reports for trends + anomalies
+- API: SauronReportAnalyzer().analyze(reports)
+- Integration: CLI, reporting tools
+- Dependencies: Node.js std lib
+
+### SauronPluginManager.js
+- Purpose: Loads/manages external Sauron-compatible plugins
+- API: SauronPluginManager().loadPlugin(), getPlugin(), listPlugins()
+- Integration: EyeOfSauronOmniscient, CLI
+- Dependencies: Node.js std lib
+
+### SauronScanProfiler.js
+- Purpose: Collects scan metrics for profiling
+- API: SauronScanProfiler().start(), end(), getMetrics()
+- Integration: CLI, profiling tools
+- Dependencies: Node.js std lib
+
+### SauronAutoTuner.js
+- Purpose: Adjusts scan configs dynamically during runtime
+- API: SauronAutoTuner().tune(metrics)
+- Integration: EyeOfSauronOmniscient, CLI
+- Dependencies: Node.js std lib
+
+### SauronInsightReporter.js
+- Purpose: Generates combined insight reports
+- API: SauronInsightReporter().generate(metrics, adjustments, trends, violations)
+- Integration: CLI, reporting tools, CI dashboards
+- Dependencies: Node.js std lib
+
+### SauronHealthDashboard.js
+- Purpose: Provides API-ready scanner health summary
+- API: SauronHealthDashboard().getSummary()
+- Integration: API, monitoring tools
+- Dependencies: Node.js std lib
+
+### SauronScanSimulator.js
+- Purpose: Generates synthetic scan reports for testing/QA
+- API: SauronScanSimulator().generateReport()
+- Integration: CI, dev tools, QA automation
+- Dependencies: Node.js std lib
+
+### SauronComplianceChecker.js
+- Purpose: Cross-checks reports against compliance templates
+- API: SauronComplianceChecker().validate(), getTemplates()
+- Integration: reporting, API, audit tools
+- Dependencies: Node.js std lib
+
+### SauronScanExporter.js
+- Purpose: Exports scan reports in multiple formats for external analysis
+- API: SauronScanExporter().toJson(), toCsv(), toXml()
+- Integration: API, reporting tools
+- Dependencies: Node.js std lib
+
+### SauronErrorAggregator.js
+- Purpose: Collects + summarizes errors from multiple modules/scans
+- API: SauronErrorAggregator().record(), summarize(), list()
+- Integration: diagnostics, reporting, health dashboard
+- Dependencies: Node.js std lib
+
+### SauronDataSanitizer.js
+- Purpose: Validates + sanitizes report data for safe use
+- API: SauronDataSanitizer().sanitize(report)
+- Integration: exporters, archiver, API
+- Dependencies: Node.js std lib
+
+### SauronTelemetryReporter.js
+- Purpose: Sends anonymized telemetry
+- API: SauronTelemetryReporter().send(summary)
+- Integration: monitoring, CI analytics
+- Dependencies: Node.js std lib
+
+### SauronReportCompressor.js
+- Purpose: Compresses + decompresses scan reports (gzip, brotli)
+- API: SauronReportCompressor().compress(), decompress()
+- Integration: archiver, telemetry, exporters
+- Dependencies: Node.js std lib
+
+### SauronLicenseManager.js
+- Purpose: Validates license keys + activation
+- API: SauronLicenseManager().validate(), isActivated()
+- Integration: CLI, API
+- Dependencies: Node.js std lib
+
+### SauronReportSplitter.js
+- Purpose: Splits + merges scan reports for chunked processing
+- API: SauronReportSplitter().split(), merge()
+- Integration: archiver, exporters, CI tools
+- Dependencies: Node.js std lib
+
+### SauronExecutionTracer.js
+- Purpose: Traces + logs execution paths during scans
+- API: SauronExecutionTracer().log(), getTrace(), clear()
+- Integration: diagnostics, performance tools
+- Dependencies: Node.js std lib
+
+### SauronDependencyAuditor.js
+- Purpose: Audits 3rd-party dependencies for CVEs + license issues
+- API: SauronDependencyAuditor().audit(path)
+- Integration: diagnostics, CI, compliance tools
+- Dependencies: Node.js std lib
+
+### SauronReportIndexer.js
+- Purpose: Indexes reports for fast lookup
+- API: SauronReportIndexer().index(), search(), clear()
+- Integration: CLI, API, reporting tools
+- Dependencies: Node.js std lib
+
+### SauronDependencyGraph.js
+- Purpose: Builds + visualizes dependency graphs
+- API: SauronDependencyGraph().buildGraph(), toDot(), toJson()
+- Integration: audit, reporting, visualization
+- Dependencies: Node.js std lib
+
+### SauronScanSessionManager.js
+- Purpose: Manages scan session metadata + history
+- API: SauronScanSessionManager().startSession(), endSession(), listSessions(), getSession()
+- Integration: CLI, API, diagnostics
+- Dependencies: Node.js std lib
+
+### SauronReportNormalizer.js
+- Purpose: Normalizes scan reports for storage/export
+- API: SauronReportNormalizer().normalize(report)
+- Integration: archiver, exporters
+- Dependencies: Node.js std lib
+
+### SauronCveFetcher.js
+- Purpose: Fetches latest CVE data for auditing
+- API: SauronCveFetcher().fetchLatest(), loadCache(), saveCache()
+- Integration: audit, diagnostics
+- Dependencies: Node.js std lib
+
+### SauronScanVisualizer.js
+- Purpose: Generates visual dashboard data + HTML from reports
+- API: SauronScanVisualizer().generateCharts(), generateHtml()
+- Integration: reporting tools, dashboards
+- Dependencies: Node.js std lib
+
+### SauronPerformanceProfiler.js
+- Purpose: Collects + reports performance trends
+- API: SauronPerformanceProfiler().recordRun(), summarizeTrends(), clearHistory(), loadHistory(), saveHistory()
+- Integration: diagnostics, CI metrics
+- Dependencies: Node.js std lib
+
+### SauronScanMerger.js
+- Purpose: Merges multiple scan reports into one
+- API: SauronScanMerger().merge(reports)
+- Integration: archiver, reporting tools
+- Dependencies: Node.js std lib
+
+### SauronAlertNotifier.js
+- Purpose: Generates + dispatches alert notifications
+- API: SauronAlertNotifier().sendAlerts(report)
+- Integration: CI, monitoring tools
+- Dependencies: Node.js std lib
+
+### SauronReportPruner.js
+- Purpose: Prunes scan reports for compact storage
+- API: SauronReportPruner().prune(report)
+- Integration: archiver, exporters
+- Dependencies: Node.js std lib
+
+### SauronScanScheduler.js
+- Purpose: Schedules + monitors scan jobs
+- API: SauronScanScheduler().schedule(), list(), cancel()
+- Integration: CI, orchestration tools
+- Dependencies: Node.js std lib
+
+### SauronJobMetricsCollector.js
+- Purpose: Collects + summarizes job execution metrics
+- API: SauronJobMetricsCollector().record(), summarize(), list(), clear()
+- Integration: scheduler, diagnostics
+- Dependencies: Node.js std lib
+
+### SauronScanArchiveManager.js
+- Purpose: Manages versioned storage of scan archives
+- API: SauronScanArchiveManager().save(), load(), list()
+- Integration: archiver, exporters
+- Dependencies: Node.js std lib
+
+### SauronComplianceReporter.js
+- Purpose: Generates structured compliance audit reports
+- API: SauronComplianceReporter().generate(scanReport, dependencyAudit)
+- Integration: reporting, dashboards, audit exports
+- Dependencies: Node.js std lib
+
+### SauronRiskScorer.js
+- Purpose: Computes composite project risk score
+- API: SauronRiskScorer().compute(scanReport, dependencyAudit)
+- Integration: diagnostics, CI risk gates
+- Dependencies: Node.js std lib
+
+### SauronThreatModeler.js
+- Purpose: Builds threat model summaries from scan + dep data
+- API: SauronThreatModeler().model(scanReport, dependencyAudit)
+- Integration: dashboards, reports, CI review
+- Dependencies: Node.js std lib
+
+### SauronReportExporter.js
+- Purpose: Exports reports in JSON, CSV, HTML formats
+- API: SauronReportExporter().toJson(), toCsv(), toHtml()
+- Integration: archivers, exporters
+- Dependencies: Node.js std lib
+
+### SauronRiskVisualizer.js
+- Purpose: Generates risk score visual data + HTML
+- API: SauronRiskVisualizer().generateChartData(), generateHtml()
+- Integration: dashboards, reports
+- Dependencies: Node.js std lib
+
+### SauronCISummaryGenerator.js
+- Purpose: Generates compact CI text summaries
+- API: SauronCISummaryGenerator().generate(scanReport, riskScore)
+- Integration: CI/CD pipelines, logs
+- Dependencies: Node.js std lib
+
+### SauronScanAnonymizer.js
+- Purpose: Removes/obfuscates sensitive data from scan reports
+- API: SauronScanAnonymizer().anonymize(report)
+- Integration: exporters, compliance, CI sharing
+- Dependencies: Node.js std lib
+
+### SauronScanDiffer.js
+- Purpose: Produces diffs between scan reports
+- API: SauronScanDiffer().diff(reportA, reportB)
+- Integration: dashboards, CI diff gates
+- Dependencies: Node.js std lib
+
+### SauronPolicyValidator.js
+- Purpose: Validates scan results against security policies
+- API: SauronPolicyValidator().validate(scanReport)
+- Integration: CI gates, dashboards, audit reports
+- Dependencies: Node.js std lib
+
+### SauronScanSignatureGenerator.js
+- Purpose: Generates compact integrity signature for scan results
+- API: SauronScanSignatureGenerator().generate(scanReport)
+- Integration: exporters, integrity checks, audit trails
+- Dependencies: Node.js std lib (crypto)
+
+### SauronReportCompressor.js
+- Purpose: Compresses scan reports for compact storage
+- API: SauronReportCompressor().compress(report)
+- Integration: archivers, exporters
+- Dependencies: Node.js std lib (zlib)
+
+### SauronReportRestorer.js
+- Purpose: Decompresses + validates compressed scan reports
+- API: SauronReportRestorer().restore(buffer, algorithm)
+- Integration: importers, validators
+- Dependencies: Node.js std lib (zlib)
+
+### SauronReportEncryptor.js
+- Purpose: Encrypts compressed scan reports for secure storage
+- API: SauronReportEncryptor().encrypt(buffer)
+- Integration: archivers, secure exporters
+- Dependencies: Node.js std lib (crypto)
+
+### SauronReportDecryptor.js
+- Purpose: Decrypts + verifies encrypted scan reports
+- API: SauronReportDecryptor().decrypt(encrypted, iv, authTag)
+- Integration: secure importers, validators
+- Dependencies: Node.js std lib (crypto)
+
+### SauronReportIntegrityVerifier.js
+- Purpose: Verifies signature + encryption integrity of scan reports
+- API: SauronReportIntegrityVerifier().verify(encrypted, iv, authTag, expectedSignature)
+- Integration: validators, secure pipelines
+- Dependencies: Node.js std lib (crypto)
+
+### SauronSecureArchiveManager.js
+- Purpose: Manages encrypted + compressed report storage with versioning
+- API: SauronSecureArchiveManager().save(), load(), list()
+- Integration: secure archivers, exporters
+- Dependencies: Node.js std lib (fs, crypto, zlib)
+
+### SauronSecureTransporter.js
+- Purpose: Handles safe upload/download of encrypted archives
+- API: SauronSecureTransporter().upload(), download()
+- Integration: secure pipelines, remote archive storage
+- Dependencies: Node.js std lib (https, url)
+
+### SauronAuditTrailGenerator.js
+- Purpose: Produces immutable audit trail reports for security-critical actions
+- API: SauronAuditTrailGenerator().record(), summarize(), export()
+- Integration: reporting, compliance, validators
+- Dependencies: Node.js std lib
+
+### SauronSecurePipelineOrchestrator.js
+- Purpose: Coordinates full secure archive lifecycle: compress, encrypt, sign, upload
+- API: SauronSecurePipelineOrchestrator().processAndUpload(report, uploadUrl)
+- Integration: secure pipelines, CI/CD
+- Dependencies: Node.js std lib + Sauron components
+
+### SauronIncidentReporter.js
+- Purpose: Generates structured incident reports from audit trail + scan findings
+- API: SauronIncidentReporter().generate(auditTrail, scanReport)
+- Integration: compliance, dashboards, audit exports
+- Dependencies: Node.js std lib
+
+### SauronSecurePipelineValidator.js
+- Purpose: Verifies integrity + success of full secure pipeline artifacts
+- API: SauronSecurePipelineValidator().validate(pipelineOutput)
+- Integration: secure pipelines, validators
+- Dependencies: Node.js std lib + Sauron components
+
+### SauronSecurityPolicyEnforcer.js
+- Purpose: Enforces custom security policies during pipeline execution
+- API: SauronSecurityPolicyEnforcer().enforce(scanReport, auditTrail)
+- Integration: CI gates, dashboards, policy engines
+- Dependencies: Node.js std lib
+
+### SauronSecurePipelineSummarizer.js
+- Purpose: Aggregates + reports on multiple pipeline runs for trend analysis
+- API: SauronSecurePipelineSummarizer().record(), summarize(), export()
+- Integration: dashboards, reporting tools
+- Dependencies: Node.js std lib
+
+### SauronAnomalyDetector.js
+- Purpose: Detects unusual patterns in scan, pipeline, or audit data
+- API: SauronAnomalyDetector().record(), detect()
+- Integration: security monitoring, analytics
+- Dependencies: Node.js std lib
+
+### SauronTrendVisualizer.js
+- Purpose: Generates time-series charts from pipeline/anomaly data
+- API: SauronTrendVisualizer().generateChartData(), generateHtml()
+- Integration: dashboards, reports
+- Dependencies: Node.js std lib
+
+### SauronThreatCorrelator.js
+- Purpose: Correlates scan/audit/pipeline/anomaly data to highlight compound risks
+- API: SauronThreatCorrelator().correlate(scanReport, auditTrail, pipelineSummary, anomalyData)
+- Integration: risk analytics, dashboards
+- Dependencies: Node.js std lib
+
+### SauronCore.js
+- Purpose: Master orchestrator glue for full Sauron secure pipeline suite
+- API: SauronCore(config).process(report, uploadUrl) → unified result object
+- API: SauronCore().getSummary() → latest run summary
+- Status: Active (vSauron v1.0.0)
+- Last Updated: <current timestamp>
+- Config Hash: <12-char config hash>
+- Integrations: orchestrator, validator, summarizer, archiveManager, integrityVerifi

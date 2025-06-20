@@ -1,0 +1,194 @@
+#!/usr/bin/env node
+
+/**
+ * Diagnostic Remediation Script
+ * Tests each step to find where the original script is failing
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+
+console.log('🔍 Diagnostic Remediation Script');
+console.log('═'.repeat(50));
+
+async function testStep1() {
+  console.log('\n📍 Step 1: Testing basic imports...');
+  try {
+    console.log('   ✅ fs and path imported successfully');
+    return true;
+  } catch (error) {
+    console.log('   ❌ Basic imports failed:', error.message);
+    return false;
+  }
+}
+
+async function testStep2() {
+  console.log('\n📍 Step 2: Testing scanner import...');
+  try {
+    console.log('   Importing createEye from ./core/EyeOfSauronOmniscient.js...');
+    const { createEye } = await import('./core/EyeOfSauronOmniscient.js');
+    console.log('   ✅ Scanner import successful');
+    console.log(`   createEye type: ${typeof createEye}`);
+    return createEye;
+  } catch (error) {
+    console.log('   ❌ Scanner import failed:', error.message);
+    console.log('   Stack:', error.stack?.split('\n')[0]);
+    return null;
+  }
+}
+
+async function testStep3() {
+  console.log('\n📍 Step 3: Testing scan results file search...');
+  try {
+    const possibleFiles = [
+      'working-pattern-results.json',
+      'test-scanner-output.json',
+      'comprehensive-test-output.json',
+      'scan-results.json'
+    ];
+    
+    console.log('   Looking for existing scan results...');
+    for (const filename of possibleFiles) {
+      try {
+        console.log(`   Checking: ${filename}`);
+        const content = await fs.readFile(filename, 'utf8');
+        const results = JSON.parse(content);
+        if (results.files && results.summary) {
+          console.log(`   ✅ Found valid scan results: ${filename}`);
+          console.log(`   Files: ${Object.keys(results.files).length}`);
+          console.log(`   Issues: ${results.summary.totalIssues}`);
+          return results;
+        }
+      } catch (error) {
+        console.log(`   ❌ ${filename} not found or invalid`);
+      }
+    }
+    
+    console.log('   ⚠️  No existing scan results found');
+    return null;
+  } catch (error) {
+    console.log('   ❌ File search failed:', error.message);
+    return null;
+  }
+}
+
+async function testStep4(createEye) {
+  console.log('\n📍 Step 4: Testing fresh scan...');
+  try {
+    if (!createEye) {
+      console.log('   ⚠️  Skipping - no createEye function');
+      return null;
+    }
+    
+    console.log('   Creating scanner...');
+    const scanner = createEye();
+    console.log('   ✅ Scanner created');
+    
+    console.log('   Running quick scan...');
+    const results = await scanner.scan('.', 'quick');
+    console.log('   ✅ Scan completed');
+    console.log(`   Files: ${results?.summary?.filesScanned || 'unknown'}`);
+    console.log(`   Issues: ${results?.summary?.totalIssues || 'unknown'}`);
+    
+    return results;
+  } catch (error) {
+    console.log('   ❌ Fresh scan failed:', error.message);
+    console.log('   Stack:', error.stack?.split('\n')[0]);
+    return null;
+  }
+}
+
+async function testStep5(scanResults) {
+  console.log('\n📍 Step 5: Testing issue analysis...');
+  try {
+    if (!scanResults || !scanResults.files) {
+      console.log('   ⚠️  No scan results to analyze');
+      return null;
+    }
+    
+    console.log('   Analyzing issues...');
+    const totalFiles = Object.keys(scanResults.files).length;
+    const totalIssues = scanResults.summary?.totalIssues || 0;
+    
+    console.log(`   ✅ Analysis complete`);
+    console.log(`   Total files: ${totalFiles}`);
+    console.log(`   Total issues: ${totalIssues}`);
+    
+    // Count issues by type
+    const issuesByType = {};
+    Object.values(scanResults.files).forEach(fileData => {
+      if (fileData.issues) {
+        fileData.issues.forEach(issue => {
+          const type = issue.type || 'UNKNOWN';
+          issuesByType[type] = (issuesByType[type] || 0) + 1;
+        });
+      }
+    });
+    
+    console.log('   Issue breakdown:');
+    Object.entries(issuesByType).forEach(([type, count]) => {
+      console.log(`     ${type}: ${count}`);
+    });
+    
+    return { totalFiles, totalIssues, issuesByType };
+  } catch (error) {
+    console.log('   ❌ Analysis failed:', error.message);
+    return null;
+  }
+}
+
+async function main() {
+  try {
+    console.log('🧪 Starting diagnostic tests...');
+    
+    // Test each step
+    const step1 = await testStep1();
+    if (!step1) {
+      console.log('\n❌ Failed at Step 1 - basic imports');
+      process.exit(1);
+    }
+    
+    const createEye = await testStep2();
+    // Continue even if scanner import fails
+    
+    const existingResults = await testStep3();
+    
+    let scanResults = existingResults;
+    if (!scanResults && createEye) {
+      scanResults = await testStep4(createEye);
+    }
+    
+    if (scanResults) {
+      await testStep5(scanResults);
+    }
+    
+    console.log('\n🎯 Diagnostic Summary:');
+    console.log('──────────────────────────');
+    console.log(`✅ Basic imports: Working`);
+    console.log(`${createEye ? '✅' : '❌'} Scanner import: ${createEye ? 'Working' : 'Failed'}`);
+    console.log(`${existingResults ? '✅' : '⚠️'} Existing results: ${existingResults ? 'Found' : 'Not found'}`);
+    console.log(`${scanResults ? '✅' : '❌'} Scan data: ${scanResults ? 'Available' : 'None'}`);
+    
+    if (!scanResults) {
+      console.log('\n❌ Cannot proceed with remediation - no scan data available');
+      console.log('\n💡 Suggestions:');
+      console.log('   1. Run a scan first: node cli/simple-cli.js --output scan-results.json');
+      console.log('   2. Check that EyeOfSauronOmniscient.js is working');
+      console.log('   3. Verify you have existing scan result files');
+    } else {
+      console.log('\n✅ Remediation can proceed with available scan data');
+      console.log('\n🔧 To run remediation manually:');
+      console.log('   1. Use existing scan results');
+      console.log('   2. Apply fixes based on issue types found');
+      console.log('   3. Focus on TRAILING_SPACE, SMART_QUOTE, HOMOGLYPH, INVISIBLE_CHAR');
+    }
+    
+  } catch (error) {
+    console.log('\n❌ Diagnostic failed:', error.message);
+    if (process.env.DEBUG) {
+      console.log('Stack:', error.stack);
+    }
+  }
+}
+
+main();

@@ -5,7 +5,7 @@
  *   - new SauronDependencyVisualizer(graph) - Creates visualizer with dependency graph
  *   - generateDot(config) - Returns DOT format string for Graphviz rendering
  *   - generateJson(options) - Returns JSON string representation of dependency graph
- * 
+ *
  * Notes:
  *   - Leaf nodes: Nodes with incoming but no outgoing edges (can optionally include orphans)
  *   - DOT escaping: Handles special characters including quotes, backslashes, newlines safely
@@ -22,7 +22,7 @@ export class SauronDependencyVisualizer {
       // Assume adjacency list format
       this.nodes = new Set();
       this.edges = [];
-      
+
       for (const [from, deps] of Object.entries(graph)) {
         this.nodes.add(from);
         if (Array.isArray(deps)) {
@@ -64,7 +64,7 @@ export class SauronDependencyVisualizer {
     } = config;
 
     const lines = [];
-    
+
     // Header
     lines.push('digraph Dependencies {');
     lines.push(`  label="${this._escapeDotString(title)}";`);
@@ -87,11 +87,11 @@ export class SauronDependencyVisualizer {
       const from = this._escapeDotString(edge.from);
       const to = this._escapeDotString(edge.to);
       let edgeLine = `  "${from}" -> "${to}"`;
-      
+
       if (edge.label) {
         edgeLine += ` [label="${this._escapeDotString(edge.label)}"]`;
       }
-      
+
       lines.push(edgeLine + ';');
       addedNodes.add(edge.from);
       addedNodes.add(edge.to);
@@ -123,8 +123,8 @@ export class SauronDependencyVisualizer {
    */
   generateJson(options = 2) {
     // Handle backwards compatibility - if number passed, treat as indent
-    const config = typeof options === 'number' 
-      ? { indent: options } 
+    const config = typeof options === 'number'
+      ? { indent: options }
       : {
           indent: 2,
           includeStatistics: true,
@@ -189,7 +189,7 @@ export class SauronDependencyVisualizer {
       connectedNodes.add(edge.from);
       connectedNodes.add(edge.to);
     });
-    
+
     return Array.from(this.nodes).filter(node => !connectedNodes.has(node));
   }
 
@@ -202,7 +202,7 @@ export class SauronDependencyVisualizer {
     this.edges.forEach(edge => {
       outgoingCount[edge.from] = (outgoingCount[edge.from] || 0) + 1;
     });
-    
+
     return Object.entries(outgoingCount)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
@@ -218,17 +218,17 @@ export class SauronDependencyVisualizer {
   _getLeafNodes(includeOrphans = false) {
     const hasOutgoing = new Set(this.edges.map(edge => edge.from));
     const hasIncoming = new Set(this.edges.map(edge => edge.to));
-    
+
     // Standard leaf nodes: have incoming edges but no outgoing edges
     const standardLeaves = Array.from(hasIncoming).filter(node => !hasOutgoing.has(node));
-    
+
     if (includeOrphans) {
       // Include orphan nodes (no edges at all) as leaf nodes
       const orphans = this._getOrphanNodes();
       const allLeaves = new Set([...standardLeaves, ...orphans]);
       return Array.from(allLeaves);
     }
-    
+
     return standardLeaves;
   }
 

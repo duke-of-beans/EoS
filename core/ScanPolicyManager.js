@@ -6,7 +6,7 @@
  *   - validateReport(report) - Validates a scan report against policies
  *   - getPolicies() - Returns current policy configuration
  *   - setPolicy(name, value) - Updates a specific policy
- * 
+ *
  * Report Format Support:
  *   - Eye of Sauron format: report.vision.files[file].issues
  *   - Standard format: report.issues[]
@@ -36,13 +36,13 @@ export class ScanPolicyManager {
    */
   validateReport(report) {
     const violations = [];
-    
+
     // Validate issue counts by severity
     const severityLevels = ['critical', 'high', 'medium', 'low'];
     severityLevels.forEach(severity => {
       const policyKey = `max${severity.charAt(0).toUpperCase()}${severity.slice(1)}Issues`;
       const maxAllowed = this.policies[policyKey];
-      
+
       if (maxAllowed !== undefined && maxAllowed !== Infinity) {
         const count = this._countIssuesBySeverity(report, severity);
         if (count > maxAllowed) {
@@ -79,7 +79,7 @@ export class ScanPolicyManager {
       const missingAnalyzers = this.policies.requiredAnalyzers.filter(
         required => !report.metadata.analyzersUsed.includes(required)
       );
-      
+
       if (missingAnalyzers.length > 0) {
         violations.push({
           rule: 'requiredAnalyzers',
@@ -196,7 +196,7 @@ export class ScanPolicyManager {
    */
   _countIssuesBySeverity(report, severity) {
     let count = 0;
-    
+
     // Priority 1: Check Eye of Sauron format (report.vision.files)
     if (report.vision?.files) {
       Object.values(report.vision.files).forEach(file => {
@@ -207,7 +207,7 @@ export class ScanPolicyManager {
       // Return early to avoid double-counting if top-level issues also exist
       return count;
     }
-    
+
     // Priority 2: Check standard format (report.issues)
     if (report.issues && Array.isArray(report.issues)) {
       count = report.issues.filter(issue => issue.severity === severity).length;

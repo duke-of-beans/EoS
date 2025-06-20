@@ -35,27 +35,27 @@ export class SauronDependencyAuditor {
     try {
       const packageLock = this.loadPackageLock(packageLockPath);
       const dependencies = this.extractDependencies(packageLock);
-      
+
       const vulnerabilities = [];
       const licenseViolations = [];
-      
+
       for (const [packageName, packageInfo] of Object.entries(dependencies)) {
         // Skip allowlisted packages
         if (this.isAllowlisted(packageName)) {
           continue;
         }
-        
+
         // Check for vulnerabilities
         const vulns = this.checkVulnerabilities(packageName, packageInfo);
         vulnerabilities.push(...vulns);
-        
+
         // Check license compliance
         const violations = this.checkLicenseCompliance(packageName, packageInfo);
         licenseViolations.push(...violations);
       }
-      
+
       const summary = this.generateSummary(vulnerabilities, licenseViolations, dependencies);
-      
+
       return {
         vulnerabilities,
         licenseViolations,
@@ -83,12 +83,12 @@ export class SauronDependencyAuditor {
    */
   extractDependencies(packageLock) {
     const dependencies = {};
-    
+
     // Handle lockfileVersion 2+ format
     if (packageLock.packages) {
       for (const [path, info] of Object.entries(packageLock.packages)) {
         if (path === '') continue; // Skip root package
-        
+
         const packageName = this.extractPackageName(path);
         if (packageName) {
           dependencies[packageName] = {
@@ -102,12 +102,12 @@ export class SauronDependencyAuditor {
         }
       }
     }
-    
+
     // Handle lockfileVersion 1 format
     if (packageLock.dependencies) {
       this.extractV1Dependencies(packageLock.dependencies, dependencies);
     }
-    
+
     return dependencies;
   }
 
@@ -136,7 +136,7 @@ export class SauronDependencyAuditor {
         dev: info.dev || isDev,
         optional: info.optional || false
       };
-      
+
       if (info.dependencies) {
         this.extractV1Dependencies(info.dependencies, result, isDev);
       }
@@ -145,18 +145,18 @@ export class SauronDependencyAuditor {
 
   /**
    * Checks if package is in allowlist
-   * 
+   *
    * Matching behavior:
    * - Exact match: 'lodash' matches 'lodash'
    * - Prefix match: 'foo/' matches 'foo/bar', 'foo/baz', etc.
    * - Scoped packages: '@company/*' matches all @company scoped packages
    * - RegExp: /^@trusted-org\// matches packages starting with @trusted-org/
-   * 
+   *
    * Examples:
    * - allowlist: ['lodash'] - matches only 'lodash'
    * - allowlist: ['@company/'] - matches '@company/package1', '@company/package2'
    * - allowlist: [/^@internal\//] - matches all packages starting with '@internal/'
-   * 
+   *
    * @param {string} packageName - The package name to check
    * @returns {boolean} True if package is allowlisted
    */
@@ -176,7 +176,7 @@ export class SauronDependencyAuditor {
   checkVulnerabilities(packageName, packageInfo) {
     const vulnerabilities = [];
     const packageKey = `${packageName}@${packageInfo.version}`;
-    
+
     // Check against known CVEs
     for (const cve of this.knownCVEs) {
       if (this.matchesVulnerability(packageName, packageInfo.version, cve)) {
@@ -195,7 +195,7 @@ export class SauronDependencyAuditor {
         });
       }
     }
-    
+
     return vulnerabilities;
   }
 
@@ -208,12 +208,12 @@ export class SauronDependencyAuditor {
    */
   matchesVulnerability(packageName, version, cve) {
     if (cve.package !== packageName) return false;
-    
+
     // Simple version comparison (should use semver in production)
     const affected = cve.affectedVersions;
     if (affected.includes('*')) return true;
     if (affected.includes(version)) return true;
-    
+
     // Check version ranges (simplified)
     // TODO: Replace with semver.satisfies() for proper range handling
     for (const range of affected) {
@@ -226,7 +226,7 @@ export class SauronDependencyAuditor {
         if (this.compareVersions(version, targetVersion) <= 0) return true;
       }
     }
-    
+
     return false;
   }
 
@@ -239,14 +239,14 @@ export class SauronDependencyAuditor {
   compareVersions(v1, v2) {
     const parts1 = v1.split('.').map(Number);
     const parts2 = v2.split('.').map(Number);
-    
+
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
       const p1 = parts1[i] || 0;
       const p2 = parts2[i] || 0;
       if (p1 < p2) return -1;
       if (p1 > p2) return 1;
     }
-    
+
     return 0;
   }
 
@@ -256,7 +256,7 @@ export class SauronDependencyAuditor {
   checkLicenseCompliance(packageName, packageInfo) {
     const violations = [];
     const license = packageInfo.license || 'UNLICENSED';
-    
+
     // Check against license rules
     if (this.licenseRules.forbidden && this.licenseRules.forbidden.includes(license)) {
       violations.push({
@@ -273,7 +273,7 @@ export class SauronDependencyAuditor {
         recommendation: 'Replace with package using approved license'
       });
     }
-    
+
     // Check for missing licenses
     if (license === 'UNLICENSED' && this.licenseRules.requireLicense) {
       violations.push({
@@ -290,10 +290,10 @@ export class SauronDependencyAuditor {
         recommendation: 'Verify license terms before using'
       });
     }
-    
+
     // Check against allowed list
-    if (this.licenseRules.allowed && 
-        this.licenseRules.allowed.length > 0 && 
+    if (this.licenseRules.allowed &&
+        this.licenseRules.allowed.length > 0 &&
         !this.licenseRules.allowed.includes(license)) {
       violations.push({
         type: 'license-violation',
@@ -309,7 +309,7 @@ export class SauronDependencyAuditor {
         recommendation: 'Use packages with approved licenses only'
       });
     }
-    
+
     return violations;
   }
 
@@ -320,10 +320,10 @@ export class SauronDependencyAuditor {
     const totalPackages = Object.keys(dependencies).length;
     const devDependencies = Object.values(dependencies).filter(d => d.dev).length;
     const prodDependencies = totalPackages - devDependencies;
-    
+
     const vulnBySeverity = this.groupBySeverity(vulnerabilities);
     const licenseBySeverity = this.groupBySeverity(licenseViolations);
-    
+
     return {
       totalPackages,
       prodDependencies,
@@ -368,21 +368,21 @@ export class SauronDependencyAuditor {
 
   /**
    * Loads known CVEs database
-   * 
+   *
    * IMPORTANT: This currently returns hardcoded demo CVE data for development.
    * In production, this should:
    * - Load from a local JSON file: JSON.parse(readFileSync('./cve-database.json'))
    * - Fetch from a CVE API service (NVD, Snyk, npm audit, etc.)
    * - Connect to an internal vulnerability database
    * - Use npm audit API or similar service
-   * 
+   *
    * @returns {Array} Array of CVE objects for demonstration
    */
   loadKnownCVEs() {
     // TODO: Replace with actual CVE data source in production
     // Example: return JSON.parse(readFileSync('./cve-database.json', 'utf8'));
     // Example: return await fetch('https://api.nvd.nist.gov/...').then(r => r.json());
-    
+
     // DEMO DATA - Replace in production
     return [
       {

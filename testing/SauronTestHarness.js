@@ -2,12 +2,12 @@
  * Purpose: Provides QA/testing harness for Eye of Sauron scans
  * Dependencies: Node.js std lib
  * API: SauronTestHarness(scanner).simulateRun(), stressTest()
- * 
+ *
  * Scanner Requirements:
  * - Must have scan() method that accepts: { targetPath, options }
  * - For synthetic mode, scanner should handle options.synthetic = true
  * - Scanner can optionally use options.syntheticFiles array if provided
- * 
+ *
  * Usage:
  *   const harness = new SauronTestHarness(scanner, { seed: 12345 }); // Reproducible
  *   const harness = new SauronTestHarness(scanner); // Random seed
@@ -18,7 +18,7 @@ export class SauronTestHarness {
     if (!scannerInstance || typeof scannerInstance.scan !== 'function') {
       throw new Error('SauronTestHarness requires scanner instance with scan() method');
     }
-    
+
     this.scanner = scannerInstance;
     this.config = {
       verbose: false,
@@ -26,7 +26,7 @@ export class SauronTestHarness {
       syntheticDataSeed: config.seed || Date.now(),
       ...config
     };
-    
+
     // Initialize pseudo-random generator with seed
     this._random = this._createSeededRandom(this.config.syntheticDataSeed);
   }
@@ -35,13 +35,13 @@ export class SauronTestHarness {
    * Simulates a scan run with synthetic inputs
    * @param {object} options - Simulation options
    * @returns {object} Scan report
-   * 
+   *
    * Note: Scanner must accept { targetPath, options } format where
    * options.synthetic = true indicates synthetic mode
    */
   async simulateRun(options = {}) {
     const startTime = Date.now();
-    
+
     const simulationOptions = {
       testSize: 'medium',
       issueCount: 10,
@@ -52,7 +52,7 @@ export class SauronTestHarness {
 
     // Generate synthetic scan context
     const syntheticContext = this._generateSyntheticContext(simulationOptions);
-    
+
     if (this.config.verbose) {
       console.log('[SauronTestHarness] Starting simulated run:', {
         testSize: simulationOptions.testSize,
@@ -64,9 +64,9 @@ export class SauronTestHarness {
     try {
       // Run scanner with synthetic context
       const report = await this.scanner.scan(syntheticContext);
-      
+
       const duration = Date.now() - startTime;
-      
+
       if (this.config.verbose) {
         console.log('[SauronTestHarness] Simulated run complete:', {
           duration: `${duration}ms`,
@@ -89,7 +89,7 @@ export class SauronTestHarness {
       if (this.config.verbose) {
         console.error('[SauronTestHarness] Simulation error:', error.message);
       }
-      
+
       return {
         success: false,
         error: error.message,
@@ -113,14 +113,14 @@ export class SauronTestHarness {
     if (!Number.isInteger(iterations) || iterations < 1) {
       throw new Error('Iterations must be positive integer');
     }
-    
+
     if (!Number.isInteger(delayMs) || delayMs < 0) {
       throw new Error('DelayMs must be non-negative integer');
     }
 
     const reports = [];
     const startTime = Date.now();
-    
+
     if (this.config.verbose) {
       console.log('[SauronTestHarness] Starting stress test:', {
         iterations,
@@ -131,10 +131,10 @@ export class SauronTestHarness {
 
     for (let i = 0; i < iterations; i++) {
       const iterationStart = Date.now();
-      
+
       // Vary test parameters for each iteration
       const options = this._generateStressTestOptions(i, iterations);
-      
+
       try {
         const report = await this.simulateRun(options);
         reports.push({
@@ -159,14 +159,14 @@ export class SauronTestHarness {
       if (i < iterations - 1 && delayMs > 0) {
         await this._delay(delayMs);
       }
-      
+
       if (this.config.verbose && (i + 1) % Math.ceil(iterations / 10) === 0) {
         console.log(`[SauronTestHarness] Progress: ${i + 1}/${iterations} iterations complete`);
       }
     }
 
     const totalDuration = Date.now() - startTime;
-    
+
     if (this.config.verbose) {
       const successCount = reports.filter(r => r.success !== false).length;
       console.log('[SauronTestHarness] Stress test complete:', {
@@ -184,10 +184,10 @@ export class SauronTestHarness {
 
   _generateSyntheticContext(options) {
     const { testSize, issueCount, fileCount, complexityLevel } = options;
-    
+
     // Generate synthetic file structure
     const files = this._generateSyntheticFiles(fileCount, complexityLevel);
-    
+
     // Create synthetic scan context in standard scanner format
     // Scanner should recognize options.synthetic and handle accordingly
     return {
@@ -209,9 +209,9 @@ export class SauronTestHarness {
       moderate: { minLines: 200, maxLines: 500 },
       complex: { minLines: 500, maxLines: 1000 }
     };
-    
+
     const { minLines, maxLines } = complexityMap[complexity] || complexityMap.moderate;
-    
+
     for (let i = 0; i < count; i++) {
       files.push({
         path: `/synthetic/file${i + 1}.js`,
@@ -220,7 +220,7 @@ export class SauronTestHarness {
         type: 'javascript'
       });
     }
-    
+
     return files;
   }
 
@@ -234,19 +234,19 @@ export class SauronTestHarness {
       '// FIXME: Performance issue here',
       'const result = await someAsyncOperation();'
     ];
-    
+
     let content = '';
     for (let i = 0; i < lineCount; i++) {
       content += patterns[Math.floor(this._random() * patterns.length)] + '\n';
     }
-    
+
     return content;
   }
 
   _generateStressTestOptions(iteration, total) {
     // Vary parameters based on iteration
     const progress = iteration / total;
-    
+
     return {
       testSize: progress < 0.33 ? 'small' : progress < 0.66 ? 'medium' : 'large',
       issueCount: Math.floor(this._random() * 20) + 5,

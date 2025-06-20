@@ -1,0 +1,248 @@
+#!/usr/bin/env node
+
+/**
+ * Purpose: CLI entry point for Eye of Sauron - All-seeing code analysis framework
+ * Dependencies: commander, Node.js std lib (fs, path), Config, EyeOfSauronOmniscient, OmniReportFormatter
+ * Public API: None - CLI executable only
+ * 
+ * Handles command-line argument parsing, config loading, scanner initialization,
+ * and report generation for the Eye of Sauron code analysis system.
+ * 
+ * Note: This file is designed to be run directly as a CLI tool and will execute
+ * immediately when imported.
+ */
+
+import { Command } from 'commander';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import ora from 'ora';
+import Config from '../config/Config.js';
+import EyeOfSauronOmniscient from '../core/EyeOfSauronOmniscient.js';
+import OmniReportFormatter from '../reporters/OmniReportFormatter.js';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+class EyeOfSauronCLI {
+  constructor() {
+    this.program = new Command();
+    this.config = null;
+    this.scanner = null;
+    this.formatter = null;
+  }
+
+  /**
+   * Initialize CLI with command definitions
+   */
+  initialize() {
+    this.program
+      .name('eye-of-sauron')
+      .description('All-seeing code analysis framework - Nothing escapes its gaze')
+      .version('1.0.0')
+      .option('-m, --mode <mode>', 'scan mode (quick|deep|quantum)', 'deep')
+      .option('-p, --path <path>', 'root path to scan', process.cwd())
+      .option('-c, --config <file>', 'custom config file')
+      .option('-o, --output <types>', 'comma-separated output formats (console,json,html)', 'console')
+      .option('--parallel <n>', 'number of parallel workers', parseInt, 4)
+      .option('-i, --incremental', 'incremental scan mode (only scan changed files)')
+      .option('--verbose', 'verbose output')
+      .option('--silent', 'suppress console output except errors')
+      .action(async (options) => {
+        await this.execute(options);
+      });
+
+    this.program.on('--help', () => {
+      
+      
+      
+      
+      
+    });
+  }
+
+  /**
+   * Execute the CLI with given options
+   */
+   async execute(options) {
+     const startTime = Date.now();
+     let spinner = null;
+
+     try {
+       // Initialize scanner with proper config
+       this.scanner = new EyeOfSauronOmniscient({
+         maxWorkers: options.parallel || 4,
+         skipTests: !options.includeTests,
+         maxDepth: 20,
+         // Add other config options
+       });
+
+       // Add event listeners
+       this.scanner.on('progress', (data) => {
+         if (spinner) {
+           spinner.text = `Scanning: ${data.percentage}% (${data.processed}/${data.total} files)`;
+         }
+       });
+
+       // Run scan
+       const vision = await this.scanner.scan(options.path, options.mode);
+
+       // Format and output results
+       await this.outputResults(vision, options);
+    
+       // Print summary
+       this.printSummary(vision, startTime);
+
+     } catch (error) {
+       if (spinner) spinner.fail('Scan failed');
+       console.error(chalk.red('Error:'), error.message);
+       process.exit(1);
+     }
+   }
+
+  /**
+   * Load configuration from file or create from options
+   */
+  async loadConfig(options, spinner) {
+    try {
+      if (options.config) {
+        if (spinner) spinner.text = `Loading config from ${options.config}...`;
+        this.config = await Config.load(options.config);
+      } else {
+        // Create config from CLI options
+        this.config = new Config({
+          mode: options.mode,
+          scanPath: path.resolve(options.path),
+          outputFormats: options.output.split(',').map(f => f.trim()),
+          parallel: {
+            enabled: options.parallel > 1,
+            workers: options.parallel
+          },
+          incremental: {
+            enabled: options.incremental
+          },
+          verbose: options.verbose,
+          silent: options.silent
+        });
+      }
+
+      // Override config with CLI options
+      if (options.mode) this.config.mode = options.mode;
+      if (options.path) this.config.scanPath = path.resolve(options.path);
+      if (options.output) this.config.outputFormats = options.output.split(',').map(f => f.trim());
+      if (options.parallel) {
+        this.config.parallel.enabled = options.parallel > 1;
+        this.config.parallel.workers = options.parallel;
+      }
+      if (options.incremental !== undefined) {
+        this.config.incremental.enabled = options.incremental;
+      }
+
+    } catch (error) {
+      throw new Error(`Failed to load configuration: ${error.message}`);
+    }
+  }
+
+  /**
+   * Validate scan path exists and is accessible
+   */
+  async validatePath(scanPath) {
+    try {
+      const stats = await fs.stat(scanPath);
+      if (!stats.isDirectory()) {
+        throw new Error(`Scan path is not a directory: ${scanPath}`);
+      }
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error(`Scan path does not exist: ${scanPath}`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Generate reports in requested formats
+   */
+  async generateReports(vision, options) {
+    const outputFormats = this.config.outputFormats;
+
+    for (const format of outputFormats) {
+      switch (format.toLowerCase()) {
+        case 'console':
+          if (!options.silent) {
+            const consoleReport = this.formatter.formatConsole(vision);
+            
+          }
+          break;
+
+        case 'json':
+          const jsonReport = this.formatter.formatJSON(vision);
+          const jsonPath = path.join(process.cwd(), 'eye-of-sauron-report.json');
+          await fs.writeFile(jsonPath, jsonReport, 'utf8');
+          if (!options.silent) {
+            );
+          }
+          break;
+
+        case 'html':
+          const htmlReport = this.formatter.formatHTML(vision);
+          const htmlPath = path.join(process.cwd(), 'eye-of-sauron-report.html');
+          await fs.writeFile(htmlPath, htmlReport, 'utf8');
+          if (!options.silent) {
+            );
+          }
+          break;
+
+        default:
+          console.warn(chalk.yellow(`Warning: Unknown output format: ${format}`));
+      }
+    }
+  }
+
+  /**
+   * Print scan summary
+   */
+  printSummary(vision, startTime) {
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    const fileCount = Object.keys(vision.files).length;
+    const totalIssues = Object.values(vision.files)
+      .reduce((sum, file) => sum + file.issues.length, 0);
+
+    
+    );
+    }`);
+    }`);
+    }`);
+    }s`);
+    
+    if (vision.summary) {
+      const summary = vision.summary;
+      
+      );
+      if (summary.critical > 0) }`);
+      if (summary.major > 0) }`);
+      if (summary.minor > 0) }`);
+      if (summary.suggestion > 0) }`);
+    }
+
+    
+    );
+  }
+
+  /**
+   * Run the CLI
+   */
+  async run() {
+    this.initialize();
+    await this.program.parseAsync(process.argv);
+  }
+}
+
+// Execute CLI
+const cli = new EyeOfSauronCLI();
+cli.run().catch(error => {
+  console.error(chalk.red('Fatal error:'), error.message);
+  process.exit(1);
+});
+
+export default EyeOfSauronCLI;

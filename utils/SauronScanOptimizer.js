@@ -4,7 +4,7 @@
  * Public API:
  *   - SauronScanOptimizer().analyzeHistory(reports) - Analyzes historical scan reports
  *   - SauronScanOptimizer().suggestAdjustments() - Suggests optimal scan configuration
- * 
+ *
  * Future Enhancement Opportunities:
  *   - Weighted averaging for performance metrics (by file count or scan duration)
  *   - Configurable analyzer effectiveness thresholds
@@ -126,7 +126,7 @@ export default class SauronScanOptimizer {
     // Process issues
     if (report.issues && Array.isArray(report.issues)) {
       this.performanceMetrics.totalIssues += report.issues.length;
-      
+
       report.issues.forEach(issue => {
         // Track by type
         const type = issue.type || 'unknown';
@@ -151,7 +151,7 @@ export default class SauronScanOptimizer {
         const analyzerStats = this.analyzerEffectiveness.get(analyzer);
         analyzerStats.issues++;
         analyzerStats.severity[severity] = (analyzerStats.severity[severity] || 0) + 1;
-        
+
         // Track false positives if marked
         if (issue.falsePositive) {
           analyzerStats.falsePositives++;
@@ -174,7 +174,7 @@ export default class SauronScanOptimizer {
     }
 
     if (this.performanceMetrics.totalFiles > 0) {
-      this.performanceMetrics.avgIssuesPerFile = 
+      this.performanceMetrics.avgIssuesPerFile =
         this.performanceMetrics.totalIssues / this.performanceMetrics.totalFiles;
     }
   }
@@ -225,7 +225,7 @@ export default class SauronScanOptimizer {
 
     // Penalize for false positives
     const falsePositivePenalty = 1 - (data.falsePositives / Math.max(data.issues, 1));
-    
+
     return weightedScore * falsePositivePenalty;
   }
 
@@ -266,7 +266,7 @@ export default class SauronScanOptimizer {
 
   _suggestThresholds() {
     const suggestions = {};
-    
+
     // Complexity threshold based on issue correlation
     const complexityIssues = this.issuePatterns.byType.get('complexity') || 0;
     if (complexityIssues > 100) {
@@ -317,7 +317,7 @@ export default class SauronScanOptimizer {
 
     this.analyzerEffectiveness.forEach((stats, analyzer) => {
       // Disable ineffective analyzers
-      if (stats.effectiveness < EFFECTIVENESS_THRESHOLDS.disable.effectiveness || 
+      if (stats.effectiveness < EFFECTIVENESS_THRESHOLDS.disable.effectiveness ||
           stats.falsePositiveRate > EFFECTIVENESS_THRESHOLDS.disable.falsePositiveRate) {
         suggestions.disable.push({
           analyzer,
@@ -426,20 +426,20 @@ export default class SauronScanOptimizer {
     };
 
     const factors = [
-      this.historyAnalysis.reportsAnalyzed >= CONFIDENCE_WEIGHTS.sufficientReports.threshold 
-        ? CONFIDENCE_WEIGHTS.sufficientReports.weight 
+      this.historyAnalysis.reportsAnalyzed >= CONFIDENCE_WEIGHTS.sufficientReports.threshold
+        ? CONFIDENCE_WEIGHTS.sufficientReports.weight
         : CONFIDENCE_WEIGHTS.sufficientReports.fallback,
-      this.performanceMetrics.totalFiles > CONFIDENCE_WEIGHTS.sufficientFiles.threshold 
-        ? CONFIDENCE_WEIGHTS.sufficientFiles.weight 
+      this.performanceMetrics.totalFiles > CONFIDENCE_WEIGHTS.sufficientFiles.threshold
+        ? CONFIDENCE_WEIGHTS.sufficientFiles.weight
         : CONFIDENCE_WEIGHTS.sufficientFiles.fallback,
-      this.performanceMetrics.totalIssues > CONFIDENCE_WEIGHTS.sufficientIssues.threshold 
-        ? CONFIDENCE_WEIGHTS.sufficientIssues.weight 
+      this.performanceMetrics.totalIssues > CONFIDENCE_WEIGHTS.sufficientIssues.threshold
+        ? CONFIDENCE_WEIGHTS.sufficientIssues.weight
         : CONFIDENCE_WEIGHTS.sufficientIssues.fallback,
-      this.analyzerEffectiveness.size > CONFIDENCE_WEIGHTS.sufficientAnalyzers.threshold 
-        ? CONFIDENCE_WEIGHTS.sufficientAnalyzers.weight 
+      this.analyzerEffectiveness.size > CONFIDENCE_WEIGHTS.sufficientAnalyzers.threshold
+        ? CONFIDENCE_WEIGHTS.sufficientAnalyzers.weight
         : CONFIDENCE_WEIGHTS.sufficientAnalyzers.fallback,
-      this.historyAnalysis.timeRange.start 
-        ? CONFIDENCE_WEIGHTS.hasTimeRange.weight 
+      this.historyAnalysis.timeRange.start
+        ? CONFIDENCE_WEIGHTS.hasTimeRange.weight
         : CONFIDENCE_WEIGHTS.hasTimeRange.fallback
     ];
 
@@ -458,9 +458,9 @@ export default class SauronScanOptimizer {
       changes.push(`Adjust ${thresholdCount} threshold${thresholdCount > 1 ? 's' : ''}`);
     }
 
-    const analyzerChanges = 
-      suggestions.analyzers.enable.length + 
-      suggestions.analyzers.disable.length + 
+    const analyzerChanges =
+      suggestions.analyzers.enable.length +
+      suggestions.analyzers.disable.length +
       suggestions.analyzers.adjust.length;
     if (analyzerChanges > 0) {
       changes.push(`Modify ${analyzerChanges} analyzer configuration${analyzerChanges > 1 ? 's' : ''}`);

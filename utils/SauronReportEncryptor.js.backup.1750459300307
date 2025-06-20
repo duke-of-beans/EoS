@@ -1,0 +1,165 @@
+/**
+ * SauronReportEncryptor.js
+ * Purpose: Encrypts compressed reports for secure storage
+ * Dependencies: Node.js std lib (crypto)
+ * API: SauronReportEncryptor().encrypt(buffer)
+ */
+
+import crypto from 'crypto';
+
+/**
+ * Encrypts compressed scan reports for secure storage and transmission
+ */
+export class SauronReportEncryptor {
+  constructor(config = {}) {
+    this.algorithm = config.algorithm || 'aes-256-gcm';
+    this.key = config.key;
+    this.ivLength = config.ivLength || 12;
+    this.maxSize = config.maxSize || 10 * 1024 * 1024; // 10MB default
+
+    // Validate required key
+    if (!this.key || !Buffer.isBuffer(this.key)) {
+      throw new Error('SauronReportEncryptor: key must be a Buffer');
+    }
+
+    // Validate key length for algorithm
+    const keyLengthMap = {
+      'aes-256-gcm': 32,
+      'aes-192-gcm': 24,
+      'aes-128-gcm': 16
+    };
+
+    const expectedKeyLength = keyLengthMap[this.algorithm];
+    if (expectedKeyLength && this.key.length !== expectedKeyLength) {
+      throw new Error(`SauronReportEncryptor: ${this.algorithm} requires ${expectedKeyLength}-byte key, got ${this.key.length}`);
+    }
+  }
+
+  /**
+   * Encrypts a buffer using configured algorithm
+   * @param {Buffer} buffer - The data to encrypt
+   * @returns {object} Object containing encrypted buffer, IV, authTag, and metadata
+   */
+  encrypt(buffer) {
+    try {
+      // Validate input
+      if (!Buffer.isBuffer(buffer)) {
+        throw new Error('Input must be a Buffer');
+      }
+
+      // Check size limit
+      if (buffer.length > this.maxSize) {
+        console.warn(`SauronReportEncryptor: Input size ${buffer.length} exceeds max ${this.maxSize}`);
+        return {
+          encrypted: Buffer.alloc(0),
+          iv: Buffer.alloc(0),
+          authTag: Buffer.alloc(0),
+          metadata: {
+            algorithm: this.algorithm,
+            generatedAt: new Date().toISOString(),
+            error: 'Input size exceeds limit'
+          }
+        };
+      }
+
+      // Generate fresh IV
+      const iv = crypto.randomBytes(this.ivLength);
+
+      // Create cipher
+      const cipher = crypto.createCipheriv(this.algorithm, this.key, iv);
+
+      // Encrypt data
+      const encrypted = Buffer.concat([
+        cipher.update(buffer),
+        cipher.final()
+      ]);
+
+      // Get authentication tag (for GCM modes)
+      let authTag = Buffer.alloc(0);
+      if (this.algorithm.includes('gcm')) {
+        authTag = cipher.getAuthTag();
+      }
+
+      // Log metrics
+
+
+      return {
+        encrypted,
+        iv,
+        authTag,
+        metadata: {
+          algorithm: this.algorithm,
+          generatedAt: new Date().toISOString(),
+          originalSize: buffer.length,
+          encryptedSize: encrypted.length
+        }
+      };
+
+    } catch (error) {
+      console.error('SauronReportEncryptor: Encryption failed:', error.message);
+
+      // Return minimal empty result on error
+      return {
+        encrypted: Buffer.alloc(0),
+        iv: Buffer.alloc(0),
+        authTag: Buffer.alloc(0),
+        metadata: {
+          algorithm: this.algorithm,
+          generatedAt: new Date().toISOString(),
+          error: error.message
+        }
+      };
+    }
+  }
+
+  /**
+   * Decrypts data encrypted by this class (for testing/verification)
+   * @param {object} encryptedData - Object returned by encrypt()
+   * @returns {Buffer} Decrypted buffer
+   */
+  decrypt(encryptedData) {
+    try {
+      const { encrypted, iv, authTag } = encryptedData;
+
+      // Create decipher
+      const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv);
+
+      // Set auth tag for GCM modes
+      if (this.algorithm.includes('gcm') && authTag && authTag.length > 0) {
+        decipher.setAuthTag(authTag);
+      }
+
+      // Decrypt
+      const decrypted = Buffer.concat([
+        decipher.update(encrypted),
+        decipher.final()
+      ]);
+
+      return decrypted;
+
+    } catch (error) {
+      console.error('SauronReportEncryptor: Decryption failed:', error.message);
+      return Buffer.alloc(0);
+    }
+  }
+}
+
+// Example usage (commented out for production):
+/*
+// Generate a key
+const key = crypto.randomBytes(32);
+
+// Create encryptor
+const encryptor = new SauronReportEncryptor({ key });
+
+// Encrypt some data
+const data = Buffer.from('Sensitive scan report data');
+const encrypted = encryptor.encrypt(data);
+
+
+// Decrypt to verify
+const decrypted = encryptor.decrypt(encrypted);
+);
+*/
+export default SauronReportEncryptor;
+

@@ -1,0 +1,151 @@
+#!/usr/bin/env node
+
+/**
+ * Step-by-Step CLI Test
+ * Tests each part individually to find exactly where it fails
+ */
+
+console.log('🧪 Step-by-Step CLI Test');
+console.log('═'.repeat(40));
+
+async function testStep1() {
+  console.log('📍 Step 1: Testing basic Node.js execution...');
+  console.log('✅ Node.js is working (you see this message)');
+}
+
+async function testStep2() {
+  console.log('\n📍 Step 2: Testing import...');
+  try {
+    console.log('   Importing createEye from ../core/EyeOfSauronOmniscient.js...');
+    const { createEye } = await import('../core/EyeOfSauronOmniscient.js');
+    console.log('✅ Import successful');
+    console.log(`   createEye type: ${typeof createEye}`);
+    return createEye;
+  } catch (error) {
+    console.log('❌ Import failed:', error.message);
+    throw error;
+  }
+}
+
+async function testStep3(createEye) {
+  console.log('\n📍 Step 3: Testing scanner creation...');
+  try {
+    const scanner = createEye();
+    console.log('✅ Scanner created successfully');
+    console.log(`   Scanner type: ${typeof scanner}`);
+    console.log(`   Constructor: ${scanner.constructor.name}`);
+    return scanner;
+  } catch (error) {
+    console.log('❌ Scanner creation failed:', error.message);
+    throw error;
+  }
+}
+
+async function testStep4() {
+  console.log('\n📍 Step 4: Testing file system access...');
+  try {
+    const { promises: fs } = await import('fs');
+    await fs.access('.');
+    console.log('✅ File system access works');
+  } catch (error) {
+    console.log('❌ File system access failed:', error.message);
+    throw error;
+  }
+}
+
+async function testStep5(scanner) {
+  console.log('\n📍 Step 5: Testing scanner.scan() method...');
+  try {
+    console.log('   Checking if scan method exists...');
+    if (typeof scanner.scan !== 'function') {
+      throw new Error('scan method not found');
+    }
+    console.log('✅ scan method exists');
+    console.log(`   scan method type: ${typeof scanner.scan}`);
+    return true;
+  } catch (error) {
+    console.log('❌ Scanner.scan() test failed:', error.message);
+    throw error;
+  }
+}
+
+async function testStep6(scanner) {
+  console.log('\n📍 Step 6: Testing actual scan (with timeout)...');
+  try {
+    console.log('   Starting scan with 10-second timeout...');
+
+    const scanPromise = scanner.scan('.', 'deep');
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Scan timeout after 10 seconds')), 10000)
+    );
+
+    const results = await Promise.race([scanPromise, timeoutPromise]);
+
+    console.log('✅ Scan completed successfully!');
+    console.log(`   Results type: ${typeof results}`);
+    console.log(`   Has summary: ${!!results.summary}`);
+    console.log(`   Has files: ${!!results.files}`);
+
+    if (results.summary) {
+      console.log(`   Files scanned: ${results.summary.filesScanned}`);
+      console.log(`   Total issues: ${results.summary.totalIssues}`);
+    }
+
+    return results;
+  } catch (error) {
+    console.log('❌ Scan failed:', error.message);
+    throw error;
+  }
+}
+
+async function main() {
+  try {
+    await testStep1();
+
+    const createEye = await testStep2();
+    const scanner = await testStep3(createEye);
+
+    await testStep4();
+    await testStep5(scanner);
+
+    const results = await testStep6(scanner);
+
+    console.log('\n🎉 ALL TESTS PASSED!');
+    console.log('   The CLI should work. Let me create a minimal working version...');
+
+    // Create a minimal CLI that just works
+    const { promises: fs } = await import('fs');
+    const path = await import('path');
+
+    const minimalCLI = `#!/usr/bin/env node
+import { createEye } from '../core/EyeOfSauronOmniscient.js';
+
+async function run() {
+  try {
+    console.log('🔍 Minimal Scanner Test');
+    const scanner = createEye();
+    const results = await scanner.scan('.', 'deep');
+    console.log(\`Found \${results.summary.filesScanned} files, \${results.summary.totalIssues} issues\`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+run();`;
+
+    await fs.writeFile('minimal-working-cli.js', minimalCLI);
+    console.log('\n✅ Created minimal-working-cli.js');
+    console.log('   Test it: node minimal-working-cli.js');
+
+  } catch (error) {
+    console.log('\n❌ Test failed at step:', error.message);
+    console.log('   This tells us exactly where the problem is!');
+
+    if (process.env.DEBUG) {
+      console.log('\nStack trace:');
+      console.log(error.stack);
+    }
+  }
+}
+
+main();

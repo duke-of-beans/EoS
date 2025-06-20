@@ -36,11 +36,11 @@ export class SauronInsightReporter {
    */
   generate(metrics, adjustments, trends, policyViolations) {
     const reportData = this._compileReportData(metrics, adjustments, trends, policyViolations);
-    
+
     if (this.config.outputFormat === 'json') {
       return JSON.stringify(reportData, null, 2);
     }
-    
+
     return this._formatPlainTextReport(reportData);
   }
 
@@ -50,7 +50,7 @@ export class SauronInsightReporter {
    */
   _compileReportData(metrics, adjustments, trends, policyViolations) {
     const timestamp = this.config.includeTimestamp ? new Date().toISOString() : null;
-    
+
     return {
       title: this.config.reportTitle,
       timestamp,
@@ -73,7 +73,7 @@ export class SauronInsightReporter {
     const adjustmentCount = this._countAdjustments(adjustments);
     const violationCount = policyViolations?.length || 0;
     const trendStatus = this._analyzeTrendStatus(trends);
-    
+
     return {
       totalIssues,
       criticalIssues,
@@ -92,7 +92,7 @@ export class SauronInsightReporter {
     if (!metrics || typeof metrics !== 'object') {
       return { error: 'No metrics provided' };
     }
-    
+
     return {
       fileCount: metrics.fileCount || 0,
       issuesByType: metrics.issuesByType || {},
@@ -110,7 +110,7 @@ export class SauronInsightReporter {
     if (!adjustments || typeof adjustments !== 'object') {
       return { error: 'No adjustments provided' };
     }
-    
+
     return {
       applied: adjustments.applied || [],
       recommended: adjustments.recommended || [],
@@ -127,7 +127,7 @@ export class SauronInsightReporter {
     if (!trends || typeof trends !== 'object') {
       return { error: 'No trends provided' };
     }
-    
+
     return {
       historicalComparison: trends.historicalComparison || {},
       anomalies: trends.anomalies || [],
@@ -144,7 +144,7 @@ export class SauronInsightReporter {
     if (!Array.isArray(violations)) {
       return { error: 'No violations provided' };
     }
-    
+
     const groupedViolations = this._groupViolationsByType(violations);
     const topViolations = violations
       .slice(0, this.config.maxViolationsShown)
@@ -154,7 +154,7 @@ export class SauronInsightReporter {
         file: v.file,
         message: v.message
       }));
-    
+
     return {
       total: violations.length,
       byType: groupedViolations,
@@ -169,7 +169,7 @@ export class SauronInsightReporter {
    */
   _generateRecommendations(metrics, adjustments, trends, violations) {
     const recommendations = [];
-    
+
     // Critical issue recommendations
     const criticalCount = this._calculateCriticalIssues(metrics);
     if (criticalCount > 0) {
@@ -180,7 +180,7 @@ export class SauronInsightReporter {
         impact: 'Prevents potential system failures'
       });
     }
-    
+
     // Policy violation recommendations
     if (violations && violations.length > 0) {
       const criticalViolations = violations.filter(v => v.severity === 'critical');
@@ -193,7 +193,7 @@ export class SauronInsightReporter {
         });
       }
     }
-    
+
     // Trend-based recommendations
     if (trends?.anomalies && trends.anomalies.length > 0) {
       recommendations.push({
@@ -203,7 +203,7 @@ export class SauronInsightReporter {
         impact: 'Prevents regression and maintains code quality'
       });
     }
-    
+
     // Adjustment recommendations
     if (adjustments?.recommended && adjustments.recommended.length > 0) {
       recommendations.push({
@@ -213,7 +213,7 @@ export class SauronInsightReporter {
         impact: 'Optimizes scan performance and accuracy'
       });
     }
-    
+
     return recommendations;
   }
 
@@ -224,28 +224,28 @@ export class SauronInsightReporter {
   _formatPlainTextReport(data) {
     const sections = [];
     const separator = this.config.compactFormat ? '\n' : '\n\n';
-    
+
     // Header
     sections.push(this._formatHeader(data.title, data.timestamp));
-    
+
     // Executive Summary
     sections.push(this._formatSummarySection(data.summary));
-    
+
     // Key Metrics
     sections.push(this._formatMetricsSection(data.metrics));
-    
+
     // Adjustments
     sections.push(this._formatAdjustmentsSection(data.adjustments));
-    
+
     // Trends & Anomalies
     sections.push(this._formatTrendsSection(data.trends));
-    
+
     // Policy Violations
     sections.push(this._formatViolationsSection(data.policyViolations));
-    
+
     // Recommendations
     sections.push(this._formatRecommendationsSection(data.recommendations));
-    
+
     return sections.join(separator);
   }
 
@@ -259,11 +259,11 @@ export class SauronInsightReporter {
       title.toUpperCase(),
       '='.repeat(60)
     ];
-    
+
     if (timestamp) {
       lines.push(`Generated: ${new Date(timestamp).toLocaleString()}`);
     }
-    
+
     return lines.join('\n');
   }
 
@@ -282,7 +282,7 @@ export class SauronInsightReporter {
       `Trend Status: ${summary.trendStatus}`,
       `Health Score: ${summary.healthScore}/100`
     ];
-    
+
     return lines.join('\n');
   }
 
@@ -295,19 +295,19 @@ export class SauronInsightReporter {
       'KEY METRICS',
       '-'.repeat(40)
     ];
-    
+
     if (metrics.error) {
       lines.push(metrics.error);
     } else {
       lines.push(`Files Analyzed: ${metrics.fileCount}`);
-      
+
       if (metrics.issuesBySeverity) {
         lines.push(this.config.compactFormat ? 'Issues by Severity:' : '\nIssues by Severity:');
         Object.entries(metrics.issuesBySeverity).forEach(([severity, count]) => {
           lines.push(`  ${severity}: ${count}`);
         });
       }
-      
+
       if (metrics.issuesByType) {
         lines.push(this.config.compactFormat ? 'Issues by Type:' : '\nIssues by Type:');
         Object.entries(metrics.issuesByType).forEach(([type, count]) => {
@@ -315,7 +315,7 @@ export class SauronInsightReporter {
         });
       }
     }
-    
+
     return lines.join('\n');
   }
 
@@ -328,7 +328,7 @@ export class SauronInsightReporter {
       'TUNING ADJUSTMENTS',
       '-'.repeat(40)
     ];
-    
+
     if (adjustments.error) {
       lines.push(adjustments.error);
     } else {
@@ -338,7 +338,7 @@ export class SauronInsightReporter {
           lines.push(`  - ${adj.type}: ${adj.description || adj.value}`);
         });
       }
-      
+
       if (adjustments.recommended && adjustments.recommended.length > 0) {
         const prefix = this.config.compactFormat ? '' : '\n';
         lines.push(`${prefix}Recommended Adjustments (${adjustments.recommended.length}):`);
@@ -346,13 +346,13 @@ export class SauronInsightReporter {
           lines.push(`  - ${adj.type}: ${adj.description || adj.value}`);
         });
       }
-      
+
       if (adjustments.effectiveness && adjustments.effectiveness !== 'unknown') {
         const prefix = this.config.compactFormat ? '' : '\n';
         lines.push(`${prefix}Effectiveness: ${adjustments.effectiveness}`);
       }
     }
-    
+
     return lines.join('\n');
   }
 
@@ -365,7 +365,7 @@ export class SauronInsightReporter {
       'TRENDS & ANOMALIES',
       '-'.repeat(40)
     ];
-    
+
     if (trends.error) {
       lines.push(trends.error);
     } else {
@@ -375,7 +375,7 @@ export class SauronInsightReporter {
           lines.push(`  - ${anomaly.type}: ${anomaly.description}`);
         });
       }
-      
+
       if (trends.patterns && trends.patterns.length > 0) {
         const prefix = this.config.compactFormat ? '' : '\n';
         lines.push(`${prefix}Identified Patterns:`);
@@ -384,7 +384,7 @@ export class SauronInsightReporter {
         });
       }
     }
-    
+
     return lines.join('\n');
   }
 
@@ -397,20 +397,20 @@ export class SauronInsightReporter {
       'POLICY VIOLATIONS',
       '-'.repeat(40)
     ];
-    
+
     if (violations.error) {
       lines.push(violations.error);
     } else {
       lines.push(`Total Violations: ${violations.total}`);
       lines.push(`Critical Violations: ${violations.criticalCount}`);
-      
+
       if (violations.byType) {
         lines.push(this.config.compactFormat ? 'Violations by Type:' : '\nViolations by Type:');
         Object.entries(violations.byType).forEach(([type, count]) => {
           lines.push(`  ${type}: ${count}`);
         });
       }
-      
+
       if (violations.topViolations && violations.topViolations.length > 0) {
         const prefix = this.config.compactFormat ? '' : '\n';
         lines.push(`${prefix}Top Violations:`);
@@ -420,7 +420,7 @@ export class SauronInsightReporter {
         });
       }
     }
-    
+
     return lines.join('\n');
   }
 
@@ -433,13 +433,13 @@ export class SauronInsightReporter {
       'RECOMMENDATIONS',
       '-'.repeat(40)
     ];
-    
+
     if (!recommendations || recommendations.length === 0) {
       lines.push('No recommendations at this time.');
     } else {
       const byPriority = this._groupRecommendationsByPriority(recommendations);
       const spacer = this.config.compactFormat ? '' : '\n';
-      
+
       ['high', 'medium', 'low'].forEach(priority => {
         if (byPriority[priority] && byPriority[priority].length > 0) {
           lines.push(`${spacer}${priority.toUpperCase()} PRIORITY:`);
@@ -450,7 +450,7 @@ export class SauronInsightReporter {
         }
       });
     }
-    
+
     return lines.join('\n');
   }
 
@@ -489,11 +489,11 @@ export class SauronInsightReporter {
    */
   _analyzeTrendStatus(trends) {
     if (!trends) return 'Unknown';
-    
+
     const hasAnomalies = trends.anomalies && trends.anomalies.length > 0;
     const isImproving = trends.projections?.improving;
     const isDegrading = trends.projections?.degrading;
-    
+
     // Handle mixed projections
     if (hasAnomalies && isImproving) return 'Improving with Anomalies';
     if (hasAnomalies && isDegrading) return 'Degrading with Anomalies';
@@ -501,7 +501,7 @@ export class SauronInsightReporter {
     if (isImproving && isDegrading) return 'Mixed Trends';
     if (isImproving) return 'Improving';
     if (isDegrading) return 'Degrading';
-    
+
     return 'Stable';
   }
 
@@ -512,29 +512,29 @@ export class SauronInsightReporter {
   _calculateHealthScore(metrics, violations) {
     let score = 100;
     const scoring = this.config.healthScoring;
-    
+
     // Deduct for issues
     const totalIssues = this._calculateTotalIssues(metrics);
     const criticalIssues = this._calculateCriticalIssues(metrics);
-    
+
     score -= Math.min(
-      criticalIssues * scoring.criticalIssueDeduction, 
+      criticalIssues * scoring.criticalIssueDeduction,
       scoring.criticalIssueMaxDeduction
     );
     score -= Math.min(
-      (totalIssues - criticalIssues) * scoring.otherIssueDeduction, 
+      (totalIssues - criticalIssues) * scoring.otherIssueDeduction,
       scoring.otherIssueMaxDeduction
     );
-    
+
     // Deduct for violations
     if (violations && violations.length > 0) {
       const criticalViolations = violations.filter(v => v.severity === 'critical').length;
       score -= Math.min(
-        criticalViolations * scoring.criticalViolationDeduction, 
+        criticalViolations * scoring.criticalViolationDeduction,
         scoring.violationMaxDeduction
       );
     }
-    
+
     return Math.max(0, Math.round(score));
   }
 

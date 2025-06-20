@@ -6,7 +6,7 @@
  *   - toJson(report) → string
  *   - toCsv(report) → string
  *   - toXml(report) → string
- * 
+ *
  * Note: For very large reports, future versions could implement streaming
  * to reduce memory usage. Current implementation builds strings in memory.
  */
@@ -85,7 +85,7 @@ export default class SauronScanExporter {
   _buildCsvRow(issue, file = null) {
     const rowData = this.config.csvHeaders.map(header => {
       let value = '';
-      
+
       // Map header to issue property
       switch(header.toLowerCase()) {
         case 'file':
@@ -116,10 +116,10 @@ export default class SauronScanExporter {
           // Check if issue has this property
           value = issue[header] || '';
       }
-      
+
       return this._escapeCsvField(value);
     });
-    
+
     return rowData.join(',');
   }
 
@@ -189,15 +189,15 @@ export default class SauronScanExporter {
     if (value === null || value === undefined) {
       return '';
     }
-    
+
     const str = String(value);
-    
+
     // Check if field needs quoting
     if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
       // Escape quotes by doubling them
       return `"${str.replace(/"/g, '""')}"`;
     }
-    
+
     return str;
   }
 
@@ -222,13 +222,13 @@ export default class SauronScanExporter {
     const original = str;
     // Replace invalid XML tag characters with underscores
     const sanitized = str.replace(/[^a-zA-Z0-9_-]/g, '_');
-    
+
     // Log sanitization if enabled and tag was changed
     if (this.config.logTagSanitization && original !== sanitized && !this.sanitizedTags.has(original)) {
       this.sanitizedTags.add(original);
       console.log(`[SauronScanExporter] XML tag sanitized: "${original}" → "${sanitized}"`);
     }
-    
+
     return sanitized;
   }
 
@@ -238,7 +238,7 @@ export default class SauronScanExporter {
    */
   _issueToXml(issue, file = null) {
     const lines = ['    <issue>'];
-    
+
     if (file || issue.file) {
       lines.push(`      <file>${this._escapeXml(file || issue.file)}</file>`);
     }
@@ -263,7 +263,7 @@ export default class SauronScanExporter {
     if (issue.evidence) {
       lines.push(`      <evidence>${this._escapeXml(issue.evidence)}</evidence>`);
     }
-    
+
     lines.push('    </issue>');
     return lines.join('\n');
   }
@@ -271,7 +271,7 @@ export default class SauronScanExporter {
 
 /**
  * Update for /docs/EoS-manifest.md:
- * 
+ *
  * ## SauronScanExporter.js
  * **Purpose:** Exports scan reports in multiple formats for external analysis
  * **Location:** eye-of-sauron/utils/SauronScanExporter.js

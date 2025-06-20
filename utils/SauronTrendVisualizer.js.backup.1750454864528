@@ -1,0 +1,476 @@
+/**
+ * Purpose: Generates time-series charts from pipeline/anomaly data
+ * Dependencies: Node.js std lib
+ * API: SauronTrendVisualizer().generateChartData(), generateHtml()
+ */
+
+class SauronTrendVisualizer {
+  constructor(config = {}) {
+    this.config = {
+      theme: config.theme || 'dark',
+      maxPoints: config.maxPoints || 500,
+      ...config
+    };
+  }
+
+  /**
+   * Generates deterministic chart data from summary and anomaly history
+   * @param {Array} summaryHistory - Array of pipeline summary objects
+   * @param {Array} anomalyHistory - Array of anomaly detection results
+   * @returns {Object} Chart data structure safe for embedding
+   */
+  generateChartData(summaryHistory = [], anomalyHistory = []) {
+    const startTime = Date.now();
+    
+    try {
+      // Validate and sanitize inputs
+      const validSummaries = this._validateSummaryData(summaryHistory);
+      const validAnomalies = this._validateAnomalyData(anomalyHistory);
+      
+      // Sort by timestamp for canonical ordering
+      const sortedSummaries = validSummaries.sort((a, b) => 
+        new Date(a.timestamp) - new Date(b.timestamp)
+      );
+      const sortedAnomalies = validAnomalies.sort((a, b) => 
+        new Date(a.timestamp) - new Date(b.timestamp)
+      );
+      
+      // Cap data points for performance
+      const cappedSummaries = this._capDataPoints(sortedSummaries);
+      const cappedAnomalies = this._capDataPoints(sortedAnomalies);
+      
+      // Generate chart series
+      const chartData = {
+        metadata: {
+          theme: this.config.theme,
+          maxPoints: this.config.maxPoints,
+          actualPoints: {
+            summaries: cappedSummaries.length,
+            anomalies: cappedAnomalies.length
+          },
+          timeRange: this._getTimeRange(cappedSummaries, cappedAnomalies),
+          generated: new Date().toISOString()
+        },
+        series: [
+          this._generateIssueTrendSeries(cappedSummaries),
+          this._generateSeverityTrendSeries(cappedSummaries),
+          this._generateAnomalyTrendSeries(cappedAnomalies),
+          this._generatePerformanceTrendSeries(cappedSummaries)
+        ],
+        annotations: this._generateAnnotations(cappedAnomalies)
+      };
+      
+      // Log metrics
+      const duration = Date.now() - startTime;
+      `);
+      
+      return chartData;
+      
+    } catch (error) {
+      console.error('SauronTrendVisualizer: Error generating chart data:', error.message);
+      return this._getMinimalSafeStructure();
+    }
+  }
+
+  /**
+   * Generates minimal inline HTML + SVG snippet for dashboard embedding
+   * @param {Array} summaryHistory - Array of pipeline summary objects
+   * @param {Array} anomalyHistory - Array of anomaly detection results
+   * @returns {String} HTML string with embedded SVG chart
+   */
+  generateHtml(summaryHistory = [], anomalyHistory = []) {
+    const startTime = Date.now();
+    
+    try {
+      const chartData = this.generateChartData(summaryHistory, anomalyHistory);
+      const isDark = this.config.theme === 'dark';
+      
+      // Generate SVG chart
+      const svgChart = this._generateSvgChart(chartData, isDark);
+      
+      // Generate minimal HTML wrapper
+      const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Eye of Sauron - Trend Analysis</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: ${isDark ? '#1a1a1a' : '#ffffff'};
+      color: ${isDark ? '#e0e0e0' : '#333333'};
+    }
+    .chart-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      border-radius: 8px;
+      border: 1px solid ${isDark ? '#404040' : '#e0e0e0'};
+      background: ${isDark ? '#2a2a2a' : '#fafafa'};
+      padding: 20px;
+    }
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .chart-metadata {
+      font-size: 12px;
+      color: ${isDark ? '#888888' : '#666666'};
+      text-align: center;
+      margin-top: 10px;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="chart-container">
+    <div class="chart-title">👁️ Eye of Sauron - Code Quality Trends</div>
+    ${svgChart}
+    <div class="chart-metadata">
+      Generated: ${chartData.metadata.generated} | 
+      Data Points: ${chartData.metadata.actualPoints.summaries + chartData.metadata.actualPoints.anomalies} | 
+      Theme: ${chartData.metadata.theme}
+    </div>
+  </div>
+</body>
+</html>`.trim();
+
+      const duration = Date.now() - startTime;
+      `);
+      
+      return html;
+      
+    } catch (error) {
+      console.error('SauronTrendVisualizer: Error generating HTML:', error.message);
+      return this._getMinimalHtmlFallback();
+    }
+  }
+
+  /**
+   * Validates and sanitizes summary data
+   * @private
+   */
+  _validateSummaryData(summaries) {
+    return summaries
+      .filter(s => s && s.timestamp && s.metrics)
+      .map(s => ({
+        timestamp: s.timestamp,
+        metrics: {
+          totalIssues: Number(s.metrics.totalIssues) || 0,
+          criticalIssues: Number(s.metrics.criticalIssues) || 0,
+          warningIssues: Number(s.metrics.warningIssues) || 0,
+          infoIssues: Number(s.metrics.infoIssues) || 0,
+          scanDuration: Number(s.metrics.scanDuration) || 0,
+          filesScanned: Number(s.metrics.filesScanned) || 0
+        },
+        // Redact sensitive info in labels
+        label: this._redactSensitiveInfo(s.label || 'Scan')
+      }));
+  }
+
+  /**
+   * Validates and sanitizes anomaly data
+   * @private
+   */
+  _validateAnomalyData(anomalies) {
+    return anomalies
+      .filter(a => a && a.timestamp && a.severity)
+      .map(a => ({
+        timestamp: a.timestamp,
+        severity: a.severity,
+        type: a.type || 'unknown',
+        // Redact sensitive info in description
+        description: this._redactSensitiveInfo(a.description || 'Anomaly detected')
+      }));
+  }
+
+  /**
+   * Caps data points for performance
+   * @private
+   */
+  _capDataPoints(data) {
+    if (data.length <= this.config.maxPoints) {
+      return data;
+    }
+    
+    // Sample evenly across the dataset
+    const step = Math.ceil(data.length / this.config.maxPoints);
+    return data.filter((_, index) => index % step === 0);
+  }
+
+  /**
+   * Gets time range from combined datasets
+   * @private
+   */
+  _getTimeRange(summaries, anomalies) {
+    const allTimestamps = [
+      ...summaries.map(s => new Date(s.timestamp)),
+      ...anomalies.map(a => new Date(a.timestamp))
+    ].filter(d => !isNaN(d.getTime()));
+    
+    if (allTimestamps.length === 0) {
+      return { start: null, end: null };
+    }
+    
+    return {
+      start: new Date(Math.min(...allTimestamps)).toISOString(),
+      end: new Date(Math.max(...allTimestamps)).toISOString()
+    };
+  }
+
+  /**
+   * Generates issue trend series
+   * @private
+   */
+  _generateIssueTrendSeries(summaries) {
+    return {
+      name: 'Total Issues',
+      type: 'line',
+      data: summaries.map(s => ({
+        x: s.timestamp,
+        y: s.metrics.totalIssues,
+        label: s.label
+      }))
+    };
+  }
+
+  /**
+   * Generates severity trend series
+   * @private
+   */
+  _generateSeverityTrendSeries(summaries) {
+    return {
+      name: 'Critical Issues',
+      type: 'line',
+      data: summaries.map(s => ({
+        x: s.timestamp,
+        y: s.metrics.criticalIssues,
+        label: s.label
+      }))
+    };
+  }
+
+  /**
+   * Generates anomaly trend series
+   * @private
+   */
+  _generateAnomalyTrendSeries(anomalies) {
+    return {
+      name: 'Anomalies',
+      type: 'scatter',
+      data: anomalies.map(a => ({
+        x: a.timestamp,
+        y: a.severity === 'high' ? 3 : a.severity === 'medium' ? 2 : 1,
+        label: a.description,
+        type: a.type
+      }))
+    };
+  }
+
+  /**
+   * Generates performance trend series
+   * @private
+   */
+  _generatePerformanceTrendSeries(summaries) {
+    return {
+      name: 'Scan Duration (s)',
+      type: 'line',
+      data: summaries.map(s => ({
+        x: s.timestamp,
+        y: Math.round(s.metrics.scanDuration / 1000),
+        label: s.label
+      }))
+    };
+  }
+
+  /**
+   * Generates annotations for significant events
+   * @private
+   */
+  _generateAnnotations(anomalies) {
+    return anomalies
+      .filter(a => a.severity === 'high')
+      .map(a => ({
+        x: a.timestamp,
+        text: `🚨 ${a.type}`,
+        description: a.description
+      }));
+  }
+
+  /**
+   * Generates SVG chart
+   * @private
+   */
+  _generateSvgChart(chartData, isDark) {
+    const width = 800;
+    const height = 400;
+    const margin = { top: 20, right: 50, bottom: 40, left: 50 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    
+    const backgroundColor = isDark ? '#2a2a2a' : '#fafafa';
+    const textColor = isDark ? '#e0e0e0' : '#333333';
+    const gridColor = isDark ? '#404040' : '#e0e0e0';
+    
+    // Get data ranges
+    const allData = chartData.series.flatMap(s => s.data);
+    const timeExtent = this._getDataExtent(allData, 'x');
+    const valueExtent = this._getDataExtent(allData, 'y');
+    
+    // Generate scales (simplified linear mapping)
+    const xScale = (timestamp) => {
+      const time = new Date(timestamp).getTime();
+      const range = timeExtent.max - timeExtent.min;
+      return margin.left + (plotWidth * (time - timeExtent.min) / range);
+    };
+    
+    const yScale = (value) => {
+      const range = valueExtent.max - valueExtent.min;
+      return margin.top + plotHeight - (plotHeight * (value - valueExtent.min) / range);
+    };
+    
+    // Generate SVG paths
+    const pathElements = chartData.series.map((series, index) => {
+      const color = this._getSeriesColor(index, isDark);
+      
+      if (series.type === 'line') {
+        const pathData = series.data
+          .map((d, i) => `${i === 0 ? 'M' : 'L'} ${xScale(d.x)} ${yScale(d.y)}`)
+          .join(' ');
+        return `<path d="${pathData}" fill="none" stroke="${color}" stroke-width="2"/>`;
+      } else if (series.type === 'scatter') {
+        return series.data
+          .map(d => `<circle cx="${xScale(d.x)}" cy="${yScale(d.y)}" r="3" fill="${color}"/>`)
+          .join('');
+      }
+      return '';
+    }).join('');
+    
+    return `
+<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="${width}" height="${height}" fill="${backgroundColor}"/>
+  
+  <!-- Grid lines -->
+  <g stroke="${gridColor}" stroke-width="1" opacity="0.5">
+    <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"/>
+    <line x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"/>
+  </g>
+  
+  <!-- Data -->
+  <g>${pathElements}</g>
+  
+  <!-- Axes labels -->
+  <text x="${width/2}" y="${height - 10}" text-anchor="middle" fill="${textColor}" font-size="12">Time</text>
+  <text x="15" y="${height/2}" text-anchor="middle" fill="${textColor}" font-size="12" transform="rotate(-90 15 ${height/2})">Issues</text>
+  
+  <!-- Legend -->
+  ${chartData.series.map((series, index) => `
+    <g>
+      <rect x="${width - 120}" y="${20 + index * 20}" width="12" height="12" fill="${this._getSeriesColor(index, isDark)}"/>
+      <text x="${width - 100}" y="${32 + index * 20}" fill="${textColor}" font-size="11">${series.name}</text>
+    </g>
+  `).join('')}
+</svg>`.trim();
+  }
+
+  /**
+   * Gets data extent for scaling
+   * @private
+   */
+  _getDataExtent(data, key) {
+    if (data.length === 0) return { min: 0, max: 1 };
+    
+    const values = data.map(d => key === 'x' ? new Date(d[key]).getTime() : Number(d[key]));
+    return {
+      min: Math.min(...values),
+      max: Math.max(...values)
+    };
+  }
+
+  /**
+   * Gets series color based on index and theme
+   * @private
+   */
+  _getSeriesColor(index, isDark) {
+    const colors = isDark 
+      ? ['#60a5fa', '#34d399', '#f87171', '#a78bfa']
+      : ['#2563eb', '#059669', '#dc2626', '#7c3aed'];
+    return colors[index % colors.length];
+  }
+
+  /**
+   * Redacts sensitive information from labels/descriptions
+   * @private
+   */
+  _redactSensitiveInfo(text) {
+    if (!text) return 'Unknown';
+    
+    return text
+      .replace(/\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\//g, '/***/')  // File paths
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '***@***.***')  // Emails
+      .replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '***.***.***.***')  // IP addresses
+      .substring(0, 100);  // Limit length
+  }
+
+  /**
+   * Returns minimal safe structure on error
+   * @private
+   */
+  _getMinimalSafeStructure() {
+    return {
+      metadata: {
+        theme: this.config.theme,
+        maxPoints: this.config.maxPoints,
+        actualPoints: { summaries: 0, anomalies: 0 },
+        timeRange: { start: null, end: null },
+        generated: new Date().toISOString(),
+        error: true
+      },
+      series: [],
+      annotations: []
+    };
+  }
+
+  /**
+   * Returns minimal HTML fallback on error
+   * @private
+   */
+  _getMinimalHtmlFallback() {
+    const isDark = this.config.theme === 'dark';
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Eye of Sauron - Trend Analysis</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: ${isDark ? '#1a1a1a' : '#ffffff'};
+      color: ${isDark ? '#e0e0e0' : '#333333'};
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>👁️ Eye of Sauron - Trend Analysis</h2>
+  <p>❌ Unable to generate visualization</p>
+  <p>No valid trend data available</p>
+<div id="results"></div>
+</body>
+</html>`.trim();
+  }
+}
+
+module.exports = SauronTrendVisualizer;
+export default SauronTrendVisualizer;
+

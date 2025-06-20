@@ -9,7 +9,7 @@ export class TechnicalDebtCalculator {
     this.interestRate = config.interestRate ?? 0.05;
     this.baseDebtPerIssue = config.baseDebtPerIssue ?? 1;
     this.projectionMonths = config.projectionMonths ?? 12;
-    
+
     // Severity multipliers with explicit defaults
     this.severityMultipliers = {
       critical: 5,
@@ -20,10 +20,10 @@ export class TechnicalDebtCalculator {
       APOCALYPSE: 10,
       apocalypse: 10
     };
-    
+
     // Default multiplier for unrecognized severities
     this.defaultMultiplier = config.defaultMultiplier ?? 0.5;
-    
+
     // Track unrecognized severities for warnings
     this.unrecognizedSeverities = new Set();
   }
@@ -38,18 +38,18 @@ export class TechnicalDebtCalculator {
   compute(report, options = {}) {
     // Reset unrecognized severities tracking
     this.unrecognizedSeverities.clear();
-    
+
     // Use provided projection months or default
     const projectionMonths = options.projectionMonths ?? this.projectionMonths;
-    
+
     // Initialize debt tracking for all known severities
     const detailsBySeverity = {};
     for (const severity in this.severityMultipliers) {
       detailsBySeverity[severity] = { count: 0, debt: 0 };
     }
-    
+
     let totalDebt = 0;
-    
+
     // Process all files in the report
     if (report.vision && report.vision.files) {
       for (const [filePath, fileData] of Object.entries(report.vision.files)) {
@@ -57,23 +57,23 @@ export class TechnicalDebtCalculator {
           for (const issue of fileData.issues) {
             const severity = issue.severity || 'info';
             let multiplier = this.severityMultipliers[severity];
-            
+
             // Handle unrecognized severity
             if (multiplier === undefined) {
               this.unrecognizedSeverities.add(severity);
               multiplier = this.defaultMultiplier;
-              
+
               // Initialize tracking for this severity if not exists
               if (!detailsBySeverity[severity]) {
                 detailsBySeverity[severity] = { count: 0, debt: 0 };
               }
             }
-            
+
             const debtValue = this.baseDebtPerIssue * multiplier;
-            
+
             // Update totals
             totalDebt += debtValue;
-            
+
             // Update severity details
             detailsBySeverity[severity].count++;
             detailsBySeverity[severity].debt += debtValue;
@@ -81,17 +81,17 @@ export class TechnicalDebtCalculator {
         }
       }
     }
-    
+
     // Calculate projected debt with compound interest
     const projectedDebt = totalDebt * Math.pow(1 + this.interestRate, projectionMonths);
-    
+
     // Round to 2 decimal places for cleaner output
     const roundTo2 = (num) => Math.round(num * 100) / 100;
-    
+
     // Round all debt values
     totalDebt = roundTo2(totalDebt);
     const projectedDebtRounded = roundTo2(projectedDebt);
-    
+
     // Round severity details and clean up empty entries
     const cleanDetailsBySeverity = {};
     for (const [severity, details] of Object.entries(detailsBySeverity)) {
@@ -102,7 +102,7 @@ export class TechnicalDebtCalculator {
         };
       }
     }
-    
+
     // Build result object
     const result = {
       totalDebt,
@@ -114,7 +114,7 @@ export class TechnicalDebtCalculator {
         projectionMonths: projectionMonths
       }
     };
-    
+
     // Add warnings if unrecognized severities were found
     if (this.unrecognizedSeverities.size > 0) {
       result.warnings = {
@@ -122,7 +122,7 @@ export class TechnicalDebtCalculator {
         message: `Found unrecognized severity values. Used default multiplier of ${this.defaultMultiplier}.`
       };
     }
-    
+
     return result;
   }
 }

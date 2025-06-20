@@ -1,0 +1,190 @@
+/**
+ * Purpose: Compresses scan reports for compact storage
+ * Dependencies: Node.js std lib (zlib)
+ * API: SauronReportCompressor().compress(report)
+ */
+
+import { promisify } from 'util';
+import zlib from 'zlib';
+
+// Promisified compression functions
+const gzip = promisify(zlib.gzip);
+const brotliCompress = promisify(zlib.brotliCompress);
+const deflate = promisify(zlib.deflate);
+
+export class SauronReportCompressor {
+  constructor(config = {}) {
+    this.algorithm = config.algorithm || 'gzip'; // gzip | brotli | deflate
+    this.level = config.level !== undefined ? config.level : 6; // Compression level (1-9)
+    this.maxSize = config.maxSize || 10 * 1024 * 1024; // 10MB default max
+    this.timeout = config.timeout || 5000; // 5s default timeout
+    this.includeMetadata = config.includeMetadata || false;
+    
+    // Validate algorithm
+    const validAlgorithms = ['gzip', 'brotli', 'deflate'];
+    if (!validAlgorithms.includes(this.algorithm)) {
+      console.error(`[SauronReportCompressor] Invalid algorithm: ${this.algorithm}, defaulting to gzip`);
+      this.algorithm = 'gzip';
+    }
+    
+    // Validate compression level
+    if (this.level < 1 || this.level > 9) {
+      console.error(`[SauronReportCompressor] Invalid level: ${this.level}, defaulting to 6`);
+      this.level = 6;
+    }
+  }
+
+  /**
+   * Compress a scan report object into a Buffer
+   * @param {object} report - The scan report to compress
+   * @returns {Promise<Buffer>} - Compressed report as Buffer
+   */
+  async compress(report) {
+    try {
+      // Return empty buffer for null/undefined input
+      if (report == null) {
+        console.warn('[SauronReportCompressor] Null or undefined report provided');
+        return Buffer.alloc(0);
+      }
+      
+      // Convert report to canonical JSON (sorted keys, no whitespace)
+      const canonicalJson = this._toCanonicalJson(report);
+      const jsonBuffer = Buffer.from(canonicalJson, 'utf8');
+      
+      // Check uncompressed size
+      if (jsonBuffer.length > this.maxSize) {
+        console.error(`[SauronReportCompressor] Report exceeds max size: ${jsonBuffer.length} > ${this.maxSize}`);
+        return Buffer.alloc(0);
+      }
+      
+      // Create compression promise with timeout
+      const compressionPromise = this._performCompression(jsonBuffer);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Compression timeout')), this.timeout);
+      });
+      
+      // Race compression against timeout
+      let compressed = await Promise.race([compressionPromise, timeoutPromise]);
+      
+      // Add metadata header if requested
+      if (this.includeMetadata) {
+        compressed = this._addMetadataHeader(compressed);
+      }
+      
+      // Final size check
+      if (compressed.length > this.maxSize) {
+        console.error(`[SauronReportCompressor] Compressed size exceeds max: ${compressed.length} > ${this.maxSize}`);
+        return Buffer.alloc(0);
+      }
+      
+      return compressed;
+      
+    } catch (error) {
+      console.error(`[SauronReportCompressor] Compression error: ${error.message}`);
+      return Buffer.alloc(0);
+    }
+  }
+
+  /**
+   * Convert object to canonical JSON with sorted keys
+   * @private
+   */
+  _toCanonicalJson(obj) {
+    return JSON.stringify(obj, (key, value) => {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        // Sort object keys
+        return Object.keys(value)
+          .sort()
+          .reduce((sorted, key) => {
+            sorted[key] = value[key];
+            return sorted;
+          }, {});
+      }
+      return value;
+    });
+  }
+
+  /**
+   * Perform the actual compression based on algorithm
+   * @private
+   */
+  async _performCompression(buffer) {
+    const options = {};
+    
+    switch (this.algorithm) {
+      case 'gzip':
+        options.level = this.level;
+        return await gzip(buffer, options);
+        
+      case 'brotli':
+        options.params = {
+          [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+          [zlib.constants.BROTLI_PARAM_QUALITY]: this.level,
+        };
+        return await brotliCompress(buffer, options);
+        
+      case 'deflate':
+        options.level = this.level;
+        return await deflate(buffer, options);
+        
+      default:
+        throw new Error(`Unsupported algorithm: ${this.algorithm}`);
+    }
+  }
+
+  /**
+   * Add metadata header to compressed buffer
+   * @private
+   */
+  _addMetadataHeader(compressed) {
+    // Create a simple header with algorithm and level
+    // Format: [1 byte magic][1 byte algorithm][1 byte level][4 bytes size][compressed data]
+    const MAGIC = 0xEF; // Eye of Sauron magic byte
+    const algorithmByte = {
+      'gzip': 0x01,
+      'brotli': 0x02,
+      'deflate': 0x03
+    }[this.algorithm] || 0x00;
+    
+    const header = Buffer.alloc(7);
+    header.writeUInt8(MAGIC, 0);
+    header.writeUInt8(algorithmByte, 1);
+    header.writeUInt8(this.level, 2);
+    header.writeUInt32BE(compressed.length, 3);
+    
+    return Buffer.concat([header, compressed]);
+  }
+
+  /**
+   * Static method to detect if a buffer has our metadata header
+   * @static
+   */
+  static hasMetadataHeader(buffer) {
+    return buffer && buffer.length >= 7 && buffer[0] === 0xEF;
+  }
+
+  /**
+   * Static method to extract metadata from header
+   * @static
+   */
+  static extractMetadata(buffer) {
+    if (!this.hasMetadataHeader(buffer)) {
+      return null;
+    }
+    
+    const algorithmMap = {
+      0x01: 'gzip',
+      0x02: 'brotli',
+      0x03: 'deflate'
+    };
+    
+    return {
+      algorithm: algorithmMap[buffer[1]] || 'unknown',
+      level: buffer[2],
+      compressedSize: buffer.readUInt32BE(3),
+      dataStart: 7
+    };
+  }
+}
+export default SauronReportCompressor;
+

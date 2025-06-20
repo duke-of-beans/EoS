@@ -1,0 +1,301 @@
+/**
+ * Purpose: Master scanner orchestrator for Eye of Sauron - FIXED VERSION
+ * Dependencies: fs, path, EventEmitter, CharacterForensics, PatternPrecognition, FileDiscovery, BatchProcessor
+ * Public API: EyeOfSauronOmniscient(config).scan(path, mode)
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { EventEmitter } from 'events';
+import CharacterForensics from './CharacterForensics.js';
+import PatternPrecognition from './PatternPrecognition.js';
+import FileDiscovery from '../utils/FileDiscovery.js';
+import BatchProcessor from '../performance/BatchProcessor.js';
+import ScanProfileManager from './ScanProfileManager.js';
+
+// Constants
+const SEVERITY_LEVELS = {
+  APOCALYPSE: 'APOCALYPSE',
+  DANGER: 'DANGER',
+  WARNING: 'WARNING', 
+  INFO: 'INFO',
+  PROPHECY: 'PROPHECY',
+  WHISPER: 'WHISPER'
+};
+
+const CONSTANTS = {
+  DEFAULT_MAX_DEPTH: 20,
+  DEFAULT_ENCODING: 'utf8',
+  DEFAULT_BATCH_SIZE: 10,
+  DEFAULT_MAX_CONCURRENT_SCANS: 5,
+  PROGRESS_REPORT_INTERVAL: 100
+};
+
+export default class EyeOfSauronOmniscient extends EventEmitter {
+  constructor(config = {}) {
+    super();
+    
+    this.config = {
+      maxDepth: CONSTANTS.DEFAULT_MAX_DEPTH,
+      skipDotFiles: true,
+      skipTests: true,
+      encoding: CONSTANTS.DEFAULT_ENCODING,
+      batchSize: CONSTANTS.DEFAULT_BATCH_SIZE,
+      maxWorkers: 4,
+      ...config
+    };
+
+    // Initialize components
+    this.fileDiscovery = new FileDiscovery(this.config);
+    this.batchProcessor = new BatchProcessor(this.config.maxWorkers);
+    this.scanProfileManager = new ScanProfileManager();
+    
+    // Initialize external analyzers
+    this.characterForensics = new CharacterForensics(this.config);
+    this.patternPrecognition = new PatternPrecognition(this.config);
+    
+    // Track state
+    this.errors = [];
+    this.scanStartTime = null;
+    this.filesProcessed = 0;
+    this.totalFiles = 0;
+  }
+
+  /**
+   * Main scan method - orchestrates the entire scanning process
+   * @param {string} scanPath - Path to scan
+   * @param {string} mode - Scan mode (quick|deep|quantum)
+   * @returns {Promise<Object>} Scan results with vision structure
+   */
+  async scan(scanPath = '.', mode = 'deep') {
+    try {
+      this.scanStartTime = Date.now();
+      this.filesProcessed = 0;
+      this.errors = [];
+      
+      // Get scan profile
+      const profile = this.scanProfileManager.getProfile(mode);
+      
+      // Resolve absolute path
+      const absolutePath = path.resolve(scanPath);
+      
+      // Verify path exists
+      try {
+        await fs.access(absolutePath);
+      } catch (error) {
+        throw new Error(`Path not accessible: ${absolutePath}`);
+      }
+
+      this.emit('scan-started', { path: absolutePath, mode });
+
+      // Discover files using FileDiscovery utility
+      const files = await this.fileDiscovery.discover(
+        absolutePath,
+        this.config.maxDepth,
+        this.config.skipTests
+      );
+      
+      this.totalFiles = files.length;
+      
+      // Initialize vision structure
+      const vision = {
+        scanPath: absolutePath,
+        timestamp: new Date().toISOString(),
+        mode,
+        files: {},
+        summary: {
+          filesScanned: 0,
+          totalIssues: 0,
+          issuesBySeverity: {},
+          issuesByType: {}
+        },
+        stats: {
+          startTime: this.scanStartTime,
+          endTime: null,
+          duration: null
+        }
+      };
+
+      // Process files in batches
+      const processFile = async (filePath) => {
+        try {
+          const content = await fs.readFile(filePath, this.config.encoding);
+          const issues = [];
+          
+          // Run character forensics if enabled in profile
+          if (profile.characterLevel) {
+            const charIssues = await this.characterForensics.analyze(content, filePath);
+            if (charIssues && Array.isArray(charIssues)) {
+              issues.push(...this.normalizeIssues(charIssues, 'character-forensics', filePath));
+            }
+          }
+          
+          // Run pattern precognition if enabled in profile  
+          if (profile.patternAnalysis) {
+            const patternIssues = await this.patternPrecognition.detect(content, filePath);
+            if (patternIssues && Array.isArray(patternIssues)) {
+              issues.push(...this.normalizeIssues(patternIssues, 'pattern-violations', filePath));
+            }
+          }
+          
+          this.filesProcessed++;
+          this.emitProgress();
+          
+          return { filePath, issues };
+        } catch (error) {
+          this.errors.push({
+            file: filePath,
+            error: error.message
+          });
+          return { filePath, issues: [] };
+        }
+      };
+
+      // Process all files using BatchProcessor
+      const { results, errors } = await this.batchProcessor.process(files, processFile);
+      
+      // DEBUG: Log what BatchProcessor returned
+      console.log('\n🔍 DEBUG: BatchProcessor returned', results.length, 'results');
+      results.forEach((r, i) => {
+        console.log(`  Result ${i}: file=${r.filePath}, issues=${r.issues?.length || 0}`);
+      });
+      
+      // Add any batch processing errors
+      errors.forEach(err => {
+        this.errors.push({
+          file: err.item,
+          error: err.error
+        });
+      });
+
+      // Aggregate results into vision structure
+      results.forEach(({ filePath, issues }) => {
+        // Ensure issues is always an array
+        const issueList = issues || [];
+        
+        if (issueList.length > 0) {
+          // Calculate relative path more carefully
+          let relativePath;
+          try {
+            relativePath = path.relative(absolutePath, filePath);
+            // Normalize path separators for consistency
+            relativePath = relativePath.replace(/\\/g, '/');
+          } catch (e) {
+            console.error('Path calculation error:', e);
+            relativePath = path.basename(filePath);
+          }
+          
+          console.log(`  Storing ${issueList.length} issues for: ${relativePath}`);
+          
+          vision.files[relativePath] = { 
+            issues: issueList,
+            path: relativePath
+          };
+          
+          // Update summary
+          vision.summary.totalIssues += issueList.length;
+          
+          // Count by severity
+          issueList.forEach(issue => {
+            const severity = issue.severity || 'WARNING';
+            vision.summary.issuesBySeverity[severity] = 
+              (vision.summary.issuesBySeverity[severity] || 0) + 1;
+            
+            // Count by type
+            const type = issue.type || 'unknown';
+            vision.summary.issuesByType[type] = 
+              (vision.summary.issuesByType[type] || 0) + 1;
+          });
+        }
+      });
+
+      // Finalize stats
+      vision.summary.filesScanned = files.length;
+      vision.stats.endTime = Date.now();
+      vision.stats.duration = vision.stats.endTime - vision.stats.startTime;
+
+      this.emit('scan-completed', vision);
+      
+      return vision;
+      
+    } catch (error) {
+      this.emit('scan-error', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Normalize issues from different analyzers to consistent format
+   * @private
+   */
+  normalizeIssues(issues, analyzerType, filePath) {
+    // Ensure issues is an array
+    if (!issues || !Array.isArray(issues)) {
+      return [];
+    }
+    
+    return issues.map(issue => {
+      // Map different severity names to standard levels
+      let severity = issue.severity;
+      if (severity === 'critical') severity = SEVERITY_LEVELS.APOCALYPSE;
+      else if (severity === 'error') severity = SEVERITY_LEVELS.DANGER;
+      else if (severity === 'warning') severity = SEVERITY_LEVELS.WARNING;
+      else if (severity === 'info') severity = SEVERITY_LEVELS.INFO;
+      
+      return {
+        type: issue.type || analyzerType,
+        severity: severity || SEVERITY_LEVELS.WARNING,
+        file: path.basename(filePath),
+        line: issue.line || 1,
+        column: issue.column || 1,
+        message: issue.message || issue.description || 'Issue detected',
+        analyzer: analyzerType,
+        fix: issue.fix || null
+      };
+    });
+  }
+
+  /**
+   * Emit progress events
+   * @private
+   */
+  emitProgress() {
+    const progress = {
+      processed: this.filesProcessed,
+      total: this.totalFiles,
+      percentage: Math.round((this.filesProcessed / this.totalFiles) * 100),
+      errors: this.errors.length
+    };
+    
+    this.emit('progress', progress);
+  }
+
+  /**
+   * Get current scan status
+   */
+  getStatus() {
+    return {
+      scanning: this.scanStartTime !== null,
+      filesProcessed: this.filesProcessed,
+      totalFiles: this.totalFiles,
+      errors: this.errors.length,
+      duration: this.scanStartTime ? Date.now() - this.scanStartTime : 0
+    };
+  }
+
+  /**
+   * Destroy instance and cleanup
+   */
+  destroy() {
+    this.removeAllListeners();
+    this.errors = [];
+    this.filesProcessed = 0;
+    this.totalFiles = 0;
+    this.scanStartTime = null;
+  }
+}
+
+// Export factory function for convenience
+export function createEye(config = {}) {
+  return new EyeOfSauronOmniscient(config);
+}

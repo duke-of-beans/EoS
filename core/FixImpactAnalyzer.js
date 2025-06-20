@@ -19,7 +19,7 @@ export class FixImpactAnalyzer {
   analyzeFixImpact(targetFile, issues) {
     // Get all downstream dependencies of the target file
     const impactedFiles = this._getDownstreamDependencies(targetFile);
-    
+
     // Always include the target file itself
     if (!impactedFiles.includes(targetFile)) {
       impactedFiles.unshift(targetFile);
@@ -42,7 +42,7 @@ export class FixImpactAnalyzer {
 
       if (impactedFiles.includes(issue.file)) {
         impactedIssueCount++;
-        
+
         // Track issue types with separate handling for unknown
         if (issue.type) {
           impactedIssueTypes[issue.type] = (impactedIssueTypes[issue.type] || 0) + 1;
@@ -75,10 +75,10 @@ export class FixImpactAnalyzer {
   _getDownstreamDependencies(targetFile) {
     const downstream = new Set();
     const visited = new Set();
-    
+
     // Find all files that import the target file
     this._findDownstream(targetFile, downstream, visited);
-    
+
     return Array.from(downstream);
   }
 

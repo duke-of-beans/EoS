@@ -4,7 +4,7 @@
  * API: Start with node SauronAPI.js [port] [authToken]
  *      REST: GET /health, POST /scan, GET /report/:id
  *      GraphQL: POST /graphql with queries/mutations
- * 
+ *
  * PRODUCTION NOTES:
  * - GraphQL parser is extremely basic - use graphql-js or Apollo for production
  * - No rate limiting implemented - add express-rate-limit or similar for production
@@ -42,10 +42,10 @@ const reportStore = new Map();
 async function executeScan(options = {}) {
   const scanId = randomBytes(16).toString('hex');
   const startTime = Date.now();
-  
+
   // Simulate scanning
   await new Promise(resolve => setTimeout(resolve, 100));
-  
+
   const report = {
     id: scanId,
     timestamp: new Date().toISOString(),
@@ -68,7 +68,7 @@ async function executeScan(options = {}) {
         code: 'SEC-001'
       },
       {
-        file: 'src/helper.js', 
+        file: 'src/helper.js',
         line: 25,
         column: 12,
         severity: 'warning',
@@ -78,7 +78,7 @@ async function executeScan(options = {}) {
       }
     ]
   };
-  
+
   reportStore.set(scanId, report);
   return report;
 }
@@ -87,15 +87,15 @@ async function executeScan(options = {}) {
 /**
  * WARNING: This is an EXTREMELY basic GraphQL implementation for demo purposes.
  * It only supports simple queries without variables, fragments, or directives.
- * 
+ *
  * PRODUCTION RECOMMENDATION: Replace with proper GraphQL library such as:
  * - graphql-js (reference implementation)
  * - Apollo Server
  * - GraphQL Yoga
- * 
+ *
  * Current limitations:
  * - No variable support
- * - No fragment support  
+ * - No fragment support
  * - No directive support
  * - No schema validation
  * - No nested field selection
@@ -107,7 +107,7 @@ class SimpleGraphQL {
     const cleanQuery = query.replace(/\s+/g, ' ').trim();
     const isQuery = cleanQuery.startsWith('query') || cleanQuery.startsWith('{');
     const isMutation = cleanQuery.startsWith('mutation');
-    
+
     if (isQuery) {
       if (cleanQuery.includes('health')) {
         return { type: 'query', operation: 'health' };
@@ -117,14 +117,14 @@ class SimpleGraphQL {
         return { type: 'query', operation: 'report', id: idMatch?.[1] };
       }
     }
-    
+
     if (isMutation && cleanQuery.includes('runScan')) {
       return { type: 'mutation', operation: 'runScan' };
     }
-    
+
     throw new Error('Invalid GraphQL query');
   }
-  
+
   static async execute(parsed) {
     switch (parsed.type) {
       case 'query':
@@ -136,7 +136,7 @@ class SimpleGraphQL {
           return { data: { report: report || null } };
         }
         break;
-        
+
       case 'mutation':
         if (parsed.operation === 'runScan') {
           const report = await executeScan();
@@ -144,7 +144,7 @@ class SimpleGraphQL {
         }
         break;
     }
-    
+
     return { errors: [{ message: 'Unknown operation' }] };
   }
 }
@@ -152,10 +152,10 @@ class SimpleGraphQL {
 // Authentication middleware
 function authenticate(req) {
   if (!AUTH_TOKEN) return true;
-  
+
   const authHeader = req.headers.authorization;
   if (!authHeader) return false;
-  
+
   const [type, token] = authHeader.split(' ');
   return type === 'Bearer' && token === AUTH_TOKEN;
 }
@@ -170,51 +170,51 @@ function setCorsHeaders(res) {
 // Request handler
 async function handleRequest(req, res) {
   setCorsHeaders(res);
-  
+
   // Handle preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
     return;
   }
-  
+
   // Check authentication
   if (!authenticate(req)) {
     res.writeHead(401, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Unauthorized' }));
     return;
   }
-  
+
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
-  
+
   try {
     // REST endpoints
     if (pathname === '/health' && req.method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ 
-        status: 'ok', 
+      res.end(JSON.stringify({
+        status: 'ok',
         timestamp: new Date().toISOString(),
         version: API_VERSION
       }));
       return;
     }
-    
+
     if (pathname === '/scan' && req.method === 'POST') {
       // PRODUCTION TODO: Add input validation and rate limiting
       // Recommended libraries: joi, ajv for validation; express-rate-limit for rate limiting
       const body = await getBody(req);
       const options = body ? JSON.parse(body) : {};
-      
+
       // Basic size check (production would need comprehensive validation)
       if (body && body.length > 10000) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Request body too large' }));
         return;
       }
-      
+
       const report = await executeScan(options);
-      
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         success: true,
@@ -223,18 +223,18 @@ async function handleRequest(req, res) {
       }));
       return;
     }
-    
+
     if (pathname.startsWith('/report/') && req.method === 'GET') {
       const reportId = pathname.split('/')[2];
       const report = reportStore.get(reportId);
-      
+
       if (!report) {
         // Try to load from file system
         try {
           const filePath = join(REPORTS_DIR, `${reportId}.json`);
           const content = await readFile(filePath, 'utf-8');
           const fileReport = JSON.parse(content);
-          
+
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(fileReport));
           return;
@@ -244,29 +244,29 @@ async function handleRequest(req, res) {
           return;
         }
       }
-      
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(report));
       return;
     }
-    
+
     // GraphQL endpoint
     if (pathname === '/graphql' && req.method === 'POST') {
       const body = await getBody(req);
       const { query } = JSON.parse(body);
-      
+
       const parsed = SimpleGraphQL.parse(query);
       const result = await SimpleGraphQL.execute(parsed);
-      
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(result));
       return;
     }
-    
+
     // 404 for unknown routes
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Not found' }));
-    
+
   } catch (error) {
     console.error('Request error:', error);
     res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -302,11 +302,11 @@ server.listen(PORT, () => {
   console.log(`   { health { status timestamp } }`);
   console.log(`   { report(id: "abc123") { id summary issues { file message } } }`);
   console.log(`   mutation { runScan { id summary } }`);
-  
+
   if (AUTH_TOKEN) {
     console.log(`\n🔑 Include Authorization header: Bearer ${AUTH_TOKEN}`);
   }
-  
+
   console.log(`\n⚠️  PRODUCTION WARNINGS:`);
   console.log(`   • GraphQL parser is basic - use graphql-js or Apollo Server`);
   console.log(`   • No rate limiting - add express-rate-limit or similar`);

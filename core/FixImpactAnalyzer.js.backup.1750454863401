@@ -1,0 +1,115 @@
+/**
+ * Purpose: Analyzes potential impact of fixes across dependencies
+ * Dependencies: Node.js std lib
+ * API: FixImpactAnalyzer(graph).analyzeFixImpact(file, issues)
+ * Note: Handles missing issue.file and issue.type gracefully, tracks unknowns separately
+ */
+
+export class FixImpactAnalyzer {
+  constructor(dependencyGraph) {
+    this.dependencyGraph = dependencyGraph || {};
+  }
+
+  /**
+   * Analyzes the potential impact of applying fixes to a target file
+   * @param {string} targetFile - The file being fixed
+   * @param {Array} issues - Array of issue objects
+   * @returns {object} Impact analysis including affected files, issue counts, and metadata
+   */
+  analyzeFixImpact(targetFile, issues) {
+    // Get all downstream dependencies of the target file
+    const impactedFiles = this._getDownstreamDependencies(targetFile);
+    
+    // Always include the target file itself
+    if (!impactedFiles.includes(targetFile)) {
+      impactedFiles.unshift(targetFile);
+    }
+
+    // Count issues in impacted files
+    let impactedIssueCount = 0;
+    const impactedIssueTypes = {};
+
+    // Track skipped issues for transparency
+    let skippedIssues = 0;
+
+    // Analyze issues across all impacted files
+    for (const issue of issues) {
+      // Skip issues without file property
+      if (!issue.file) {
+        skippedIssues++;
+        continue;
+      }
+
+      if (impactedFiles.includes(issue.file)) {
+        impactedIssueCount++;
+        
+        // Track issue types with separate handling for unknown
+        if (issue.type) {
+          impactedIssueTypes[issue.type] = (impactedIssueTypes[issue.type] || 0) + 1;
+        } else {
+          // Track unknown types separately for visibility
+          impactedIssueTypes['_unknown'] = (impactedIssueTypes['_unknown'] || 0) + 1;
+        }
+      }
+    }
+
+    // Add metadata about analysis completeness
+    const metadata = {
+      totalIssuesAnalyzed: issues.length,
+      issuesSkipped: skippedIssues
+    };
+
+    return {
+      impactedFiles,
+      impactedIssueCount,
+      impactedIssueTypes,
+      metadata
+    };
+  }
+
+  /**
+   * Gets all files that depend on the target file (downstream dependencies)
+   * @param {string} targetFile - The file to analyze
+   * @returns {Array<string>} List of files that depend on targetFile
+   */
+  _getDownstreamDependencies(targetFile) {
+    const downstream = new Set();
+    const visited = new Set();
+    
+    // Find all files that import the target file
+    this._findDownstream(targetFile, downstream, visited);
+    
+    return Array.from(downstream);
+  }
+
+  /**
+   * Recursively finds downstream dependencies
+   * @param {string} file - Current file being analyzed
+   * @param {Set} downstream - Set of downstream files found
+   * @param {Set} visited - Set of already visited files (prevents cycles)
+   */
+  _findDownstream(file, downstream, visited) {
+    // Prevent infinite recursion from circular dependencies
+    if (visited.has(file)) {
+      return;
+    }
+    visited.add(file);
+
+    // Check each file in the dependency graph
+    for (const [potentialDependent, dependencies] of Object.entries(this.dependencyGraph)) {
+      // Skip if this file doesn't have dependencies
+      if (!dependencies || !Array.isArray(dependencies)) {
+        continue;
+      }
+
+      // Check if potentialDependent imports the current file
+      if (dependencies.includes(file)) {
+        downstream.add(potentialDependent);
+        // Recursively find files that depend on this dependent
+        this._findDownstream(potentialDependent, downstream, visited);
+      }
+    }
+  }
+}
+export default FixImpactAnalyzer;
+

@@ -1,0 +1,74 @@
+
+{
+  "version": "1.0.0",
+  "timestamp": "2025-06-20T08:40:55.677Z",
+  "duration": "253ms",
+  "summary": {
+    "filesScanned": 15,
+    "issuesFound": 2,
+    "fixesApplied": 0,
+    "errors": 0
+  },
+  "issues": {
+    "autoFixed": [],
+    "needsReview": [
+      {
+        "type": "unguarded-await",
+        "severity": "WARNING",
+        "risk": "MEDIUM",
+        "file": "src\\core\\detectionEngine.js",
+        "line": 128,
+        "column": 4,
+        "message": "Unguarded await expression",
+        "code": "await walk(rootPath);",
+        "suggestion": "Wrap in try-catch block"
+      },
+      {
+        "type": "unguarded-await",
+        "severity": "WARNING",
+        "risk": "MEDIUM",
+        "file": "src\\core\\detectionEngine.js",
+        "line": 141,
+        "column": 20,
+        "message": "Unguarded await expression",
+        "code": "const results = await Promise.all(promises);",
+        "suggestion": "Wrap in try-catch block"
+      }
+    ],
+    "highRisk": []
+  },
+  "config": {
+    "rules": {
+      "console": {
+        "enabled": true,
+        "autoFix": true
+      },
+      "unusedImports": {
+        "enabled": true,
+        "autoFix": true
+      },
+      "unguardedAwaits": {
+        "enabled": true,
+        "autoFix": false
+      },
+      "hardcodedSecrets": {
+        "enabled": true,
+        "autoFix": false
+      },
+      "eventListeners": {
+        "enabled": true,
+        "autoFix": false
+      },
+      "deprecatedWebpack": {
+        "enabled": true,
+        "autoFix": true
+      }
+    },
+    "customDetectors": [
+      "src/utils/apiKeyDetector.js",
+      "src/utils/consoleDetector.js",
+      "src/utils/eventListenerDetector.js",
+      "src/utils/webpackDetector.js"
+    ]
+  }
+}

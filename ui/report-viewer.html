@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eye of Sauron - Report Viewer</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+    
+    .success-banner {
+      background: #27ae60;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+    
+    details {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin: 10px 0;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    details.danger {
+      border-left: 4px solid #e74c3c;
+    }
+    
+    details.warning {
+      border-left: 4px solid #f39c12;
+    }
+    
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 5px;
+      user-select: none;
+    }
+    
+    summary:hover {
+      background: #f8f9fa;
+    }
+    
+    ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    li {
+      margin: 5px 0;
+      padding: 5px;
+      background: #f8f9fa;
+      border-radius: 3px;
+    }
+    
+    #dropzone {
+      border: 2px dashed #3498db;
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      background: white;
+      margin: 20px 0;
+      transition: all 0.3s;
+    }
+    
+    #dropzone.drag-over {
+      background: #e3f2fd;
+      border-color: #2196f3;
+    }
+    
+    #results {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>👁️ Eye of Sauron - Report Viewer</h1>
+  
+  <div id="dropzone">
+    <p>📁 Drop a report.json file here or paste JSON data below</p>
+    <textarea id="jsonInput" rows="10" style="width: 100%; max-width: 600px;" 
+      placeholder="Paste Eye of Sauron JSON report here..."></textarea>
+    <br><br>
+    <button onclick="loadReport()" style="padding: 10px 20px; font-size: 16px;">
+      🔍 Load Report
+    </button>
+  </div>
+  
+  <div id="results"></div>
+
+  <script type="module">
+    import { renderScanResults } from './scanResultsRenderer.js';
+    
+    // Make loadReport globally available
+    window.loadReport = function() {
+      const input = document.getElementById('jsonInput').value;
+      if (input) {
+        try {
+          const report = JSON.parse(input);
+          renderScanResults(report);
+        } catch (error) {
+          alert('Invalid JSON format: ' + error.message);
+        }
+      }
+    };
+    
+    // Drag and drop support
+    const dropzone = document.getElementById('dropzone');
+    
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+    
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('drag-over');
+    });
+    
+    dropzone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'application/json') {
+        const text = await file.text();
+        document.getElementById('jsonInput').value = text;
+        loadReport();
+      }
+    });
+  </script>
+</body>
+</html>

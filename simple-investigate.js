@@ -1,0 +1,108 @@
+#!/usr/bin/env node
+
+/**
+ * Simple Investigation - Check Real Data Structure
+ */
+
+const fs = require('fs');
+
+try {
+  console.log('🔍 Checking scan results structure...\n');
+
+  const resultsContent = fs.readFileSync('test-cli.json', 'utf8');
+  const results = JSON.parse(resultsContent);
+
+  console.log('📊 BASIC STRUCTURE:');
+  console.log('═══════════════════════════════════════');
+  console.log('Type of results:', typeof results);
+  console.log('Top-level keys:', Object.keys(results));
+  console.log('');
+
+  // Check each top-level property
+  Object.entries(results).forEach(([key, value]) => {
+    console.log(`${key}:`, typeof value, Array.isArray(value) ? `(array with ${value.length} items)` : '');
+
+    if (key === 'files' && Array.isArray(value)) {
+      console.log(`  First few files:`, value.slice(0, 3).map(f => f.file || f));
+    } else if (key === 'summary' && typeof value === 'object') {
+      console.log(`  Summary keys:`, Object.keys(value));
+    } else if (typeof value === 'string' && value.length > 100) {
+      console.log(`  Value preview:`, value.substring(0, 100) + '...');
+    } else if (typeof value !== 'object') {
+      console.log(`  Value:`, value);
+    }
+  });
+
+  // Check for issues in different locations
+  console.log('\n🔍 LOOKING FOR ISSUES...');
+
+  let totalIssues = 0;
+  let homoglyphCount = 0;
+
+  // Method 1: Check if there's a direct issues array
+  if (results.issues && Array.isArray(results.issues)) {
+    console.log(`Direct issues array: ${results.issues.length} issues`);
+    totalIssues += results.issues.length;
+
+    // Sample first few issues
+    results.issues.slice(0, 3).forEach((issue, i) => {
+      console.log(`  Issue ${i + 1}:`, issue.type || 'unknown', '-', issue.message?.substring(0, 50) || 'no message');
+      if (issue.type === 'HOMOGLYPH' || issue.message?.includes('CYRILLIC')) {
+        homoglyphCount++;
+      }
+    });
+  }
+
+  // Method 2: Check files array
+  if (results.files && Array.isArray(results.files)) {
+    console.log(`Files array: ${results.files.length} files`);
+
+    results.files.forEach((file, index) => {
+      if (index < 5) { // Show first 5 files
+        console.log(`  File ${index + 1}:`, file.file || 'unknown');
+        if (file.issues && Array.isArray(file.issues)) {
+          console.log(`    Issues: ${file.issues.length}`);
+          totalIssues += file.issues.length;
+
+          file.issues.forEach(issue => {
+            if (issue.type === 'HOMOGLYPH' || issue.message?.includes('CYRILLIC')) {
+              homoglyphCount++;
+            }
+          });
+        }
+      }
+    });
+  }
+
+  // Method 3: Check for other structure
+  if (results.report && typeof results.report === 'object') {
+    console.log('Found results.report object');
+    if (results.report.files) {
+      console.log(`  Report files: ${results.report.files.length} files`);
+    }
+  }
+
+  console.log('\n🎯 TOTALS:');
+  console.log(`Issues found in structure: ${totalIssues}`);
+  console.log(`Homoglyph issues: ${homoglyphCount}`);
+  console.log(`Expected total: 173561`);
+
+  if (homoglyphCount > 100000) {
+    console.log('\n🚨 MASSIVE homoglyph corruption still present!');
+  }
+
+} catch (error) {
+  console.error('❌ Failed to read results:', error.message);
+
+  // Try to see if file exists
+  try {
+    const stats = fs.statSync('test-cli.json');
+    console.log('File size:', stats.size, 'bytes');
+
+    // Read first part of file
+    const preview = fs.readFileSync('test-cli.json', 'utf8').substring(0, 500);
+    console.log('File preview:', preview);
+  } catch (e) {
+    console.log('Cannot read file:', e.message);
+  }
+}

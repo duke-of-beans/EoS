@@ -22,9 +22,9 @@ export class SauronErrorAggregator {
    */
   record(error) {
     this._totalCount++;
-    
+
     let message, origin;
-    
+
     if (typeof error === 'string') {
       message = error;
       origin = 'unknown';
@@ -35,10 +35,10 @@ export class SauronErrorAggregator {
       message = String(error);
       origin = 'unknown';
     }
-    
+
     // Create unique key for deduplication
     const key = `${origin}:::${message}`;
-    
+
     // Update error map
     if (this._errorMap.has(key)) {
       const existing = this._errorMap.get(key);
@@ -51,7 +51,7 @@ export class SauronErrorAggregator {
         firstSeen: new Date().toISOString()
       });
     }
-    
+
     // Update origin counts
     this._originCounts.set(origin, (this._originCounts.get(origin) || 0) + 1);
   }
@@ -65,7 +65,7 @@ export class SauronErrorAggregator {
     for (const [origin, count] of this._originCounts) {
       byOrigin[origin] = count;
     }
-    
+
     return {
       total: this._totalCount,
       unique: this._errorMap.size,
@@ -80,7 +80,7 @@ export class SauronErrorAggregator {
    */
   list() {
     const errors = Array.from(this._errorMap.values());
-    
+
     // Sort by count descending, then by firstSeen ascending
     return errors.sort((a, b) => {
       if (b.count !== a.count) {

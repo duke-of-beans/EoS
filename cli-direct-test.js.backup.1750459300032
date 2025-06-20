@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+
+/**
+ * Direct CLI Directory Test
+ * Run this FROM the cli/ directory to test imports directly
+ */
+
+console.log('🧪 Direct CLI Directory Test');
+console.log('═'.repeat(30));
+console.log(`📂 Running from: ${process.cwd()}`);
+console.log(`📄 This file: ${import.meta.url}`);
+
+async function testDirectImport() {
+  try {
+    console.log('\n🔍 Testing direct import...');
+    console.log('   Importing: ../core/EyeOfSauronOmniscient.js');
+
+    const start = Date.now();
+    const module = await import('../core/EyeOfSauronOmniscient.js');
+    const importTime = Date.now() - start;
+
+    console.log(`✅ Import successful in ${importTime}ms`);
+    console.log(`   Exports: ${Object.keys(module).join(', ')}`);
+
+    if (module.createEye) {
+      console.log('\n🔧 Testing createEye...');
+      const scanner = module.createEye();
+      console.log(`✅ Scanner created: ${scanner.constructor.name}`);
+
+      console.log('\n⚡ Testing quick scan...');
+      const results = await scanner.scan('../', 'quick');
+      console.log(`✅ Quick scan worked: ${results.summary.filesScanned} files`);
+
+      console.log('\n🎉 Everything works from CLI directory!');
+      console.log('   The issue might be in the CLI script itself.');
+
+    } else {
+      console.log('❌ createEye not found in exports');
+    }
+
+  } catch (error) {
+    console.log('❌ Test failed:', error.message);
+    console.log('   Stack:', error.stack?.split('\n')[0]);
+  }
+}
+
+testDirectImport();

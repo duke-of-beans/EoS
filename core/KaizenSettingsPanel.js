@@ -1,6 +1,6 @@
 /**
  * KaizenSettingsPanel.js
- * 
+ *
  * Purpose: Manages runtime settings for Eye of Sauron analysis system
  * Dependencies: Node.js standard library only
  * Public API:
@@ -9,7 +9,7 @@
  *   - getSetting(key) - Get a single setting value
  *   - getAllSettings() - Get all settings as immutable object
  *   - resetSettings() - Reset all settings to defaults
- * 
+ *
  * Performance Notes:
  *   - Deep cloning protects against mutations but has performance cost
  *   - Large objects (>1000 keys) or deep nesting (>100 levels) will trigger warnings
@@ -37,13 +37,13 @@ class KaizenSettingsPanel {
       console.warn(`[KaizenSettingsPanel] Invalid key type: ${typeof key}. Expected string.`);
       throw new TypeError('Setting key must be a string');
     }
-    
+
     // Warn if key looks suspicious (e.g., prototype pollution attempts)
     if (key.includes('__proto__') || key.includes('constructor') || key.includes('prototype')) {
       console.warn(`[KaizenSettingsPanel] Suspicious key detected: "${key}". Setting blocked.`);
       return;
     }
-    
+
     // Deep clone value to prevent external mutations
     this.#settings[key] = this.#deepClone(value);
   }
@@ -58,7 +58,7 @@ class KaizenSettingsPanel {
       console.warn(`[KaizenSettingsPanel] Invalid key type: ${typeof key}. Expected string.`);
       throw new TypeError('Setting key must be a string');
     }
-    
+
     // Return deep clone to prevent mutations
     return this.#deepClone(this.#settings[key]);
   }
@@ -168,12 +168,12 @@ class KaizenSettingsPanel {
     const cloned = {};
     seen.set(obj, cloned);
     const keys = Object.keys(obj);
-    
+
     // Performance: warn on objects with many keys
     if (keys.length > 1000) {
       console.warn(`[KaizenSettingsPanel] Cloning object with ${keys.length} keys. Consider performance impact.`);
     }
-    
+
     // Performance: use for loop for better performance
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];

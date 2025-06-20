@@ -1,0 +1,206 @@
+/**
+ * Purpose: Records scan + API events for auditing
+ * Dependencies: Node.js std lib (fs/promises, path)
+ * API: AuditTrailManager(path).recordEvent(), listEvents()
+ */
+
+import { promises as fs } from 'fs';
+import { dirname } from 'path';
+
+export class AuditTrailManager {
+  constructor(logPath) {
+    if (!logPath) {
+      throw new Error('logPath is required');
+    }
+    this.logPath = logPath;
+  }
+
+  /**
+   * Records an event to the audit log with timestamp
+   * @param {Object} event - Event object to record
+   * @param {Object} options - Optional settings
+   * @param {string} options.timestamp - Override timestamp (for replays)
+   * @returns {Promise<void>}
+   */
+  async recordEvent(event, options = {}) {
+    if (!event || typeof event !== 'object') {
+      throw new Error('Event must be a valid object');
+    }
+
+    const timestampedEvent = {
+      timestamp: options.timestamp || new Date().toISOString(),
+      ...event
+    };
+
+    const logLine = JSON.stringify(timestampedEvent) + '\n';
+
+    try {
+      // Ensure directory exists
+      const dir = dirname(this.logPath);
+      await fs.mkdir(dir, { recursive: true });
+
+      // Append to log file (creates if doesn't exist)
+      await fs.appendFile(this.logPath, logLine, 'utf8');
+    } catch (error) {
+      // Gracefully handle file errors
+      console.error(`Failed to write to audit log: ${error.message}`);
+      throw new Error(`Audit log write failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Lists all events from the audit log
+   * WARNING: Loads entire file into memory. Use streamEvents() for large logs.
+   * @param {Object} options - Optional settings
+   * @param {boolean} options.returnLegacyFormat - Return array only (backward compat)
+   * @returns {Promise<Object>} Object with { events: Array, errors: Array }
+   */
+  async listEvents(options = {}) {
+    const parseErrors = [];
+    
+    try {
+      // Check if file exists
+      await fs.access(this.logPath);
+      
+      // Get file size for warning
+      const stats = await fs.stat(this.logPath);
+      if (stats.size > 50 * 1024 * 1024) { // 50MB warning threshold
+        console.warn(`Audit log is ${(stats.size / 1024 / 1024).toFixed(2)}MB. Consider using streamEvents() for better memory efficiency.`);
+      }
+      
+      // Read the entire log file
+      const content = await fs.readFile(this.logPath, 'utf8');
+      
+      // Parse JSONL format (one JSON object per line)
+      const events = content
+        .split('\n')
+        .filter(line => line.trim())
+        .map((line, index) => {
+          try {
+            return JSON.parse(line);
+          } catch (parseError) {
+            const error = {
+              line: index + 1,
+              content: line.substring(0, 100) + (line.length > 100 ? '...' : ''),
+              error: parseError.message
+            };
+            console.error(`Failed to parse line ${error.line}: ${error.error}`);
+            parseErrors.push(error);
+            return null;
+          }
+        })
+        .filter(event => event !== null);
+
+      // Always return normalized format unless legacy mode requested
+      if (options.returnLegacyFormat) {
+        return events;
+      }
+      
+      return { events, errors: parseErrors };
+    } catch (error) {
+      // File doesn't exist or other read error
+      if (error.code === 'ENOENT') {
+        // Log file doesn't exist yet
+        return options.returnLegacyFormat ? [] : { events: [], errors: [] };
+      }
+      // Other errors
+      console.error(`Failed to read audit log: ${error.message}`);
+      throw new Error(`Audit log read failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Streams events from the audit log for memory-efficient processing
+   * @param {Function} onEvent - Callback for each parsed event
+   * @param {Function} onError - Optional callback for parse errors
+   * @returns {Promise<Object>} Summary statistics
+   */
+  async streamEvents(onEvent, onError = null) {
+    if (typeof onEvent !== 'function') {
+      throw new Error('onEvent callback is required');
+    }
+
+    let totalEvents = 0;
+    let totalErrors = 0;
+    
+    try {
+      // Check if file exists
+      await fs.access(this.logPath);
+      
+      // Read file line by line
+      const content = await fs.readFile(this.logPath, 'utf8');
+      const lines = content.split('\n');
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        try {
+          const event = JSON.parse(line);
+          await onEvent(event, i);
+          totalEvents++;
+        } catch (parseError) {
+          totalErrors++;
+          if (onError) {
+            await onError({
+              line: i + 1,
+              content: line.substring(0, 100) + (line.length > 100 ? '...' : ''),
+              error: parseError.message
+            });
+          }
+        }
+      }
+      
+      return { totalEvents, totalErrors };
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return { totalEvents: 0, totalErrors: 0 };
+      }
+      throw new Error(`Audit log stream failed: ${error.message}`);
+    }
+  }
+}
+
+  /**
+   * Convenience method to get just the events array (backward compatibility)
+   * @returns {Promise<Array>} Array of event objects
+   */
+  async getAllEvents() {
+    const { events } = await this.listEvents();
+    return events;
+  }
+}
+
+// Example usage (commented out for production):
+// const auditLog = new AuditTrailManager('./logs/audit.jsonl');
+// 
+// // Record with auto-timestamp
+// await auditLog.recordEvent({
+//   type: 'scan',
+//   action: 'character_forensics',
+//   target: 'src/components/Button.js',
+//   result: 'success',
+//   issuesFound: 3
+// });
+// 
+// // Record with custom timestamp (for replays)
+// await auditLog.recordEvent({
+//   type: 'replay',
+//   action: 'test_scan'
+// }, { timestamp: '2024-01-01T00:00:00Z' });
+// 
+// // List all events (normalized format - always returns { events, errors })
+// const { events, errors } = await auditLog.listEvents();
+// 
+// 
+// // Get just events array (convenience method)
+// const justEvents = await auditLog.getAllEvents();
+// 
+// // Stream for large logs (recommended for files > 50MB)
+// const stats = await auditLog.streamEvents(
+//   (event, index) => ,
+//   (error) => console.error(`Parse error: ${error.line}`)
+// );
+// 
+export default AuditTrailManager;
+

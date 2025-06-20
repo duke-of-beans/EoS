@@ -1,0 +1,219 @@
+#!/usr/bin/env node
+
+/**
+ * SauronReportArchiverCLI.js
+ * 
+ * Purpose: CLI tool to archive scan reports using SauronReportArchiver
+ * Dependencies: Node.js std lib (fs, path), SauronReportArchiver
+ * Public API: CLI executable with args: --id, --json, --html, --local, --s3
+ */
+
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import SauronReportArchiver from '../src/SauronReportArchiver.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Usage message
+const USAGE_MESSAGE = `
+Usage: node SauronReportArchiverCLI.js --id <id> --json <path> [--html <path>] [--local <dir>] [--s3]
+
+Options:
+  --id <id>       Report ID (required)
+  --json <path>   Path to JSON report file (required)
+  --html <path>   Path to HTML report file (optional)
+  --local <dir>   Custom local storage directory (optional)
+  --s3            Enable S3 archiving (requires AWS credentials)
+`;
+
+/**
+ * Parse command line arguments
+ * @returns {Object} Parsed arguments
+ */
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const parsed = {
+    id: null,
+    json: null,
+    html: null,
+    local: null,
+    s3: false,
+    help: false
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    switch (args[i]) {
+      case '--id':
+        parsed.id = args[++i];
+        break;
+      case '--json':
+        parsed.json = args[++i];
+        break;
+      case '--html':
+        parsed.html = args[++i];
+        break;
+      case '--local':
+        parsed.local = args[++i];
+        break;
+      case '--s3':
+        parsed.s3 = true;
+        break;
+      case '--help':
+      case '-h':
+        parsed.help = true;
+        break;
+    }
+  }
+
+  return parsed;
+}
+
+/**
+ * Validate required arguments
+ * @param {Object} args - Parsed arguments
+ * @returns {boolean} True if valid
+ */
+function validateArgs(args) {
+  if (!args.id) {
+    console.error('Error: --id is required');
+    return false;
+  }
+  if (!args.json) {
+    console.error('Error: --json is required');
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Load file content as string
+ * @param {string} filePath - Path to file
+ * @returns {Promise<string|null>} File content or null if not found
+ */
+async function loadFile(filePath) {
+  try {
+    const content = await fs.readFile(filePath, 'utf8');
+    return content;
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Main CLI execution
+ */
+async function main() {
+  try {
+    // Parse arguments
+    const args = parseArgs();
+    
+    // Show help if requested
+    if (args.help) {
+      
+      process.exit(0);
+    }
+    
+    // Validate required arguments
+    if (!validateArgs(args)) {
+      
+      process.exit(1);
+    }
+
+    // Load JSON content (required)
+    
+    const jsonContent = await loadFile(args.json);
+    if (!jsonContent) {
+      console.error(`Error: JSON file not found: ${args.json}`);
+      process.exit(1);
+    }
+
+    // Parse JSON to validate it
+    let jsonData;
+    try {
+      jsonData = JSON.parse(jsonContent);
+    } catch (error) {
+      console.error(`Error: Invalid JSON in file: ${args.json}`);
+      console.error(error.message);
+      process.exit(1);
+    }
+
+    // Load HTML content (optional)
+    let htmlContent = null;
+    if (args.html) {
+      
+      htmlContent = await loadFile(args.html);
+      if (!htmlContent) {
+        console.warn(`Warning: HTML file not found: ${args.html}`);
+      }
+    }
+
+    // Prepare archiver options
+    const archiverOptions = {};
+    
+    // Set local directory if provided
+    if (args.local) {
+      archiverOptions.localPath = args.local;
+      
+    }
+    
+    // Configure S3 if requested
+    if (args.s3) {
+      archiverOptions.s3Config = {
+        enabled: true
+        // Additional S3 config could be added here:
+        // bucket: process.env.SAURON_S3_BUCKET,
+        // region: process.env.AWS_REGION,
+        // prefix: process.env.SAURON_S3_PREFIX
+      };
+      ');
+    }
+
+    // Create archiver instance
+    
+    const archiver = new SauronReportArchiver(archiverOptions);
+
+    // Archive the report
+    
+    const result = await archiver.archiveReport(args.id, jsonContent, htmlContent);
+
+    // Display results
+    if (result.success) {
+      
+      
+      
+      if (result.localPath) {
+        
+      }
+      
+      if (result.s3Path) {
+        
+      }
+      
+      
+      .toISOString()}`);
+    } else {
+      console.error('\n❌ Archive failed!');
+      console.error(`Error: ${result.error}`);
+      process.exit(1);
+    }
+
+  } catch (error) {
+    console.error('\n❌ Unexpected error:');
+    console.error(error.message);
+    if (process.env.DEBUG) {
+      console.error(error.stack);
+    }
+    process.exit(1);
+  }
+}
+
+// Run the CLI
+main().catch(error => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});

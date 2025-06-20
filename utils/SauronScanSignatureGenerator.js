@@ -1,0 +1,213 @@
+/**
+ * SauronScanSignatureGenerator.js
+ * Purpose: Generates compact integrity signature for scan results
+ * Dependencies: Node.js std lib (crypto)
+ * API: SauronScanSignatureGenerator().generate(scanReport)
+ */
+
+import crypto from 'crypto';
+
+export class SauronScanSignatureGenerator {
+  constructor(config = {}) {
+    this.algorithm = config.algorithm || 'sha256';
+    this.fields = config.fields || ['summary', 'files'];
+    this.salt = config.salt || '';
+    this.version = '1.0.0';
+  }
+
+  /**
+   * Generate integrity signature for scan report
+   * @param {object} scanReport - The scan report to sign
+   * @returns {object} Signature object with metadata
+   */
+  generate(scanReport) {
+    try {
+      // Validate input
+      if (!scanReport || typeof scanReport !== 'object') {
+        return this._createErrorSignature('Invalid scan report: must be an object');
+      }
+
+      // Extract fields to include in signature
+      const dataToSign = this._extractFields(scanReport);
+
+      // Create canonical JSON representation
+      const canonicalJson = this._canonicalize(dataToSign);
+
+      // Generate hash
+      const hash = crypto.createHash(this.algorithm);
+
+      // Add salt if configured
+      if (this.salt) {
+        hash.update(this.salt);
+      }
+
+      hash.update(canonicalJson);
+      const signature = hash.digest('hex').substring(0, 64); // Limit to 64 chars
+
+      // Build signature object
+      return {
+        signature,
+        algorithm: this.algorithm,
+        includedFields: this.fields,
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          version: this.version
+        }
+      };
+
+    } catch (error) {
+      return this._createErrorSignature(`Error generating signature: ${error.message}`);
+    }
+  }
+
+  /**
+   * Extract specified fields from scan report
+   * @private
+   */
+  _extractFields(scanReport) {
+    const extracted = {};
+
+    for (const field of this.fields) {
+      if (field.includes('.')) {
+        // Handle nested fields
+        const value = this._getNestedValue(scanReport, field);
+        if (value !== undefined) {
+          this._setNestedValue(extracted, field, value);
+        }
+      } else {
+        // Handle top-level fields
+        if (scanReport[field] !== undefined) {
+          extracted[field] = scanReport[field];
+        }
+      }
+    }
+
+    return extracted;
+  }
+
+  /**
+   * Get nested value from object using dot notation
+   * @private
+   */
+  _getNestedValue(obj, path) {
+    const parts = path.split('.');
+    let current = obj;
+
+    for (const part of parts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part];
+      } else {
+        return undefined;
+      }
+    }
+
+    return current;
+  }
+
+  /**
+   * Set nested value in object using dot notation
+   * @private
+   */
+  _setNestedValue(obj, path, value) {
+    const parts = path.split('.');
+    const lastPart = parts.pop();
+    let current = obj;
+
+    for (const part of parts) {
+      if (!(part in current)) {
+        current[part] = {};
+      }
+      current = current[part];
+    }
+
+    current[lastPart] = value;
+  }
+
+  /**
+   * Create canonical JSON representation (sorted keys, no whitespace)
+   * @private
+   */
+  _canonicalize(obj) {
+    if (obj === null) return 'null';
+    if (obj === undefined) return 'undefined';
+    if (typeof obj === 'boolean') return obj.toString();
+    if (typeof obj === 'number') return obj.toString();
+    if (typeof obj === 'string') return JSON.stringify(obj);
+
+    if (Array.isArray(obj)) {
+      return '[' + obj.map(item => this._canonicalize(item)).join(',') + ']';
+    }
+
+    if (typeof obj === 'object') {
+      const sortedKeys = Object.keys(obj).sort();
+      const pairs = sortedKeys.map(key => {
+        return JSON.stringify(key) + ':' + this._canonicalize(obj[key]);
+      });
+      return '{' + pairs.join(',') + '}';
+    }
+
+    // Fallback for unexpected types
+    return JSON.stringify(obj);
+  }
+
+  /**
+   * Create minimal valid signature object for error cases
+   * @private
+   */
+  _createErrorSignature(reason) {
+    return {
+      signature: 'error',
+      algorithm: this.algorithm,
+      includedFields: this.fields,
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        version: this.version,
+        error: reason
+      }
+    };
+  }
+}
+
+// Self-test functionality
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const generator = new SauronScanSignatureGenerator();
+
+  // Test with sample report
+  const testReport = {
+    summary: {
+      totalIssues: 5,
+      criticalCount: 1
+    },
+    files: {
+      'src/index.js': {
+        issues: ['issue1', 'issue2']
+      }
+    },
+    timestamp: '2024-01-01T00:00:00Z'
+  };
+
+
+  const signature1 = generator.generate(testReport);
+
+
+  // Test determinism
+  const signature2 = generator.generate(testReport);
+  :', signature2);
+
+
+  // Test with custom config
+  const customGenerator = new SauronScanSignatureGenerator({
+    algorithm: 'sha512',
+    fields: ['summary.totalIssues', 'timestamp'],
+    salt: 'test-salt'
+  });
+
+  const customSignature = customGenerator.generate(testReport);
+
+
+  // Test error handling
+  const errorSignature = generator.generate(null);
+
+}
+export default SauronScanSignatureGenerator;
+

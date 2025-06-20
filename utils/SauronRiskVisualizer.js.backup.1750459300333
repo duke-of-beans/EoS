@@ -1,0 +1,430 @@
+/**
+ * Purpose: Generates risk score visual data + HTML
+ * Dependencies: Node.js std lib
+ * API: SauronRiskVisualizer().generateChartData(), generateHtml()
+ */
+
+export class SauronRiskVisualizer {
+  constructor(config = {}) {
+    this.theme = config.theme || 'dark';
+    this.maxPoints = config.maxPoints || 100;
+    this.toolVersion = '1.0.0';
+  }
+
+  /**
+   * Generates chart data from risk history
+   * @param {Array} riskHistory - Array of risk data points
+   * @returns {Object} Chart data structure
+   */
+  generateChartData(riskHistory) {
+    try {
+      if (!Array.isArray(riskHistory)) {
+        return this._getEmptyChartData();
+      }
+
+      // Cap history at maxPoints (keep most recent)
+      const cappedHistory = riskHistory.slice(-this.maxPoints);
+
+      // Extract time series data
+      const timeSeries = cappedHistory.map((point, index) => ({
+        timestamp: point.timestamp || new Date().toISOString(),
+        score: this._normalizeScore(point.score || 0),
+        index: index
+      }));
+
+      // Calculate category distribution
+      const categoryDistribution = this._calculateCategoryDistribution(cappedHistory);
+
+      // Calculate trend
+      const trend = this._calculateTrend(timeSeries);
+
+      // Calculate statistics
+      const stats = this._calculateStatistics(timeSeries);
+
+      return {
+        version: this.toolVersion,
+        generated: new Date().toISOString(),
+        theme: this.theme,
+        timeSeries,
+        categoryDistribution,
+        trend,
+        stats,
+        dataPoints: timeSeries.length
+      };
+    } catch (error) {
+      // Return minimal valid output on error
+      return this._getEmptyChartData();
+    }
+  }
+
+  /**
+   * Generates HTML visualization from risk history
+   * @param {Array} riskHistory - Array of risk data points
+   * @returns {String} HTML snippet with embedded visualization
+   */
+  generateHtml(riskHistory) {
+    try {
+      const chartData = this.generateChartData(riskHistory);
+      const safeData = this._escapeForHtml(JSON.stringify(chartData));
+
+      const colors = this.theme === 'dark' ? {
+        bg: '#1a1a1a',
+        text: '#e0e0e0',
+        primary: '#4fc3f7',
+        danger: '#ff5252',
+        warning: '#ffa726',
+        success: '#66bb6a',
+        grid: '#333333'
+      } : {
+        bg: '#ffffff',
+        text: '#333333',
+        primary: '#2196f3',
+        danger: '#f44336',
+        warning: '#ff9800',
+        success: '#4caf50',
+        grid: '#e0e0e0'
+      };
+
+      const currentScore = chartData.stats.current || 0;
+      const scoreColor = this._getScoreColor(currentScore, colors);
+      const trendIcon = chartData.trend.direction === 'up' ? '↑' :
+                       chartData.trend.direction === 'down' ? '↓' : '→';
+
+      return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: ${colors.bg};
+    color: ${colors.text};
+  }
+  .risk-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: ${colors.bg === '#1a1a1a' ? '#2a2a2a' : '#f5f5f5'};
+    border-radius: 8px;
+  }
+  .risk-score {
+    font-size: 48px;
+    font-weight: bold;
+    color: ${scoreColor};
+  }
+  .risk-trend {
+    font-size: 24px;
+    color: ${colors.text};
+  }
+  .risk-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  .stat-card {
+    padding: 15px;
+    background: ${colors.bg === '#1a1a1a' ? '#2a2a2a' : '#f5f5f5'};
+    border-radius: 6px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: ${colors.primary};
+  }
+  .stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 5px;
+  }
+  .risk-chart {
+    height: 300px;
+    background: ${colors.bg === '#1a1a1a' ? '#2a2a2a' : '#f5f5f5'};
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .chart-canvas {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .categories {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  .category-item {
+    padding: 15px;
+    background: ${colors.bg === '#1a1a1a' ? '#2a2a2a' : '#f5f5f5'};
+    border-radius: 6px;
+  }
+  .category-bar {
+    height: 8px;
+    background: ${colors.grid};
+    border-radius: 4px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .category-fill {
+    height: 100%;
+    background: ${colors.primary};
+    transition: width 0.3s ease;
+  }
+  .metadata {
+    margin-top: 20px;
+    font-size: 12px;
+    opacity: 0.6;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="risk-container">
+  <div class="risk-header">
+    <div>
+      <div class="risk-score">${currentScore}</div>
+      <div>Risk Score</div>
+    </div>
+    <div class="risk-trend">
+      ${trendIcon} ${Math.abs(chartData.trend.change).toFixed(1)}%
+    </div>
+  </div>
+
+  <div class="risk-stats">
+    <div class="stat-card">
+      <div class="stat-value">${chartData.stats.min || 0}</div>
+      <div class="stat-label">MIN</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${chartData.stats.avg || 0}</div>
+      <div class="stat-label">AVERAGE</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${chartData.stats.max || 0}</div>
+      <div class="stat-label">MAX</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${chartData.dataPoints}</div>
+      <div class="stat-label">DATA POINTS</div>
+    </div>
+  </div>
+
+  <div class="risk-chart">
+    <svg class="chart-canvas" viewBox="0 0 800 300" preserveAspectRatio="none">
+      ${this._generateSvgChart(chartData.timeSeries, colors)}
+    </svg>
+  </div>
+
+  <div class="categories">
+    ${this._generateCategoryHtml(chartData.categoryDistribution, colors)}
+  </div>
+
+  <div class="metadata">
+    Generated: ${new Date().toLocaleString()} | Version: ${this.toolVersion}
+  </div>
+</div>
+
+<script type="application/json" id="chartData">
+${safeData}
+</script>
+</body>
+</html>`;
+    } catch (error) {
+      // Return minimal valid HTML on error
+      return this._getMinimalHtml();
+    }
+  }
+
+  // Private helper methods
+
+  _normalizeScore(score) {
+    const normalized = Math.max(0, Math.min(100, Number(score) || 0));
+    return Math.round(normalized);
+  }
+
+  _calculateCategoryDistribution(history) {
+    const categories = {};
+
+    history.forEach(point => {
+      if (point.categories && typeof point.categories === 'object') {
+        Object.entries(point.categories).forEach(([cat, value]) => {
+          if (!categories[cat]) {
+            categories[cat] = { total: 0, count: 0 };
+          }
+          categories[cat].total += Number(value) || 0;
+          categories[cat].count += 1;
+        });
+      }
+    });
+
+    // Calculate averages and percentages
+    const distribution = {};
+    let totalAvg = 0;
+
+    Object.entries(categories).forEach(([cat, data]) => {
+      const avg = data.count > 0 ? data.total / data.count : 0;
+      distribution[cat] = avg;
+      totalAvg += avg;
+    });
+
+    // Convert to percentages
+    if (totalAvg > 0) {
+      Object.keys(distribution).forEach(cat => {
+        distribution[cat] = Math.round((distribution[cat] / totalAvg) * 100);
+      });
+    }
+
+    return distribution;
+  }
+
+  _calculateTrend(timeSeries) {
+    if (timeSeries.length < 2) {
+      return { direction: 'stable', change: 0 };
+    }
+
+    const recent = timeSeries.slice(-10); // Last 10 points
+    const first = recent[0].score;
+    const last = recent[recent.length - 1].score;
+    const change = ((last - first) / (first || 1)) * 100;
+
+    return {
+      direction: change > 1 ? 'up' : change < -1 ? 'down' : 'stable',
+      change: change
+    };
+  }
+
+  _calculateStatistics(timeSeries) {
+    if (timeSeries.length === 0) {
+      return { min: 0, max: 0, avg: 0, current: 0 };
+    }
+
+    const scores = timeSeries.map(p => p.score);
+    const sum = scores.reduce((a, b) => a + b, 0);
+
+    return {
+      min: Math.min(...scores),
+      max: Math.max(...scores),
+      avg: Math.round(sum / scores.length),
+      current: scores[scores.length - 1] || 0
+    };
+  }
+
+  _escapeForHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  _getScoreColor(score, colors) {
+    if (score >= 70) return colors.danger;
+    if (score >= 40) return colors.warning;
+    return colors.success;
+  }
+
+  _generateSvgChart(timeSeries, colors) {
+    if (timeSeries.length === 0) {
+      return `<text x="400" y="150" text-anchor="middle" fill="${colors.text}" opacity="0.5">No data available</text>`;
+    }
+
+    const width = 800;
+    const height = 300;
+    const padding = 20;
+    const chartWidth = width - (padding * 2);
+    const chartHeight = height - (padding * 2);
+
+    // Create points
+    const xStep = chartWidth / Math.max(1, timeSeries.length - 1);
+    const points = timeSeries.map((point, i) => {
+      const x = padding + (i * xStep);
+      const y = height - padding - ((point.score / 100) * chartHeight);
+      return `${x},${y}`;
+    });
+
+    // Create path
+    const pathData = `M ${points.join(' L ')}`;
+
+    // Create area
+    const areaData = `${pathData} L ${width - padding},${height - padding} L ${padding},${height - padding} Z`;
+
+    return `
+      <!-- Grid lines -->
+      ${[0, 25, 50, 75, 100].map(val => {
+        const y = height - padding - ((val / 100) * chartHeight);
+        return `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="${colors.grid}" stroke-dasharray="2,2" opacity="0.3"/>`;
+      }).join('')}
+
+      <!-- Area fill -->
+      <path d="${areaData}" fill="${colors.primary}" opacity="0.1"/>
+
+      <!-- Line -->
+      <path d="${pathData}" fill="none" stroke="${colors.primary}" stroke-width="2"/>
+
+      <!-- Points -->
+      ${points.map(point => {
+        const [x, y] = point.split(',');
+        return `<circle cx="${x}" cy="${y}" r="3" fill="${colors.primary}"/>`;
+      }).join('')}
+    `;
+  }
+
+  _generateCategoryHtml(distribution, colors) {
+    const categories = Object.entries(distribution);
+    if (categories.length === 0) {
+      return '<div style="text-align: center; opacity: 0.5;">No category data available</div>';
+    }
+
+    return categories.map(([name, percentage]) => `
+      <div class="category-item">
+        <div style="display: flex; justify-content: space-between;">
+          <span>${this._escapeForHtml(name)}</span>
+          <span>${percentage}%</span>
+        </div>
+        <div class="category-bar">
+          <div class="category-fill" style="width: ${percentage}%"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  _getEmptyChartData() {
+    return {
+      version: this.toolVersion,
+      generated: new Date().toISOString(),
+      theme: this.theme,
+      timeSeries: [],
+      categoryDistribution: {},
+      trend: { direction: 'stable', change: 0 },
+      stats: { min: 0, max: 0, avg: 0, current: 0 },
+      dataPoints: 0
+    };
+  }
+
+  _getMinimalHtml() {
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Risk Visualization Error</title></head>
+<body style="font-family: sans-serif; padding: 20px;">
+  <h2>Risk Visualization</h2>
+  <p>Unable to generate visualization. Please check the input data.</p>
+  <p style="font-size: 12px; opacity: 0.6;">Generated: ${new Date().toLocaleString()} | Version: ${this.toolVersion}</p>
+<div id="results"></div>
+</body>
+</html>`;
+  }
+}
+export default SauronRiskVisualizer;
+

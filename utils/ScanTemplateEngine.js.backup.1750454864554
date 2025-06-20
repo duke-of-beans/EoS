@@ -1,0 +1,127 @@
+/**
+ * Purpose: Manages named scan templates for repeatable config
+ * Dependencies: Node.js std lib
+ * API: ScanTemplateEngine().addTemplate(), getTemplate(), listTemplates(), applyTemplate()
+ * 
+ * Import style: Use named import for consistency across Eye of Sauron:
+ *   import { ScanTemplateEngine } from './utils/ScanTemplateEngine.js';
+ */
+
+export class ScanTemplateEngine {
+  /**
+   * Initialize template engine with optional predefined templates
+   * @param {Object} templates - Initial templates object { name: config }
+   */
+  constructor(templates = {}) {
+    this._templates = new Map();
+    
+    // Initialize with provided templates
+    Object.entries(templates).forEach(([name, config]) => {
+      this.addTemplate(name, config);
+    });
+  }
+
+  /**
+   * Add a new named template
+   * @param {string} name - Template name (must be unique)
+   * @param {Object} config - Template configuration object
+   * @throws {Error} If template name already exists
+   */
+  addTemplate(name, config) {
+    if (typeof name !== 'string' || !name.trim()) {
+      throw new Error('Template name must be a non-empty string');
+    }
+    
+    if (this._templates.has(name)) {
+      throw new Error(`Template '${name}' already exists`);
+    }
+    
+    if (!config || typeof config !== 'object') {
+      throw new Error('Template config must be an object');
+    }
+    
+    // Store deep clone to prevent external mutations
+    this._templates.set(name, this._deepClone(config));
+  }
+
+  /**
+   * Retrieve a template by name
+   * @param {string} name - Template name to retrieve
+   * @returns {Object|null} Deep clone of template config or null if not found
+   */
+  getTemplate(name) {
+    if (!this._templates.has(name)) {
+      return null;
+    }
+    
+    // Return deep clone to prevent external mutations
+    return this._deepClone(this._templates.get(name));
+  }
+
+  /**
+   * List all available template names
+   * @returns {string[]} Array of template names
+   */
+  listTemplates() {
+    return Array.from(this._templates.keys());
+  }
+
+  /**
+   * Apply a template to a scanner instance
+   * @param {string} name - Template name to apply
+   * @param {Object} scanner - Scanner instance with setConfig method
+   * @throws {Error} If template not found or scanner lacks setConfig
+   */
+  applyTemplate(name, scanner) {
+    if (!this._templates.has(name)) {
+      throw new Error(`Template '${name}' not found`);
+    }
+    
+    if (!scanner || typeof scanner.setConfig !== 'function') {
+      throw new Error('Scanner must have a setConfig method');
+    }
+    
+    const config = this.getTemplate(name);
+    scanner.setConfig(config);
+  }
+
+  /**
+   * Deep clone an object (internal helper)
+   * @param {Object} obj - Object to clone
+   * @returns {Object} Deep cloned object
+   * @private
+   * 
+   * Performance Note: For very large/deeply nested templates, consider
+   * optimizing with structured cloning (structuredClone) or specialized
+   * libraries if performance becomes a concern.
+   */
+  _deepClone(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (obj instanceof Date) {
+      return new Date(obj.getTime());
+    }
+    
+    if (obj instanceof Array) {
+      return obj.map(item => this._deepClone(item));
+    }
+    
+    if (obj instanceof RegExp) {
+      return new RegExp(obj.source, obj.flags);
+    }
+    
+    const clonedObj = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        clonedObj[key] = this._deepClone(obj[key]);
+      }
+    }
+    
+    return clonedObj;
+  }
+}
+
+// Default export provided for flexibility, but prefer named import for consistency
+export default ScanTemplateEngine;

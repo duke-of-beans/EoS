@@ -24,7 +24,7 @@ export class ScanHistoryManager {
         if (!summary || typeof summary !== 'object') {
             throw new Error('saveSummary: summary must be an object');
         }
-        
+
         if (!summary.id) {
             throw new Error('saveSummary: summary must have an id field');
         }
@@ -72,7 +72,7 @@ export class ScanHistoryManager {
             const jsonFiles = files.filter(f => f.endsWith('.json'));
 
             const summaries = [];
-            
+
             for (const file of jsonFiles) {
                 const filepath = path.join(this.historyPath, file);
                 try {
@@ -80,7 +80,7 @@ export class ScanHistoryManager {
                     const data = await fs.readFile(filepath, 'utf8');
                     const summary = JSON.parse(data);
                     const stats = await fs.stat(filepath);
-                    
+
                     // Extract basic metadata
                     summaries.push({
                         id: summary.id,

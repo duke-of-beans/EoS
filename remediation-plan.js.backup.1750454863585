@@ -1,0 +1,431 @@
+#!/usr/bin/env node
+
+/**
+ * Eye of Sauron Issue Remediation Plan & Automation - FIXED VERSION
+ * Systematically fixes security vulnerabilities and code quality issues
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { createEye } from './core/EyeOfSauronOmniscient.js';
+
+console.log('🛠️ Eye of Sauron Issue Remediation System');
+console.log('═'.repeat(50));
+
+/**
+ * Issue type definitions and fix strategies
+ */
+const ISSUE_FIXES = {
+  // CRITICAL SECURITY FIXES (Priority 1)
+  'HOMOGLYPH': {
+    priority: 1,
+    description: 'Replace Cyrillic/Unicode lookalikes with ASCII equivalents',
+    autoFixable: true,
+    replacements: {
+      'а': 'a', // Cyrillic A -> Latin A
+      'е': 'e', // Cyrillic E -> Latin E
+      'о': 'o', // Cyrillic O -> Latin O
+      'р': 'p', // Cyrillic P -> Latin P
+      'с': 'c', // Cyrillic C -> Latin C
+      'х': 'x', // Cyrillic X -> Latin X
+      'у': 'y', // Cyrillic Y -> Latin Y
+      'В': 'B', // Cyrillic B -> Latin B
+      'Е': 'E', // Cyrillic E -> Latin E
+      'К': 'K', // Cyrillic K -> Latin K
+      'М': 'M', // Cyrillic M -> Latin M
+      'Н': 'H', // Cyrillic H -> Latin H
+      'О': 'O', // Cyrillic O -> Latin O
+      'Р': 'P', // Cyrillic P -> Latin P
+      'С': 'C', // Cyrillic C -> Latin C
+      'Т': 'T', // Cyrillic T -> Latin T
+      'Х': 'X'  // Cyrillic X -> Latin X
+    }
+  },
+  
+  'INVISIBLE_CHAR': {
+    priority: 1,
+    description: 'Remove dangerous invisible characters',
+    autoFixable: true,
+    replacements: {
+      '\u200B': '', // Zero-width space
+      '\u200C': '', // Zero-width non-joiner
+      '\u200D': '', // Zero-width joiner
+      '\u2060': '', // Word joiner
+      '\uFEFF': '', // Zero-width no-break space
+      '\u00A0': ' ', // Non-breaking space -> regular space
+      '\u202A': '', // Left-to-right embedding
+      '\u202B': '', // Right-to-left embedding
+      '\u202C': '', // Pop directional formatting
+      '\u202D': '', // Left-to-right override
+      '\u202E': ''  // Right-to-left override
+    }
+  },
+
+  // CODE QUALITY FIXES (Priority 2)
+  'TRAILING_SPACE': {
+    priority: 2,
+    description: 'Remove trailing whitespace',
+    autoFixable: true,
+    fix: 'removeTrailingSpaces'
+  },
+  
+  'SMART_QUOTE': {
+    priority: 2,
+    description: 'Replace smart quotes with regular quotes',
+    autoFixable: true,
+    replacements: {
+      '\u2018': "'", // Left single quote
+      '\u2019': "'", // Right single quote
+      '\u201C': '"', // Left double quote
+      '\u201D': '"', // Right double quote
+      '\u201A': "'", // Single low-9 quote
+      '\u201E': '"', // Double low-9 quote
+      '\u2039': "'", // Single left angle quote
+      '\u203A': "'", // Single right angle quote
+      '\u00AB': '"', // Left double angle quote
+      '\u00BB': '"'  // Right double angle quote
+    }
+  }
+};
+
+/**
+ * Load and parse scan results
+ */
+async function loadScanResults() {
+  try {
+    // First try to find existing results
+    const possibleFiles = [
+      'working-pattern-results.json',
+      'test-scanner-output.json',
+      'comprehensive-test-output.json',
+      'scan-results.json'
+    ];
+    
+    for (const filename of possibleFiles) {
+      try {
+        const content = await fs.readFile(filename, 'utf8');
+        const results = JSON.parse(content);
+        if (results.files && results.summary) {
+          console.log(`📂 Loaded scan results from: ${filename}`);
+          return results;
+        }
+      } catch (error) {
+        // File doesn't exist or invalid, try next
+      }
+    }
+    
+    // If no existing results, run a fresh scan
+    console.log('📊 No existing scan results found, running fresh scan...');
+    const scanner = createEye();
+    const results = await scanner.scan('.', 'deep');
+    
+    // Save the results for future use
+    await fs.writeFile('remediation-scan-results.json', JSON.stringify(results, null, 2));
+    console.log('💾 Fresh scan results saved to: remediation-scan-results.json');
+    
+    return results;
+  } catch (error) {
+    throw new Error(`Failed to load scan results: ${error.message}`);
+  }
+}
+
+/**
+ * Analyze issues and create remediation plan
+ */
+function analyzeIssues(scanResults) {
+  const analysis = {
+    totalFiles: Object.keys(scanResults.files || {}).length,
+    totalIssues: scanResults.summary?.totalIssues || 0,
+    issuesByType: {},
+    issuesBySeverity: scanResults.summary?.issuesBySeverity || {},
+    autoFixableIssues: 0,
+    manualReviewRequired: 0,
+    criticalSecurityIssues: 0,
+    filesPrioritized: []
+  };
+  
+  // Analyze each file's issues
+  Object.entries(scanResults.files || {}).forEach(([filePath, fileData]) => {
+    if (!fileData.issues || fileData.issues.length === 0) return;
+    
+    const fileAnalysis = {
+      path: filePath,
+      totalIssues: fileData.issues.length,
+      criticalIssues: 0,
+      autoFixableIssues: 0,
+      issueTypes: {}
+    };
+    
+    fileData.issues.forEach(issue => {
+      const issueType = issue.type || 'UNKNOWN';
+      
+      // Count by type
+      analysis.issuesByType[issueType] = (analysis.issuesByType[issueType] || 0) + 1;
+      fileAnalysis.issueTypes[issueType] = (fileAnalysis.issueTypes[issueType] || 0) + 1;
+      
+      // Check if auto-fixable
+      if (ISSUE_FIXES[issueType] && ISSUE_FIXES[issueType].autoFixable) {
+        analysis.autoFixableIssues++;
+        fileAnalysis.autoFixableIssues++;
+      } else {
+        analysis.manualReviewRequired++;
+      }
+      
+      // Check if critical security issue
+      if (ISSUE_FIXES[issueType] && ISSUE_FIXES[issueType].priority === 1) {
+        analysis.criticalSecurityIssues++;
+        fileAnalysis.criticalIssues++;
+      }
+    });
+    
+    analysis.filesPrioritized.push(fileAnalysis);
+  });
+  
+  // Sort files by priority (critical issues first, then total issues)
+  analysis.filesPrioritized.sort((a, b) => {
+    if (a.criticalIssues !== b.criticalIssues) {
+      return b.criticalIssues - a.criticalIssues;
+    }
+    return b.totalIssues - a.totalIssues;
+  });
+  
+  return analysis;
+}
+
+/**
+ * Apply fixes to a file
+ */
+async function fixFile(filePath, issues) {
+  try {
+    console.log(`🔧 Fixing: ${path.relative(process.cwd(), filePath)}`);
+    
+    // Read original file
+    let content = await fs.readFile(filePath, 'utf8');
+    let fixesApplied = 0;
+    const appliedFixes = [];
+    
+    // Apply fixes by priority
+    const sortedIssues = issues.sort((a, b) => {
+      const aPriority = ISSUE_FIXES[a.type]?.priority || 999;
+      const bPriority = ISSUE_FIXES[b.type]?.priority || 999;
+      return aPriority - bPriority;
+    });
+    
+    for (const issue of sortedIssues) {
+      const issueType = issue.type;
+      const fixConfig = ISSUE_FIXES[issueType];
+      
+      if (!fixConfig || !fixConfig.autoFixable) {
+        console.log(`   ⚠️  Manual review required: ${issueType} - ${issue.message}`);
+        continue;
+      }
+      
+      let fixed = false;
+      
+      if (fixConfig.replacements) {
+        // Apply character replacements
+        const originalContent = content;
+        Object.entries(fixConfig.replacements).forEach(([bad, good]) => {
+          const regex = new RegExp(bad.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+          content = content.replace(regex, good);
+        });
+        fixed = originalContent !== content;
+      }
+      
+      if (fixConfig.fix === 'removeTrailingSpaces') {
+        // Remove trailing spaces
+        const originalContent = content;
+        content = content.replace(/[ \t]+$/gm, '');
+        fixed = originalContent !== content;
+      }
+      
+      if (fixed) {
+        fixesApplied++;
+        appliedFixes.push(`${issueType}: ${issue.message}`);
+      }
+    }
+    
+    // Only write if changes were made
+    if (fixesApplied > 0) {
+      // Create backup
+      const backupPath = `${filePath}.backup.${Date.now()}`;
+      const originalContent = await fs.readFile(filePath, 'utf8');
+      await fs.writeFile(backupPath, originalContent, 'utf8');
+      
+      // Write fixed content
+      await fs.writeFile(filePath, content, 'utf8');
+      
+      console.log(`   ✅ Applied ${fixesApplied} fixes`);
+      appliedFixes.forEach(fix => console.log(`      - ${fix}`));
+      console.log(`   📁 Backup: ${path.basename(backupPath)}`);
+    } else {
+      console.log(`   ℹ️  No auto-fixes available`);
+    }
+    
+    return fixesApplied;
+  } catch (error) {
+    console.log(`   ❌ Error fixing file: ${error.message}`);
+    return 0;
+  }
+}
+
+/**
+ * Generate remediation report
+ */
+async function generateReport(analysis, fixResults) {
+  const report = `# Eye of Sauron Remediation Report
+
+## 📊 Issue Analysis
+
+- **Total Files Scanned:** ${analysis.totalFiles}
+- **Total Issues Found:** ${analysis.totalIssues}
+- **Critical Security Issues:** ${analysis.criticalSecurityIssues}
+- **Auto-fixable Issues:** ${analysis.autoFixableIssues}
+- **Manual Review Required:** ${analysis.manualReviewRequired}
+
+## 🔧 Fixes Applied
+
+- **Files Fixed:** ${fixResults.filesFixed}
+- **Total Fixes Applied:** ${fixResults.totalFixes}
+- **Security Vulnerabilities Resolved:** ${fixResults.securityFixes}
+
+## 📋 Issues by Type
+
+${Object.entries(analysis.issuesByType)
+  .sort(([,a], [,b]) => b - a)
+  .map(([type, count]) => {
+    const fixConfig = ISSUE_FIXES[type];
+    const status = fixConfig?.autoFixable ? '✅ Auto-fixable' : '⚠️ Manual review';
+    return `- **${type}:** ${count} issues - ${status}`;
+  }).join('\n')}
+
+## 📂 Top Priority Files
+
+${analysis.filesPrioritized.slice(0, 10).map((file, idx) => 
+  `${idx + 1}. **${path.relative(process.cwd(), file.path)}**
+   - Total Issues: ${file.totalIssues}
+   - Critical: ${file.criticalIssues}
+   - Auto-fixable: ${file.autoFixableIssues}`
+).join('\n\n')}
+
+## 🚨 Remaining Manual Review Required
+
+${analysis.filesPrioritized
+  .filter(file => file.totalIssues > file.autoFixableIssues)
+  .slice(0, 5)
+  .map(file => `- **${path.relative(process.cwd(), file.path)}:** ${file.totalIssues - file.autoFixableIssues} issues need manual review`)
+  .join('\n') || 'No manual reviews required - all issues were auto-fixed!'}
+
+---
+Generated: ${new Date().toISOString()}
+`;
+
+  await fs.writeFile('remediation-report.md', report);
+  console.log('\n📄 Detailed report saved to: remediation-report.md');
+}
+
+/**
+ * Main remediation process
+ */
+async function main() {
+  try {
+    // Load scan results
+    const scanResults = await loadScanResults();
+    
+    // Analyze issues
+    console.log('\n📊 Analyzing issues...');
+    const analysis = analyzeIssues(scanResults);
+    
+    console.log(`\n📋 Issue Summary:`);
+    console.log(`   Total Files: ${analysis.totalFiles}`);
+    console.log(`   Total Issues: ${analysis.totalIssues}`);
+    console.log(`   Critical Security: ${analysis.criticalSecurityIssues}`);
+    console.log(`   Auto-fixable: ${analysis.autoFixableIssues}`);
+    console.log(`   Manual Review: ${analysis.manualReviewRequired}`);
+    
+    // Show issue breakdown
+    console.log(`\n🔍 Issues by Type:`);
+    Object.entries(analysis.issuesByType)
+      .sort(([,a], [,b]) => b - a)
+      .forEach(([type, count]) => {
+        const fixConfig = ISSUE_FIXES[type];
+        const icon = fixConfig?.autoFixable ? '✅' : '⚠️';
+        const priority = fixConfig?.priority === 1 ? ' (CRITICAL)' : '';
+        console.log(`   ${icon} ${type}: ${count}${priority}`);
+      });
+    
+    // Ask for confirmation before proceeding
+    console.log(`\n🤔 Proceed with auto-fixing ${analysis.autoFixableIssues} issues?`);
+    console.log(`   Note: Backups will be created for all modified files.`);
+    console.log(`   Run with --auto-fix flag to skip this prompt.`);
+    
+    const autoFix = process.argv.includes('--auto-fix');
+    if (!autoFix) {
+      console.log(`\n💡 To proceed automatically, run:`);
+      console.log(`   node remediation-plan.js --auto-fix`);
+      return;
+    }
+    
+    // Apply fixes
+    console.log(`\n🛠️ Applying fixes...`);
+    const fixResults = {
+      filesFixed: 0,
+      totalFixes: 0,
+      securityFixes: 0
+    };
+    
+    for (const fileInfo of analysis.filesPrioritized) {
+      if (fileInfo.autoFixableIssues === 0) continue;
+      
+      const fileData = scanResults.files[fileInfo.path];
+      const fixesApplied = await fixFile(fileInfo.path, fileData.issues);
+      
+      if (fixesApplied > 0) {
+        fixResults.filesFixed++;
+        fixResults.totalFixes += fixesApplied;
+        
+        // Count security fixes
+        const securityTypes = ['HOMOGLYPH', 'INVISIBLE_CHAR'];
+        const securityIssues = fileData.issues.filter(issue => 
+          securityTypes.includes(issue.type)
+        );
+        fixResults.securityFixes += securityIssues.length;
+      }
+    }
+    
+    // Generate report
+    await generateReport(analysis, fixResults);
+    
+    console.log(`\n🎉 Remediation Complete!`);
+    console.log(`   Files Fixed: ${fixResults.filesFixed}`);
+    console.log(`   Total Fixes: ${fixResults.totalFixes}`);
+    console.log(`   Security Vulnerabilities Resolved: ${fixResults.securityFixes}`);
+    
+    if (analysis.manualReviewRequired > 0) {
+      console.log(`\n⚠️  ${analysis.manualReviewRequired} issues require manual review`);
+      console.log(`   Check remediation-report.md for details`);
+    }
+    
+    // Suggest next steps
+    console.log(`\n🔄 Next Steps:`);
+    console.log(`   1. Review remediation-report.md`);
+    console.log(`   2. Run scanner again to verify fixes:`);
+    console.log(`      node cli/simple-cli.js --output post-fix-scan.json`);
+    console.log(`   3. Address any remaining manual review items`);
+    
+  } catch (error) {
+    console.error('❌ Remediation failed:', error.message);
+    if (process.env.DEBUG) {
+      console.error(error.stack);
+    }
+    process.exit(1);
+  }
+}
+
+// Export for testing
+export { ISSUE_FIXES, analyzeIssues, fixFile };
+
+// Run if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}

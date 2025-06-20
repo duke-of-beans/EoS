@@ -25,13 +25,13 @@ export class SauronAlertNotifier {
     }
 
     const alertPayload = this._generateAlertPayload(report);
-    
+
     if (!alertPayload.hasIssues) {
       console.log('[SauronAlertNotifier] No critical issues to alert on');
       return;
     }
 
-    const sendPromises = this.destinations.map(destination => 
+    const sendPromises = this.destinations.map(destination =>
       this._sendToDestination(destination, alertPayload)
     );
 
@@ -45,7 +45,7 @@ export class SauronAlertNotifier {
   _generateAlertPayload(report) {
     const issues = this._collectAllIssues(report.vision);
     const criticalIssues = issues.filter(issue => issue.severity === 'critical');
-    
+
     // Group issues by type
     const issuesByType = issues.reduce((acc, issue) => {
       acc[issue.type] = (acc[issue.type] || 0) + 1;
@@ -104,7 +104,7 @@ export class SauronAlertNotifier {
    */
   _collectAllIssues(vision) {
     const issues = [];
-    
+
     if (vision && vision.files) {
       Object.entries(vision.files).forEach(([filePath, fileData]) => {
         if (fileData.issues && Array.isArray(fileData.issues)) {
@@ -193,7 +193,7 @@ export class SauronAlertNotifier {
       return new Promise((resolve, reject) => {
         const req = client.request(options, (res) => {
           let responseData = '';
-          
+
           res.on('data', (chunk) => {
             responseData += chunk;
           });

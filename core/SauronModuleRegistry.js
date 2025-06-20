@@ -22,8 +22,8 @@ export class SauronModuleRegistry {
     }
 
     // Normalize status
-    const status = metadata.status && this.validStatuses.has(metadata.status) 
-      ? metadata.status 
+    const status = metadata.status && this.validStatuses.has(metadata.status)
+      ? metadata.status
       : 'ok';
 
     const moduleEntry = {
@@ -100,7 +100,7 @@ export class SauronModuleRegistry {
     if (module) {
       module.status = status;
       module.lastUpdated = new Date().toISOString();
-      
+
       // Add to details history
       if (details) {
         module.details = details;

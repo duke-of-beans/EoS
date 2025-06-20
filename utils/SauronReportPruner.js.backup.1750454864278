@@ -1,0 +1,213 @@
+/**
+ * Purpose: Prunes scan reports for compact storage
+ * Dependencies: Node.js std lib
+ * API: SauronReportPruner().prune(report)
+ * 
+ * Configuration options:
+ * - keepSeverities: array of severity levels to keep
+ * - maxFiles: maximum number of files to retain
+ * - severityOrder: custom severity ordering (lower = more severe)
+ * - trackPruned: if true, returns {report, prunedMetadata}
+ */
+
+export class SauronReportPruner {
+  constructor(config = {}) {
+    // Core configuration
+    this.keepSeverities = config.keepSeverities || ['critical', 'high'];
+    this.maxFiles = config.maxFiles || Infinity;
+    
+    // Extended configuration for flexibility
+    this.severityOrder = config.severityOrder || {
+      critical: 0,
+      high: 1,
+      medium: 2,
+      low: 3,
+      info: 4
+    };
+    
+    // Optional pruning metadata tracking
+    this.trackPruned = config.trackPruned || false;
+    this._prunedMetadata = [];
+  }
+
+  /**
+   * Prunes a scan report by removing low-priority issues and excess data
+   * @param {Object} report - The scan report to prune
+   * @returns {Object} Pruned report (deep clone), or {report, prunedMetadata} if trackPruned is true
+   */
+  prune(report) {
+    // Reset pruned metadata tracking
+    this._prunedMetadata = [];
+
+    // Defensive: handle empty or malformed reports
+    if (!report || typeof report !== 'object') {
+      return this.trackPruned ? { report: {}, prunedMetadata: [] } : {};
+    }
+
+    // Deep clone the report to avoid mutations
+    const prunedReport = this._deepClone(report);
+
+    // Prune files based on severity
+    if (prunedReport.files && Array.isArray(prunedReport.files)) {
+      // Filter files that contain issues matching keepSeverities
+      prunedReport.files = prunedReport.files.filter(file => {
+        if (!file || !file.issues || !Array.isArray(file.issues)) {
+          return false;
+        }
+
+        // Keep file if it has at least one issue matching keepSeverities
+        const hasMatchingSeverity = file.issues.some(issue => 
+          issue && this.keepSeverities.includes(issue.severity)
+        );
+
+        if (hasMatchingSeverity) {
+          // Filter issues within the file to only keep matching severities
+          file.issues = file.issues.filter(issue => 
+            issue && this.keepSeverities.includes(issue.severity)
+          );
+          return true;
+        }
+
+        return false;
+      });
+
+      // Sort files by severity (most severe first) and truncate to maxFiles
+      if (prunedReport.files.length > this.maxFiles) {
+        prunedReport.files = this._sortBySeverity(prunedReport.files)
+          .slice(0, this.maxFiles);
+      }
+    }
+
+    // Remove unused metadata fields
+    this._removeUnusedMetadata(prunedReport);
+
+    return this.trackPruned 
+      ? { report: prunedReport, prunedMetadata: this._prunedMetadata }
+      : prunedReport;
+  }
+
+  /**
+   * Deep clones an object with circular reference detection
+   * Note: Circular references unlikely in scan reports but handled for robustness
+   * @private
+   */
+  _deepClone(obj, visited = new WeakSet()) {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+
+    // Check for circular reference
+    if (visited.has(obj)) {
+      return '[Circular Reference]';
+    }
+    visited.add(obj);
+
+    if (obj instanceof Date) {
+      return new Date(obj.getTime());
+    }
+
+    if (obj instanceof Array) {
+      return obj.map(item => this._deepClone(item, visited));
+    }
+
+    if (obj instanceof Object) {
+      const clonedObj = {};
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          clonedObj[key] = this._deepClone(obj[key], visited);
+        }
+      }
+      return clonedObj;
+    }
+  }
+
+  /**
+   * Sorts files by the severity of their most critical issue
+   * @private
+   */
+  _sortBySeverity(files) {
+    return files.sort((a, b) => {
+      const aMaxSeverity = this._getMaxSeverity(a.issues);
+      const bMaxSeverity = this._getMaxSeverity(b.issues);
+      return aMaxSeverity - bMaxSeverity;
+    });
+  }
+
+  /**
+   * Gets the highest severity score from an array of issues
+   * @private
+   */
+  _getMaxSeverity(issues) {
+    if (!issues || !Array.isArray(issues) || issues.length === 0) {
+      return Infinity;
+    }
+
+    return Math.min(...issues.map(issue => {
+      if (issue && issue.severity && this.severityOrder.hasOwnProperty(issue.severity)) {
+        return this.severityOrder[issue.severity];
+      }
+      return Infinity;
+    }));
+  }
+
+  /**
+   * Removes empty, null, or unused metadata fields from the report
+   * @private
+   */
+  _removeUnusedMetadata(obj, path = '') {
+    if (!obj || typeof obj !== 'object') {
+      return;
+    }
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        const currentPath = path ? `${path}.${key}` : key;
+
+        // Remove null, undefined, empty strings, empty arrays, or empty objects
+        if (
+          value === null ||
+          value === undefined ||
+          value === '' ||
+          (Array.isArray(value) && value.length === 0) ||
+          (typeof value === 'object' && 
+           !Array.isArray(value) && 
+           Object.keys(value).length === 0)
+        ) {
+          if (this.trackPruned) {
+            this._prunedMetadata.push({
+              path: currentPath,
+              value: value,
+              reason: value === null ? 'null' :
+                      value === undefined ? 'undefined' :
+                      value === '' ? 'empty string' :
+                      Array.isArray(value) ? 'empty array' : 'empty object'
+            });
+          }
+          delete obj[key];
+        } else if (typeof value === 'object') {
+          // Recursively clean nested objects
+          this._removeUnusedMetadata(value, currentPath);
+          
+          // After cleaning, check if the object is now empty
+          if (
+            typeof value === 'object' && 
+            !Array.isArray(value) && 
+            Object.keys(value).length === 0
+          ) {
+            if (this.trackPruned) {
+              this._prunedMetadata.push({
+                path: currentPath,
+                value: {},
+                reason: 'became empty after pruning children'
+              });
+            }
+            delete obj[key];
+          }
+        }
+      }
+    }
+  }
+}
+export default SauronReportPruner;
+

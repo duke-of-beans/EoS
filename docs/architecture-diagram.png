@@ -1,0 +1,167 @@
+<svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" font-size="24" font-weight="bold" fill="#1a1a1a">Eye of Sauron Architecture</text>
+  <text x="600" y="55" text-anchor="middle" font-size="14" fill="#666">2025-06-19</text>
+  
+  <!-- Entry Points Layer -->
+  <g id="entry-layer">
+    <!-- CLI Box -->
+    <rect x="50" y="100" width="200" height="80" rx="5" fill="#4285f4" stroke="#2a5bb6" stroke-width="2"/>
+    <text x="150" y="130" text-anchor="middle" font-size="16" font-weight="bold" fill="white">CLI Interface</text>
+    <text x="150" y="150" text-anchor="middle" font-size="12" fill="white">EyeOfSauronCLI.js</text>
+    <text x="150" y="165" text-anchor="middle" font-size="12" fill="white">SauronReportArchiverCLI.js</text>
+    
+    <!-- API Server Box -->
+    <rect x="300" y="100" width="200" height="80" rx="5" fill="#34a853" stroke="#2d8e47" stroke-width="2"/>
+    <text x="400" y="130" text-anchor="middle" font-size="16" font-weight="bold" fill="white">API Server</text>
+    <text x="400" y="150" text-anchor="middle" font-size="12" fill="white">SauronAPI.js</text>
+    <text x="400" y="165" text-anchor="middle" font-size="12" fill="white">REST + GraphQL</text>
+    
+    <!-- CI/CD Integration -->
+    <rect x="550" y="100" width="200" height="80" rx="5" fill="#fbbc04" stroke="#d9a200" stroke-width="2"/>
+    <text x="650" y="130" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">CI/CD Integration</text>
+    <text x="650" y="150" text-anchor="middle" font-size="12" fill="#333">Git Hooks</text>
+    <text x="650" y="165" text-anchor="middle" font-size="12" fill="#333">Webhooks</text>
+  </g>
+  
+  <!-- Validation & Security Layer -->
+  <g id="security-layer">
+    <rect x="50" y="220" width="700" height="50" rx="5" fill="#ff5722" fill-opacity="0.2" stroke="#ff5722" stroke-width="2" stroke-dasharray="5,5"/>
+    <text x="400" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="#d84315">Validation & Security Layer</text>
+  </g>
+  
+  <!-- Core Engine -->
+  <g id="core-engine">
+    <rect x="200" y="300" width="400" height="100" rx="5" fill="#9c27b0" stroke="#7b1fa2" stroke-width="3"/>
+    <text x="400" y="335" text-anchor="middle" font-size="20" font-weight="bold" fill="white">Core Scanner Engine</text>
+    <text x="400" y="360" text-anchor="middle" font-size="14" fill="white">EyeOfSauronOmniscient.js</text>
+    <text x="400" y="380" text-anchor="middle" font-size="12" fill="white">BatchProcessor | FileDiscovery | ScanProfileManager</text>
+  </g>
+  
+  <!-- Analysis Subsystems -->
+  <g id="subsystems">
+    <!-- Character Forensics -->
+    <rect x="50" y="450" width="180" height="80" rx="5" fill="#00acc1" stroke="#00838f" stroke-width="2"/>
+    <text x="140" y="480" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Character Forensics</text>
+    <text x="140" y="500" text-anchor="middle" font-size="11" fill="white">Invisible chars</text>
+    <text x="140" y="515" text-anchor="middle" font-size="11" fill="white">Homoglyphs</text>
+    
+    <!-- Pattern Recognition -->
+    <rect x="250" y="450" width="180" height="80" rx="5" fill="#00acc1" stroke="#00838f" stroke-width="2"/>
+    <text x="340" y="480" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Pattern Recognition</text>
+    <text x="340" y="500" text-anchor="middle" font-size="11" fill="white">Contract violations</text>
+    <text x="340" y="515" text-anchor="middle" font-size="11" fill="white">Memory leaks</text>
+    
+    <!-- Impact Analysis -->
+    <rect x="450" y="450" width="180" height="80" rx="5" fill="#00acc1" stroke="#00838f" stroke-width="2"/>
+    <text x="540" y="480" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Impact Analysis</text>
+    <text x="540" y="500" text-anchor="middle" font-size="11" fill="white">Dependencies</text>
+    <text x="540" y="515" text-anchor="middle" font-size="11" fill="white">Fix impacts</text>
+    
+    <!-- Learning Engine -->
+    <rect x="650" y="450" width="180" height="80" rx="5" fill="#00acc1" stroke="#00838f" stroke-width="2"/>
+    <text x="740" y="480" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Learning Engine</text>
+    <text x="740" y="500" text-anchor="middle" font-size="11" fill="white">Pattern learning</text>
+    <text x="740" y="515" text-anchor="middle" font-size="11" fill="white">Auto-tuning</text>
+  </g>
+  
+  <!-- Support Services -->
+  <g id="support-services">
+    <!-- Cache & History -->
+    <rect x="870" y="300" width="150" height="60" rx="5" fill="#607d8b" stroke="#455a64" stroke-width="2"/>
+    <text x="945" y="325" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Cache & History</text>
+    <text x="945" y="345" text-anchor="middle" font-size="10" fill="white">IncrementalScanCache</text>
+    
+    <!-- Metrics & Telemetry -->
+    <rect x="870" y="380" width="150" height="60" rx="5" fill="#607d8b" stroke="#455a64" stroke-width="2"/>
+    <text x="945" y="405" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Metrics & Telemetry</text>
+    <text x="945" y="425" text-anchor="middle" font-size="10" fill="white">MetricsExporter</text>
+    
+    <!-- Error Handling -->
+    <rect x="870" y="460" width="150" height="60" rx="5" fill="#f44336" stroke="#c62828" stroke-width="2"/>
+    <text x="945" y="485" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Error Handling</text>
+    <text x="945" y="505" text-anchor="middle" font-size="10" fill="white">ErrorLogger</text>
+  </g>
+  
+  <!-- Output Layer -->
+  <g id="output-layer">
+    <!-- Report Assembly -->
+    <rect x="200" y="580" width="400" height="60" rx="5" fill="#795548" stroke="#5d4037" stroke-width="2"/>
+    <text x="400" y="605" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Report Assembly & Formatting</text>
+    <text x="400" y="625" text-anchor="middle" font-size="12" fill="white">ScanReportAssembler | OmniReportFormatter | HTMLReportFormatter</text>
+  </g>
+  
+  <!-- Output Destinations -->
+  <g id="destinations">
+    <!-- Console -->
+    <rect x="50" y="680" width="120" height="60" rx="5" fill="#424242" stroke="#212121" stroke-width="2"/>
+    <text x="110" y="715" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Console</text>
+    
+    <!-- File System -->
+    <rect x="200" y="680" width="120" height="60" rx="5" fill="#424242" stroke="#212121" stroke-width="2"/>
+    <text x="260" y="715" text-anchor="middle" font-size="12" font-weight="bold" fill="white">File System</text>
+    
+    <!-- Archive -->
+    <rect x="350" y="680" width="120" height="60" rx="5" fill="#424242" stroke="#212121" stroke-width="2"/>
+    <text x="410" y="715" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Archive/S3</text>
+    
+    <!-- Webhooks -->
+    <rect x="500" y="680" width="120" height="60" rx="5" fill="#424242" stroke="#212121" stroke-width="2"/>
+    <text x="560" y="715" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Webhooks</text>
+    
+    <!-- Monitoring -->
+    <rect x="650" y="680" width="120" height="60" rx="5" fill="#424242" stroke="#212121" stroke-width="2"/>
+    <text x="710" y="715" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Monitoring</text>
+  </g>
+  
+  <!-- Data Flow Arrows -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+  
+  <!-- Flow arrows -->
+  <!-- Entry to validation -->
+  <path d="M 150 180 L 150 220" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 400 180 L 400 220" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 650 180 L 650 220" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Validation to core -->
+  <path d="M 400 270 L 400 300" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Core to subsystems -->
+  <path d="M 300 400 L 140 450" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 380 400 L 340 450" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 420 400 L 540 450" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 500 400 L 740 450" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Core to support services -->
+  <path d="M 600 350 L 870 330" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)" stroke-dasharray="3,3"/>
+  <path d="M 600 370 L 870 410" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)" stroke-dasharray="3,3"/>
+  
+  <!-- Subsystems to report assembly -->
+  <path d="M 140 530 L 280 580" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 340 530 L 360 580" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 540 530 L 440 580" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 740 530 L 520 580" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Report to outputs -->
+  <path d="M 250 640 L 110 680" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 320 640 L 260 680" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 400 640 L 410 680" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 480 640 L 560 680" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 550 640 L 710 680" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Legend -->
+  <g id="legend" transform="translate(900, 580)">
+    <text x="0" y="0" font-size="14" font-weight="bold" fill="#333">Legend:</text>
+    <line x1="0" y1="20" x2="30" y2="20" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="40" y="25" font-size="12" fill="#333">Data flow</text>
+    <line x1="0" y1="40" x2="30" y2="40" stroke="#666" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrowhead)"/>
+    <text x="40" y="45" font-size="12" fill="#666">Service access</text>
+  </g>
+</svg>

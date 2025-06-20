@@ -1,0 +1,367 @@
+/**
+ * Purpose: Detects unusual patterns in scan, pipeline, or audit data
+ * Dependencies: Node.js std lib
+ * API: SauronAnomalyDetector().record(), detect()
+ */
+
+export class SauronAnomalyDetector {
+  constructor(config = {}) {
+    this.config = {
+      thresholds: {
+        sizeSpike: 2.0,
+        failRateSpike: 1.5,
+        ...config.thresholds
+      },
+      historySize: config.historySize || 1000
+    };
+
+    this.history = [];
+    this.anomalies = [];
+  }
+
+  /**
+   * Records a data point for anomaly detection
+   * @param {object} data - Data point with metrics to track
+   * @returns {void}
+   */
+  record(data) {
+    try {
+      if (!data || typeof data !== 'object') {
+        return;
+      }
+
+      // Create a clean copy of the data
+      const cleanData = {
+        timestamp: Date.now(),
+        reportSize: data.reportSize || 0,
+        failureCount: data.failureCount || 0,
+        successCount: data.successCount || 0,
+        duration: data.duration || 0,
+        fileCount: data.fileCount || 0,
+        issueCount: data.issueCount || 0,
+        signature: data.signature || null,
+        type: data.type || 'unknown'
+      };
+
+      // Add to history
+      this.history.push(cleanData);
+
+      // Maintain history size limit
+      if (this.history.length > this.config.historySize) {
+        this.history.shift();
+      }
+    } catch (error) {
+      // Defensive: silently handle errors
+      console.error('SauronAnomalyDetector.record error:', error.message);
+    }
+  }
+
+  /**
+   * Detects anomalies in the recorded data
+   * @returns {object} Detected anomalies and metadata
+   */
+  detect() {
+    try {
+      this.anomalies = [];
+
+      if (this.history.length < 2) {
+        return this._getMinimalResult();
+      }
+
+      // Detect various types of anomalies
+      this._detectSizeSpikes();
+      this._detectFailureRateSpikes();
+      this._detectSignatureAnomalies();
+      this._detectDurationAnomalies();
+      this._detectPatternAnomalies();
+
+      // Sort by severity and limit to top 100
+      this.anomalies.sort((a, b) => (b.severity || 0) - (a.severity || 0));
+      this.anomalies = this.anomalies.slice(0, 100);
+
+      // Log detection metrics
+
+
+      return {
+        anomalies: this.anomalies.map(a => this._sanitizeAnomaly(a)),
+        metadata: {
+          detectedAt: new Date().toISOString(),
+          historySize: this.history.length
+        }
+      };
+    } catch (error) {
+      console.error('SauronAnomalyDetector.detect error:', error.message);
+      return this._getMinimalResult();
+    }
+  }
+
+  /**
+   * Detects size-related anomalies
+   * @private
+   */
+  _detectSizeSpikes() {
+    const recentData = this._getRecentData(10);
+    if (recentData.length < 2) return;
+
+    const avgSize = this._calculateAverage(this.history, 'reportSize');
+    const latest = recentData[recentData.length - 1];
+
+    if (latest.reportSize > avgSize * this.config.thresholds.sizeSpike) {
+      this.anomalies.push({
+        type: 'size_spike',
+        description: 'Report size significantly larger than average',
+        data: {
+          current: latest.reportSize,
+          average: avgSize,
+          ratio: latest.reportSize / avgSize
+        },
+        severity: Math.min(10, latest.reportSize / avgSize),
+        timestamp: latest.timestamp
+      });
+    }
+
+    // Check for sudden drops too
+    if (latest.reportSize < avgSize * 0.1 && avgSize > 0) {
+      this.anomalies.push({
+        type: 'size_drop',
+        description: 'Report size significantly smaller than average',
+        data: {
+          current: latest.reportSize,
+          average: avgSize,
+          ratio: latest.reportSize / avgSize
+        },
+        severity: 5,
+        timestamp: latest.timestamp
+      });
+    }
+  }
+
+  /**
+   * Detects failure rate anomalies
+   * @private
+   */
+  _detectFailureRateSpikes() {
+    const recentData = this._getRecentData(10);
+    if (recentData.length < 2) return;
+
+    const avgFailRate = this._calculateFailureRate(this.history);
+    const latestFailRate = this._calculateFailureRate(recentData.slice(-3));
+
+    if (latestFailRate > avgFailRate * this.config.thresholds.failRateSpike) {
+      this.anomalies.push({
+        type: 'failure_rate_spike',
+        description: 'Failure rate significantly higher than average',
+        data: {
+          current: latestFailRate,
+          average: avgFailRate,
+          ratio: latestFailRate / avgFailRate
+        },
+        severity: Math.min(10, latestFailRate / avgFailRate * 2),
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Detects signature-related anomalies
+   * @private
+   */
+  _detectSignatureAnomalies() {
+    const signatures = this.history
+      .filter(d => d.signature)
+      .map(d => d.signature);
+
+    if (signatures.length < 10) return;
+
+    // Check for duplicate signatures (potential replay)
+    const signatureCounts = {};
+    signatures.forEach(sig => {
+      signatureCounts[sig] = (signatureCounts[sig] || 0) + 1;
+    });
+
+    Object.entries(signatureCounts).forEach(([sig, count]) => {
+      if (count > signatures.length * 0.1) {
+        this.anomalies.push({
+          type: 'signature_duplication',
+          description: 'Excessive signature duplication detected',
+          data: {
+            count,
+            percentage: (count / signatures.length) * 100
+          },
+          severity: Math.min(8, count / signatures.length * 10),
+          timestamp: Date.now()
+        });
+      }
+    });
+  }
+
+  /**
+   * Detects duration/performance anomalies
+   * @private
+   */
+  _detectDurationAnomalies() {
+    const recentData = this._getRecentData(10);
+    if (recentData.length < 2) return;
+
+    const avgDuration = this._calculateAverage(this.history, 'duration');
+    const latest = recentData[recentData.length - 1];
+
+    if (latest.duration > avgDuration * 3) {
+      this.anomalies.push({
+        type: 'duration_spike',
+        description: 'Execution duration significantly longer than average',
+        data: {
+          current: latest.duration,
+          average: avgDuration,
+          ratio: latest.duration / avgDuration
+        },
+        severity: Math.min(7, latest.duration / avgDuration),
+        timestamp: latest.timestamp
+      });
+    }
+  }
+
+  /**
+   * Detects pattern-based anomalies
+   * @private
+   */
+  _detectPatternAnomalies() {
+    // Detect sudden changes in issue counts
+    const recentData = this._getRecentData(5);
+    if (recentData.length < 3) return;
+
+    const recentIssueCounts = recentData.map(d => d.issueCount);
+    const avgIssueCount = this._calculateAverage(this.history, 'issueCount');
+
+    // Check for sudden spike in issues
+    const latestIssueCount = recentIssueCounts[recentIssueCounts.length - 1];
+    if (latestIssueCount > avgIssueCount * 3) {
+      this.anomalies.push({
+        type: 'issue_count_spike',
+        description: 'Issue count significantly higher than average',
+        data: {
+          current: latestIssueCount,
+          average: avgIssueCount,
+          ratio: latestIssueCount / avgIssueCount
+        },
+        severity: Math.min(9, latestIssueCount / avgIssueCount),
+        timestamp: Date.now()
+      });
+    }
+
+    // Detect erratic patterns (high variance)
+    const variance = this._calculateVariance(recentIssueCounts);
+    const avgVariance = this._calculateVariance(this.history.map(d => d.issueCount));
+
+    if (variance > avgVariance * 5) {
+      this.anomalies.push({
+        type: 'erratic_pattern',
+        description: 'Highly variable metrics detected',
+        data: {
+          variance,
+          averageVariance: avgVariance,
+          ratio: variance / avgVariance
+        },
+        severity: 6,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Sanitizes anomaly data to redact sensitive information
+   * @private
+   */
+  _sanitizeAnomaly(anomaly) {
+    const sanitized = {
+      type: anomaly.type,
+      description: anomaly.description,
+      data: {},
+      severity: anomaly.severity || 5,
+      timestamp: anomaly.timestamp
+    };
+
+    // Redact sensitive fields
+    if (anomaly.data) {
+      Object.keys(anomaly.data).forEach(key => {
+        if (typeof anomaly.data[key] === 'number') {
+          sanitized.data[key] = Math.round(anomaly.data[key] * 100) / 100;
+        } else if (typeof anomaly.data[key] === 'string') {
+          // Redact potential sensitive strings
+          sanitized.data[key] = anomaly.data[key].substring(0, 50);
+        } else {
+          sanitized.data[key] = anomaly.data[key];
+        }
+      });
+    }
+
+    return sanitized;
+  }
+
+  /**
+   * Gets recent data points
+   * @private
+   */
+  _getRecentData(count) {
+    return this.history.slice(-count);
+  }
+
+  /**
+   * Calculates average for a specific field
+   * @private
+   */
+  _calculateAverage(data, field) {
+    if (!data.length) return 0;
+    const sum = data.reduce((acc, d) => acc + (d[field] || 0), 0);
+    return sum / data.length;
+  }
+
+  /**
+   * Calculates failure rate
+   * @private
+   */
+  _calculateFailureRate(data) {
+    if (!data.length) return 0;
+    const totalRuns = data.reduce((acc, d) =>
+      acc + (d.failureCount || 0) + (d.successCount || 0), 0);
+    if (totalRuns === 0) return 0;
+    const totalFailures = data.reduce((acc, d) => acc + (d.failureCount || 0), 0);
+    return totalFailures / totalRuns;
+  }
+
+  /**
+   * Calculates variance
+   * @private
+   */
+  _calculateVariance(values) {
+    if (values.length < 2) return 0;
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    const squaredDiffs = values.map(v => Math.pow(v - avg, 2));
+    return squaredDiffs.reduce((a, b) => a + b, 0) / values.length;
+  }
+
+  /**
+   * Returns minimal valid result
+   * @private
+   */
+  _getMinimalResult() {
+    return {
+      anomalies: [],
+      metadata: {
+        detectedAt: new Date().toISOString(),
+        historySize: this.history.length
+      }
+    };
+  }
+
+  /**
+   * Generates canonical JSON summary for export
+   * @returns {string} JSON summary
+   */
+  toJSON() {
+    const result = this.detect();
+    return JSON.stringify(result, null, 2);
+  }
+}
+export default SauronAnomalyDetector;
+

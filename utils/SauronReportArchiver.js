@@ -2,7 +2,7 @@
  * Purpose: Archives scan reports to FS or cloud
  * Dependencies: Node.js std lib (fs/promises, path)
  * API: SauronReportArchiver(config).archiveReport(id, json, html)
- * 
+ *
  * Config options:
  * - localPath: string - Path for local storage (required if no s3Client)
  * - s3Client: object - S3-compatible client instance (optional)
@@ -19,11 +19,11 @@ export class SauronReportArchiver {
     if (!config.localPath && !config.s3Client) {
       throw new Error('Either localPath or s3Client must be provided');
     }
-    
+
     if (config.s3Client && !config.bucketName) {
       throw new Error('bucketName is required when s3Client is provided');
     }
-    
+
     this.localPath = config.localPath;
     this.s3Client = config.s3Client;
     this.bucketName = config.bucketName;
@@ -42,13 +42,13 @@ export class SauronReportArchiver {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const jsonFilename = `${id}_${timestamp}.json`;
       const htmlFilename = `${id}_${timestamp}.html`;
-      
+
       if (this.s3Client) {
         await this._archiveToCloud(jsonFilename, jsonContent, htmlFilename, htmlContent);
       } else {
         await this._archiveToLocal(jsonFilename, jsonContent, htmlFilename, htmlContent);
       }
-      
+
       if (this.verbose) {
         console.log(`✅ Successfully archived report ${id} at ${timestamp}`);
       }
@@ -66,7 +66,7 @@ export class SauronReportArchiver {
     try {
       // Ensure directory exists
       await fs.mkdir(this.localPath, { recursive: true });
-      
+
       // Write JSON file
       const jsonPath = path.join(this.localPath, jsonFilename);
       await fs.writeFile(
@@ -74,11 +74,11 @@ export class SauronReportArchiver {
         JSON.stringify(jsonContent, null, 2),
         'utf8'
       );
-      
+
       // Write HTML file
       const htmlPath = path.join(this.localPath, htmlFilename);
       await fs.writeFile(htmlPath, htmlContent, 'utf8');
-      
+
       if (this.verbose) {
         console.log(`📁 Archived to local: ${this.localPath}`);
       }
@@ -100,7 +100,7 @@ export class SauronReportArchiver {
         Body: JSON.stringify(jsonContent, null, 2),
         ContentType: 'application/json'
       }).promise();
-      
+
       // Upload HTML file
       await this.s3Client.putObject({
         Bucket: this.bucketName,
@@ -108,7 +108,7 @@ export class SauronReportArchiver {
         Body: htmlContent,
         ContentType: 'text/html'
       }).promise();
-      
+
       if (this.verbose) {
         console.log(`☁️  Archived to cloud: s3://${this.bucketName}/`);
       }

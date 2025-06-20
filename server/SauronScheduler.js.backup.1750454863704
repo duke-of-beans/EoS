@@ -1,0 +1,222 @@
+/**
+ * Purpose: Schedules recurring scans for Eye of Sauron
+ * Dependencies: Node.js std lib (timers)
+ * API: SauronScheduler(scanner, config).start(), stop(), isRunning()
+ * Note: Logger defaults to console.log; pass null to disable logging
+ * Cron: Only supports daily patterns "MIN HOUR * * *" (e.g., "30 14 * * *" = 2:30 PM daily)
+ */
+
+export class SauronScheduler {
+  constructor(scannerInstance, config = {}) {
+    if (!scannerInstance || typeof scannerInstance.scan !== 'function') {
+      throw new Error('SauronScheduler requires scanner instance with scan() method');
+    }
+    
+    this.scanner = scannerInstance;
+    this.config = {
+      intervalMs: config.intervalMs || null,
+      cronPattern: config.cronPattern || null,
+      logger: config.logger === null ? (() => {}) : (config.logger || console.log),
+      throwOnError: config.throwOnError !== false // Default true for backward compatibility
+    };
+    
+    this.intervalId = null;
+    this.isScanning = false;
+    this.nextScheduledTime = null;
+    
+    // Validate config
+    if (!this.config.intervalMs && !this.config.cronPattern) {
+      throw new Error('SauronScheduler requires either intervalMs or cronPattern');
+    }
+    
+    if (this.config.intervalMs && this.config.cronPattern) {
+      throw new Error('SauronScheduler cannot use both intervalMs and cronPattern');
+    }
+    
+    // Validate cron pattern early if provided
+    if (this.config.cronPattern) {
+      this._validateCronPattern(this.config.cronPattern);
+    }
+  }
+  
+  /**
+   * Start the scheduler
+   */
+  start() {
+    if (this.intervalId) {
+      this.config.logger('[SauronScheduler] Already running');
+      return;
+    }
+    
+    if (this.config.intervalMs) {
+      this._startInterval();
+    } else if (this.config.cronPattern) {
+      this._startCron();
+    }
+    
+    this.config.logger('[SauronScheduler] Started');
+  }
+  
+  /**
+   * Stop the scheduler
+   */
+  stop() {
+    if (!this.intervalId) {
+      this.config.logger('[SauronScheduler] Not running');
+      return;
+    }
+    
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+    this.nextScheduledTime = null;
+    
+    this.config.logger('[SauronScheduler] Stopped');
+  }
+  
+  /**
+   * Check if scheduler is running
+   * @returns {boolean}
+   */
+  isRunning() {
+    return this.intervalId !== null;
+  }
+  
+  /**
+   * Start interval-based scheduling
+   * @private
+   */
+  _startInterval() {
+    // Explicitly null for interval mode
+    this.nextScheduledTime = null;
+    
+    // Run immediately
+    this._executeScan();
+    
+    // Then schedule recurring
+    this.intervalId = setInterval(() => {
+      this._executeScan();
+    }, this.config.intervalMs);
+  }
+  
+  /**
+   * Validate cron pattern format
+   * @private
+   * @param {string} pattern - Cron pattern to validate
+   * @throws {Error} If pattern is invalid
+   */
+  _validateCronPattern(pattern) {
+    const parts = pattern.split(' ');
+    
+    if (parts.length !== 5) {
+      throw new Error('SauronScheduler cron must have 5 fields: "MIN HOUR * * *"');
+    }
+    
+    if (parts[2] !== '*' || parts[3] !== '*' || parts[4] !== '*') {
+      throw new Error('SauronScheduler only supports DAILY cron patterns: "MIN HOUR * * *" (e.g., "30 14 * * *" = 2:30 PM daily). Weekly/monthly patterns not supported.');
+    }
+    
+    const minute = parseInt(parts[0]);
+    const hour = parseInt(parts[1]);
+    
+    if (isNaN(minute) || minute < 0 || minute > 59) {
+      throw new Error(`Invalid cron minute: ${parts[0]} (must be 0-59)`);
+    }
+    
+    if (isNaN(hour) || hour < 0 || hour > 23) {
+      throw new Error(`Invalid cron hour: ${parts[1]} (must be 0-23)`);
+    }
+  }
+  
+  /**
+   * Start cron-based scheduling (basic support)
+   * @private
+   */
+  _startCron() {
+    // Pattern already validated in constructor
+    const parts = this.config.cronPattern.split(' ');
+    const targetMinute = parseInt(parts[0]);
+    const targetHour = parseInt(parts[1]);
+    
+    // Check every minute for cron match
+    this.intervalId = setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === targetHour && now.getMinutes() === targetMinute) {
+        // Prevent duplicate runs within same minute
+        if (this.nextScheduledTime && now < this.nextScheduledTime) {
+          return;
+        }
+        
+        this.nextScheduledTime = new Date(now.getTime() + 60000); // Next minute
+        this._executeScan();
+      }
+    }, 10000); // Check every 10 seconds to minimize drift risk
+    
+    // Calculate next run time for logging
+    const now = new Date();
+    const next = new Date(now);
+    next.setHours(targetHour);
+    next.setMinutes(targetMinute);
+    next.setSeconds(0);
+    next.setMilliseconds(0);
+    
+    if (next <= now) {
+      next.setDate(next.getDate() + 1);
+    }
+    
+    this.config.logger(`[SauronScheduler] Next cron run: ${next.toISOString()}`);
+  }
+  
+  /**
+   * Execute scan with overlap prevention
+   * @private
+   */
+  async _executeScan() {
+    if (this.isScanning) {
+      this.config.logger('[SauronScheduler] Skipping scan - previous scan still running');
+      return;
+    }
+    
+    this.isScanning = true;
+    const startTime = Date.now();
+    
+    try {
+      this.config.logger('[SauronScheduler] Starting scheduled scan');
+      
+      const result = await this.scanner.scan();
+      
+      const duration = Date.now() - startTime;
+      this.config.logger(`[SauronScheduler] Scan completed in ${duration}ms`);
+      
+      return result;
+    } catch (error) {
+      this.config.logger(`[SauronScheduler] Scan error: ${error.message}`);
+      
+      if (this.config.throwOnError) {
+        throw error;
+      }
+      
+      // Silent mode - error logged but not thrown
+      return { error: error.message };
+    } finally {
+      this.isScanning = false;
+    }
+  }
+  
+  /**
+   * Get scheduler status
+   * @returns {object}
+   */
+  getStatus() {
+    return {
+      isRunning: this.isRunning(),
+      isScanning: this.isScanning,
+      mode: this.config.intervalMs ? 'interval' : 'cron',
+      config: {
+        intervalMs: this.config.intervalMs,
+        cronPattern: this.config.cronPattern,
+        throwOnError: this.config.throwOnError
+      },
+      nextScheduledTime: this.config.cronPattern ? this.nextScheduledTime : null
+    };
+  }
+}

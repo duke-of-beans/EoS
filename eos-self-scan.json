@@ -1,0 +1,3189 @@
+{
+  "scanPath": "C:\\Users\\DKdKe\\OneDrive\\Desktop\\T-App\\eye-of-sauron",
+  "timestamp": "2025-06-20T17:45:51.261Z",
+  "mode": "deep",
+  "files": {
+    "SauronCore.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronCore.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "SauronCore.js"
+    },
+    "cli/EyeOfSauronCLI.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "EyeOfSauronCLI.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "cli/EyeOfSauronCLI.js"
+    },
+    "cli/simple-cli.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 13,
+          "column": 1,
+          "message": "Trailing space detected at end of line 13",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 18,
+          "column": 1,
+          "message": "Trailing space detected at end of line 18",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 31,
+          "column": 1,
+          "message": "Trailing space detected at end of line 31",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 35,
+          "column": 1,
+          "message": "Trailing space detected at end of line 35",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 39,
+          "column": 1,
+          "message": "Trailing space detected at end of line 39",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 43,
+          "column": 1,
+          "message": "Trailing space detected at end of line 43",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 46,
+          "column": 1,
+          "message": "Trailing space detected at end of line 46",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 51,
+          "column": 1,
+          "message": "Trailing space detected at end of line 51",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 58,
+          "column": 1,
+          "message": "Trailing space detected at end of line 58",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-cli.js",
+          "line": 63,
+          "column": 1,
+          "message": "Trailing space detected at end of line 63",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "path": "cli/simple-cli.js"
+    },
+    "config/Config.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "Config.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "config/Config.js"
+    },
+    "core/CharacterForensics.js": {
+      "issues": [
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "CharacterForensics.js",
+          "line": 17,
+          "column": 1,
+          "message": "CYRILLIC_A looks like 'a' but is actually Cyrillic",
+          "analyzer": "character-forensics",
+          "fix": "Replace with Latin 'a'"
+        },
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "CharacterForensics.js",
+          "line": 18,
+          "column": 1,
+          "message": "CYRILLIC_E looks like 'e' but is actually Cyrillic",
+          "analyzer": "character-forensics",
+          "fix": "Replace with Latin 'e'"
+        },
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "CharacterForensics.js",
+          "line": 19,
+          "column": 1,
+          "message": "CYRILLIC_O looks like 'o' but is actually Cyrillic",
+          "analyzer": "character-forensics",
+          "fix": "Replace with Latin 'o'"
+        },
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "CharacterForensics.js",
+          "line": 20,
+          "column": 1,
+          "message": "CYRILLIC_P looks like 'p' but is actually Cyrillic",
+          "analyzer": "character-forensics",
+          "fix": "Replace with Latin 'p'"
+        },
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "CharacterForensics.js",
+          "line": 21,
+          "column": 1,
+          "message": "CYRILLIC_C looks like 'c' but is actually Cyrillic",
+          "analyzer": "character-forensics",
+          "fix": "Replace with Latin 'c'"
+        },
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "CharacterForensics.js",
+          "line": 22,
+          "column": 1,
+          "message": "CYRILLIC_X looks like 'x' but is actually Cyrillic",
+          "analyzer": "character-forensics",
+          "fix": "Replace with Latin 'x'"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "CharacterForensics.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/CharacterForensics.js"
+    },
+    "core/ComponentMarketplace.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "ComponentMarketplace.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/ComponentMarketplace.js"
+    },
+    "core/DependencyImpactAnalyzer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "DependencyImpactAnalyzer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/DependencyImpactAnalyzer.js"
+    },
+    "core/EyeOfSauronOmniscient.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 156,
+          "column": 1,
+          "message": "Trailing space detected at end of line 156",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 176,
+          "column": 1,
+          "message": "Trailing space detected at end of line 176",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 188,
+          "column": 1,
+          "message": "Trailing space detected at end of line 188",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 190,
+          "column": 1,
+          "message": "Trailing space detected at end of line 190",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 191,
+          "column": 1,
+          "message": "Trailing space detected at end of line 191",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 195,
+          "column": 1,
+          "message": "Trailing space detected at end of line 195",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 198,
+          "column": 1,
+          "message": "Trailing space detected at end of line 198",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 202,
+          "column": 1,
+          "message": "Trailing space detected at end of line 202",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 204,
+          "column": 1,
+          "message": "Trailing space detected at end of line 204",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 207,
+          "column": 1,
+          "message": "Trailing space detected at end of line 207",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "DANGER",
+          "file": "EyeOfSauronOmniscient.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/EyeOfSauronOmniscient.js"
+    },
+    "core/FixImpactAnalyzer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "FixImpactAnalyzer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/FixImpactAnalyzer.js"
+    },
+    "core/KaizenSettingsPanel.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "KaizenSettingsPanel.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/KaizenSettingsPanel.js"
+    },
+    "core/KaizenSnapshot.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "KaizenSnapshot.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/KaizenSnapshot.js"
+    },
+    "core/OneClickHealing.js": {
+      "issues": [
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "OneClickHealing.js",
+          "line": 14,
+          "column": 1,
+          "message": "Smart quote LEFT_SINGLE_QUOTE detected",
+          "analyzer": "character-forensics",
+          "fix": "Replace with standard quote '''"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "OneClickHealing.js",
+          "line": 15,
+          "column": 1,
+          "message": "Smart quote RIGHT_SINGLE_QUOTE detected",
+          "analyzer": "character-forensics",
+          "fix": "Replace with standard quote '''"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "OneClickHealing.js",
+          "line": 16,
+          "column": 1,
+          "message": "Smart quote LEFT_DOUBLE_QUOTE detected",
+          "analyzer": "character-forensics",
+          "fix": "Replace with standard quote '\"'"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "OneClickHealing.js",
+          "line": 17,
+          "column": 1,
+          "message": "Smart quote RIGHT_DOUBLE_QUOTE detected",
+          "analyzer": "character-forensics",
+          "fix": "Replace with standard quote '\"'"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "OneClickHealing.js",
+          "line": 18,
+          "column": 1,
+          "message": "Smart quote DOUBLE_LOW_9_QUOTE detected",
+          "analyzer": "character-forensics",
+          "fix": "Replace with standard quote '\"'"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "OneClickHealing.js",
+          "line": 19,
+          "column": 1,
+          "message": "Smart quote SINGLE_LOW_9_QUOTE detected",
+          "analyzer": "character-forensics",
+          "fix": "Replace with standard quote '''"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "OneClickHealing.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/OneClickHealing.js"
+    },
+    "core/PatternLearningEngine.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "PatternLearningEngine.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/PatternLearningEngine.js"
+    },
+    "core/PatternPrecognition.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "PatternPrecognition.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/PatternPrecognition.js"
+    },
+    "core/SauronConfigLoader.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "SauronConfigLoader.js",
+          "line": 5,
+          "column": 1,
+          "message": "Trailing space detected at end of line 5",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronConfigLoader.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/SauronConfigLoader.js"
+    },
+    "core/SauronLicenseManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronLicenseManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/SauronLicenseManager.js"
+    },
+    "core/SauronModuleRegistry.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronModuleRegistry.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/SauronModuleRegistry.js"
+    },
+    "core/SauronPluginManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronPluginManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/SauronPluginManager.js"
+    },
+    "core/ScanPolicyManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "ScanPolicyManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/ScanPolicyManager.js"
+    },
+    "core/ScanProfileManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "ScanProfileManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/ScanProfileManager.js"
+    },
+    "core/TribunalSentinel.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "TribunalSentinel.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "core/TribunalSentinel.js"
+    },
+    "debug-analyzers.js": {
+      "issues": [
+        {
+          "type": "INVISIBLE_CHAR",
+          "severity": "DANGER",
+          "file": "debug-analyzers.js",
+          "line": 15,
+          "column": 1,
+          "message": "Invisible character ZERO_WIDTH_SPACE (U+200B) detected",
+          "analyzer": "character-forensics",
+          "fix": "Remove invisible character"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "debug-analyzers.js",
+          "line": 28,
+          "column": 1,
+          "message": "setInterval detected without corresponding clearInterval",
+          "analyzer": "pattern-violations",
+          "fix": "Store interval ID and call clearInterval() in cleanup/destroy method"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "debug-analyzers.js",
+          "line": 33,
+          "column": 1,
+          "message": "addEventListener('click') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('click', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "debug-analyzers.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "debug-analyzers.js"
+    },
+    "debug-scan-integration.js": {
+      "issues": [
+        {
+          "type": "INVISIBLE_CHAR",
+          "severity": "DANGER",
+          "file": "debug-scan-integration.js",
+          "line": 21,
+          "column": 1,
+          "message": "Invisible character ZERO_WIDTH_SPACE (U+200B) detected",
+          "analyzer": "character-forensics",
+          "fix": "Remove invisible character"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "debug-scan-integration.js",
+          "line": 24,
+          "column": 1,
+          "message": "setInterval detected without corresponding clearInterval",
+          "analyzer": "pattern-violations",
+          "fix": "Store interval ID and call clearInterval() in cleanup/destroy method"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "debug-scan-integration.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "debug-scan-integration.js"
+    },
+    "entrypoint.js": {
+      "issues": [
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "entrypoint.js",
+          "line": 22,
+          "column": 1,
+          "message": "Smart quote RIGHT_SINGLE_QUOTE detected",
+          "analyzer": "character-forensics",
+          "fix": "Replace with standard quote '''"
+        }
+      ],
+      "path": "entrypoint.js"
+    },
+    "error-logger-example.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "error-logger-example.js",
+          "line": 43,
+          "column": 1,
+          "message": "Trailing space detected at end of line 43",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "error-logger-example.js",
+          "line": 45,
+          "column": 1,
+          "message": "Trailing space detected at end of line 45",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "error-logger-example.js",
+          "line": 49,
+          "column": 1,
+          "message": "Trailing space detected at end of line 49",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "error-logger-example.js",
+          "line": 53,
+          "column": 1,
+          "message": "Trailing space detected at end of line 53",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "error-logger-example.js",
+          "line": 57,
+          "column": 1,
+          "message": "Trailing space detected at end of line 57",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "path": "error-logger-example.js"
+    },
+    "final-test-fix.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "final-test-fix.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "final-test-fix.js"
+    },
+    "fix-test-expectations.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "fix-test-expectations.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "fix-test-expectations.js"
+    },
+    "index.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "index.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "index.js"
+    },
+    "performance/BatchProcessor.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "BatchProcessor.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "performance/BatchProcessor.js"
+    },
+    "remove-duplicate-render-patch.js": {
+      "issues": [
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "remove-duplicate-render-patch.js",
+          "line": 154,
+          "column": 1,
+          "message": "addEventListener('DOMContentLoaded') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('DOMContentLoaded', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "remove-duplicate-render-patch.js",
+          "line": 300,
+          "column": 1,
+          "message": "addEventListener('dragover') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('dragover', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "remove-duplicate-render-patch.js",
+          "line": 305,
+          "column": 1,
+          "message": "addEventListener('dragleave') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('dragleave', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "remove-duplicate-render-patch.js",
+          "line": 309,
+          "column": 1,
+          "message": "addEventListener('drop') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('drop', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "remove-duplicate-render-patch.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "remove-duplicate-render-patch.js"
+    },
+    "reporters/HTMLReportFormatter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "HTMLReportFormatter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "reporters/HTMLReportFormatter.js"
+    },
+    "reporters/OmniReportFormatter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "OmniReportFormatter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "reporters/OmniReportFormatter.js"
+    },
+    "reporters/OmniReporterFormatter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "OmniReporterFormatter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "reporters/OmniReporterFormatter.js"
+    },
+    "reporters/PolicyViolationReporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "PolicyViolationReporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "reporters/PolicyViolationReporter.js"
+    },
+    "reporters/SauronInsightReporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronInsightReporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "reporters/SauronInsightReporter.js"
+    },
+    "reporters/SauronReportViewer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportViewer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "reporters/SauronReportViewer.js"
+    },
+    "server/SauronAPI.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronAPI.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "server/SauronAPI.js"
+    },
+    "server/SauronScheduler.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScheduler.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "server/SauronScheduler.js"
+    },
+    "smartAutoPatch.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 5,
+          "column": 1,
+          "message": "Trailing space detected at end of line 5",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 8,
+          "column": 1,
+          "message": "Trailing space detected at end of line 8",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 11,
+          "column": 1,
+          "message": "Trailing space detected at end of line 11",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 13,
+          "column": 1,
+          "message": "Trailing space detected at end of line 13",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 46,
+          "column": 1,
+          "message": "Trailing space detected at end of line 46",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 50,
+          "column": 1,
+          "message": "Trailing space detected at end of line 50",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 52,
+          "column": 1,
+          "message": "Trailing space detected at end of line 52",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 56,
+          "column": 1,
+          "message": "Trailing space detected at end of line 56",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 59,
+          "column": 1,
+          "message": "Trailing space detected at end of line 59",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 106,
+          "column": 1,
+          "message": "Trailing space detected at end of line 106",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 142,
+          "column": 1,
+          "message": "Trailing space detected at end of line 142",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 145,
+          "column": 1,
+          "message": "Trailing space detected at end of line 145",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 158,
+          "column": 1,
+          "message": "Trailing space detected at end of line 158",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 165,
+          "column": 1,
+          "message": "Trailing space detected at end of line 165",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 178,
+          "column": 1,
+          "message": "Trailing space detected at end of line 178",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 186,
+          "column": 1,
+          "message": "Trailing space detected at end of line 186",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 189,
+          "column": 1,
+          "message": "Trailing space detected at end of line 189",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 214,
+          "column": 1,
+          "message": "Trailing space detected at end of line 214",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 226,
+          "column": 1,
+          "message": "Trailing space detected at end of line 226",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 233,
+          "column": 1,
+          "message": "Trailing space detected at end of line 233",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 252,
+          "column": 1,
+          "message": "Trailing space detected at end of line 252",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 282,
+          "column": 1,
+          "message": "Trailing space detected at end of line 282",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 294,
+          "column": 1,
+          "message": "Trailing space detected at end of line 294",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 308,
+          "column": 1,
+          "message": "Trailing space detected at end of line 308",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 323,
+          "column": 1,
+          "message": "Trailing space detected at end of line 323",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 332,
+          "column": 1,
+          "message": "Trailing space detected at end of line 332",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 335,
+          "column": 1,
+          "message": "Trailing space detected at end of line 335",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 349,
+          "column": 1,
+          "message": "Trailing space detected at end of line 349",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 362,
+          "column": 1,
+          "message": "Trailing space detected at end of line 362",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 376,
+          "column": 1,
+          "message": "Trailing space detected at end of line 376",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 384,
+          "column": 1,
+          "message": "Trailing space detected at end of line 384",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 392,
+          "column": 1,
+          "message": "Trailing space detected at end of line 392",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 404,
+          "column": 1,
+          "message": "Trailing space detected at end of line 404",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 415,
+          "column": 1,
+          "message": "Trailing space detected at end of line 415",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 420,
+          "column": 1,
+          "message": "Trailing space detected at end of line 420",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 441,
+          "column": 1,
+          "message": "Trailing space detected at end of line 441",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 446,
+          "column": 1,
+          "message": "Trailing space detected at end of line 446",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 453,
+          "column": 1,
+          "message": "Trailing space detected at end of line 453",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 464,
+          "column": 1,
+          "message": "Trailing space detected at end of line 464",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 477,
+          "column": 1,
+          "message": "Trailing space detected at end of line 477",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "smartAutoPatch.js",
+          "line": 494,
+          "column": 1,
+          "message": "Trailing space detected at end of line 494",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "smartAutoPatch.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "smartAutoPatch.js"
+    },
+    "src/config/eosConfigLoader.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "eosConfigLoader.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/config/eosConfigLoader.js"
+    },
+    "src/config/webpack.config.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "webpack.config.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/config/webpack.config.js"
+    },
+    "src/core/detectionEngine.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "detectionEngine.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/core/detectionEngine.js"
+    },
+    "src/detectors/eventListenerDetector.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "eventListenerDetector.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/detectors/eventListenerDetector.js"
+    },
+    "src/detectors/propTypesDetector.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "propTypesDetector.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/detectors/propTypesDetector.js"
+    },
+    "src/detectors/webpackDetector.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "webpackDetector.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/detectors/webpackDetector.js"
+    },
+    "src/services/auth.service.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "auth.service.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/services/auth.service.js"
+    },
+    "src/utils/api.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "api.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/utils/api.js"
+    },
+    "src/utils/apiKeyDetector.cjs": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "apiKeyDetector.cjs",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/utils/apiKeyDetector.cjs"
+    },
+    "src/utils/consoleDetector.cjs": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "consoleDetector.cjs",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/utils/consoleDetector.cjs"
+    },
+    "src/utils/example-custom-detector.cjs": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 3,
+          "column": 1,
+          "message": "Trailing space detected at end of line 3",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 16,
+          "column": 1,
+          "message": "Trailing space detected at end of line 16",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 19,
+          "column": 1,
+          "message": "Trailing space detected at end of line 19",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 29,
+          "column": 1,
+          "message": "Trailing space detected at end of line 29",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 63,
+          "column": 1,
+          "message": "Trailing space detected at end of line 63",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 68,
+          "column": 1,
+          "message": "Trailing space detected at end of line 68",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 70,
+          "column": 1,
+          "message": "Trailing space detected at end of line 70",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 78,
+          "column": 1,
+          "message": "Trailing space detected at end of line 78",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 86,
+          "column": 1,
+          "message": "Trailing space detected at end of line 86",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 107,
+          "column": 1,
+          "message": "Trailing space detected at end of line 107",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-custom-detector.cjs",
+          "line": 113,
+          "column": 1,
+          "message": "Trailing space detected at end of line 113",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "path": "src/utils/example-custom-detector.cjs"
+    },
+    "src/utils/results-renderer.cjs": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "results-renderer.cjs",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "src/utils/results-renderer.cjs"
+    },
+    "structure-mapper.cjs": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "structure-mapper.cjs",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "structure-mapper.cjs"
+    },
+    "test-integration.js": {
+      "issues": [
+        {
+          "type": "INVISIBLE_CHAR",
+          "severity": "DANGER",
+          "file": "test-integration.js",
+          "line": 22,
+          "column": 1,
+          "message": "Invisible character ZERO_WIDTH_SPACE (U+200B) detected",
+          "analyzer": "character-forensics",
+          "fix": "Remove invisible character"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "test-integration.js",
+          "line": 144,
+          "column": 1,
+          "message": "Trailing space detected at end of line 144",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "test-integration.js",
+          "line": 145,
+          "column": 1,
+          "message": "Trailing space detected at end of line 145",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "test-integration.js",
+          "line": 146,
+          "column": 1,
+          "message": "Trailing space detected at end of line 146",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "test-integration.js",
+          "line": 39,
+          "column": 1,
+          "message": "setInterval detected without corresponding clearInterval",
+          "analyzer": "pattern-violations",
+          "fix": "Store interval ID and call clearInterval() in cleanup/destroy method"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "test-integration.js",
+          "line": 44,
+          "column": 1,
+          "message": "addEventListener('click') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('click', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "test-integration.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "test-integration.js"
+    },
+    "testing/SauronScanSimulator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanSimulator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "testing/SauronScanSimulator.js"
+    },
+    "testing/SauronTestHarness.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronTestHarness.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "testing/SauronTestHarness.js"
+    },
+    "testing/example-before-after.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 15,
+          "column": 1,
+          "message": "Trailing space detected at end of line 15",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 17,
+          "column": 1,
+          "message": "Trailing space detected at end of line 17",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 21,
+          "column": 1,
+          "message": "Trailing space detected at end of line 21",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 26,
+          "column": 1,
+          "message": "Trailing space detected at end of line 26",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 31,
+          "column": 1,
+          "message": "Trailing space detected at end of line 31",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 34,
+          "column": 1,
+          "message": "Trailing space detected at end of line 34",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 37,
+          "column": 1,
+          "message": "Trailing space detected at end of line 37",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 41,
+          "column": 1,
+          "message": "Trailing space detected at end of line 41",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 45,
+          "column": 1,
+          "message": "Trailing space detected at end of line 45",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 66,
+          "column": 1,
+          "message": "Trailing space detected at end of line 66",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 68,
+          "column": 1,
+          "message": "Trailing space detected at end of line 68",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 72,
+          "column": 1,
+          "message": "Trailing space detected at end of line 72",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 78,
+          "column": 1,
+          "message": "Trailing space detected at end of line 78",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 83,
+          "column": 1,
+          "message": "Trailing space detected at end of line 83",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 87,
+          "column": 1,
+          "message": "Trailing space detected at end of line 87",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 90,
+          "column": 1,
+          "message": "Trailing space detected at end of line 90",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 94,
+          "column": 1,
+          "message": "Trailing space detected at end of line 94",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "example-before-after.js",
+          "line": 98,
+          "column": 1,
+          "message": "Trailing space detected at end of line 98",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "example-before-after.js",
+          "line": 33,
+          "column": 1,
+          "message": "addEventListener('resize') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('resize', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "example-before-after.js",
+          "line": 86,
+          "column": 1,
+          "message": "addEventListener('resize') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('resize', handler) in cleanup/destroy method"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "example-before-after.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "testing/example-before-after.js"
+    },
+    "trace-file-processing.js": {
+      "issues": [
+        {
+          "type": "INVISIBLE_CHAR",
+          "severity": "DANGER",
+          "file": "trace-file-processing.js",
+          "line": 102,
+          "column": 1,
+          "message": "Invisible character ZERO_WIDTH_SPACE (U+200B) detected",
+          "analyzer": "character-forensics",
+          "fix": "Remove invisible character"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "trace-file-processing.js",
+          "line": 105,
+          "column": 1,
+          "message": "setInterval detected without corresponding clearInterval",
+          "analyzer": "pattern-violations",
+          "fix": "Store interval ID and call clearInterval() in cleanup/destroy method"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "trace-file-processing.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "trace-file-processing.js"
+    },
+    "ui/scanResultsRenderer.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "scanResultsRenderer.js",
+          "line": 55,
+          "column": 1,
+          "message": "Trailing space detected at end of line 55",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "scanResultsRenderer.js",
+          "line": 57,
+          "column": 1,
+          "message": "addEventListener('DOMContentLoaded') without corresponding removeEventListener",
+          "analyzer": "pattern-violations",
+          "fix": "Add removeEventListener('DOMContentLoaded', handler) in cleanup/destroy method"
+        }
+      ],
+      "path": "ui/scanResultsRenderer.js"
+    },
+    "utils/AuditTrailManager.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "AuditTrailManager.js",
+          "line": 204,
+          "column": 1,
+          "message": "Trailing space detected at end of line 204",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "AuditTrailManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/AuditTrailManager.js"
+    },
+    "utils/CodeEvolutionTracker.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "CodeEvolutionTracker.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/CodeEvolutionTracker.js"
+    },
+    "utils/ErrorLogger.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "ErrorLogger.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/ErrorLogger.js"
+    },
+    "utils/FileDiscovery.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "FileDiscovery.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/FileDiscovery.js"
+    },
+    "utils/GitHookInstaller.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "GitHookInstaller.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/GitHookInstaller.js"
+    },
+    "utils/IncrementalScanCache.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "IncrementalScanCache.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/IncrementalScanCache.js"
+    },
+    "utils/MetricsExporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "MetricsExporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/MetricsExporter.js"
+    },
+    "utils/SauronAlertNotifier.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronAlertNotifier.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronAlertNotifier.js"
+    },
+    "utils/SauronAnomalyDetector.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "DANGER",
+          "file": "SauronAnomalyDetector.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo()"
+        }
+      ],
+      "path": "utils/SauronAnomalyDetector.js"
+    },
+    "utils/SauronAuditTrailGenerator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronAuditTrailGenerator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronAuditTrailGenerator.js"
+    },
+    "utils/SauronAutoTuner.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronAutoTuner.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronAutoTuner.js"
+    },
+    "utils/SauronCISummaryGenerator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronCISummaryGenerator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronCISummaryGenerator.js"
+    },
+    "utils/SauronComplianceChecker.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronComplianceChecker.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronComplianceChecker.js"
+    },
+    "utils/SauronComplianceReporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronComplianceReporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronComplianceReporter.js"
+    },
+    "utils/SauronCveFetcher.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronCveFetcher.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronCveFetcher.js"
+    },
+    "utils/SauronDataSanitizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronDataSanitizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronDataSanitizer.js"
+    },
+    "utils/SauronDependencyAuditor.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronDependencyAuditor.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronDependencyAuditor.js"
+    },
+    "utils/SauronDependencyGraph.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronDependencyGraph.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronDependencyGraph.js"
+    },
+    "utils/SauronDependencyVisualizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronDependencyVisualizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronDependencyVisualizer.js"
+    },
+    "utils/SauronErrorAggregator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronErrorAggregator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronErrorAggregator.js"
+    },
+    "utils/SauronExecutionTracer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronExecutionTracer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronExecutionTracer.js"
+    },
+    "utils/SauronHealthDashboard.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronHealthDashboard.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronHealthDashboard.js"
+    },
+    "utils/SauronIncidentReporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronIncidentReporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronIncidentReporter.js"
+    },
+    "utils/SauronIntegrityChecker.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronIntegrityChecker.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronIntegrityChecker.js"
+    },
+    "utils/SauronJobMetricsCollector.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronJobMetricsCollector.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronJobMetricsCollector.js"
+    },
+    "utils/SauronPerformanceProfiler.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronPerformanceProfiler.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronPerformanceProfiler.js"
+    },
+    "utils/SauronPolicyValidator.js": {
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "SauronPolicyValidator.js",
+          "line": 272,
+          "column": 1,
+          "message": "Trailing space detected at end of line 272",
+          "analyzer": "character-forensics",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronPolicyValidator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronPolicyValidator.js"
+    },
+    "utils/SauronReportAnalyzer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportAnalyzer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportAnalyzer.js"
+    },
+    "utils/SauronReportArchiver.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportArchiver.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportArchiver.js"
+    },
+    "utils/SauronReportCompressor.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportCompressor.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportCompressor.js"
+    },
+    "utils/SauronReportDecryptor.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportDecryptor.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportDecryptor.js"
+    },
+    "utils/SauronReportEncryptor.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportEncryptor.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportEncryptor.js"
+    },
+    "utils/SauronReportExporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportExporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportExporter.js"
+    },
+    "utils/SauronReportIndexer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportIndexer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportIndexer.js"
+    },
+    "utils/SauronReportIntegrityVerifier.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportIntegrityVerifier.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportIntegrityVerifier.js"
+    },
+    "utils/SauronReportNormalizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportNormalizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportNormalizer.js"
+    },
+    "utils/SauronReportPruner.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportPruner.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportPruner.js"
+    },
+    "utils/SauronReportRestorer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportRestorer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportRestorer.js"
+    },
+    "utils/SauronReportSplitter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronReportSplitter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronReportSplitter.js"
+    },
+    "utils/SauronRiskScorer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronRiskScorer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronRiskScorer.js"
+    },
+    "utils/SauronRiskVisualizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronRiskVisualizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronRiskVisualizer.js"
+    },
+    "utils/SauronScanAnonymizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanAnonymizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanAnonymizer.js"
+    },
+    "utils/SauronScanArchiveManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanArchiveManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanArchiveManager.js"
+    },
+    "utils/SauronScanDiffer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanDiffer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanDiffer.js"
+    },
+    "utils/SauronScanExporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanExporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanExporter.js"
+    },
+    "utils/SauronScanMerger.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanMerger.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanMerger.js"
+    },
+    "utils/SauronScanOptimizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanOptimizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanOptimizer.js"
+    },
+    "utils/SauronScanProfiler.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanProfiler.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanProfiler.js"
+    },
+    "utils/SauronScanScheduler.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanScheduler.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanScheduler.js"
+    },
+    "utils/SauronScanSessionManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanSessionManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanSessionManager.js"
+    },
+    "utils/SauronScanSignatureGenerator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanSignatureGenerator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanSignatureGenerator.js"
+    },
+    "utils/SauronScanVisualizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronScanVisualizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronScanVisualizer.js"
+    },
+    "utils/SauronSecureArchiveManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronSecureArchiveManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronSecureArchiveManager.js"
+    },
+    "utils/SauronSecurePipelineOrchestrator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronSecurePipelineOrchestrator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronSecurePipelineOrchestrator.js"
+    },
+    "utils/SauronSecurePipelineSummarizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronSecurePipelineSummarizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronSecurePipelineSummarizer.js"
+    },
+    "utils/SauronSecurePipelineValidator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronSecurePipelineValidator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronSecurePipelineValidator.js"
+    },
+    "utils/SauronSecureTransporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronSecureTransporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronSecureTransporter.js"
+    },
+    "utils/SauronSecurityPolicyEnforcer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronSecurityPolicyEnforcer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronSecurityPolicyEnforcer.js"
+    },
+    "utils/SauronTelemetryReporter.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronTelemetryReporter.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronTelemetryReporter.js"
+    },
+    "utils/SauronThreatCorrelator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronThreatCorrelator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronThreatCorrelator.js"
+    },
+    "utils/SauronThreatModeler.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronThreatModeler.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronThreatModeler.js"
+    },
+    "utils/SauronTrendVisualizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "SauronTrendVisualizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/SauronTrendVisualizer.js"
+    },
+    "utils/ScanHistoryManager.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "ScanHistoryManager.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/ScanHistoryManager.js"
+    },
+    "utils/ScanReportAssembler.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "ScanReportAssembler.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/ScanReportAssembler.js"
+    },
+    "utils/ScanTemplateEngine.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "ScanTemplateEngine.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/ScanTemplateEngine.js"
+    },
+    "utils/TechnicalDebtCalculator.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "TechnicalDebtCalculator.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/TechnicalDebtCalculator.js"
+    },
+    "utils/TimeEffortOptimizer.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "TimeEffortOptimizer.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/TimeEffortOptimizer.js"
+    },
+    "utils/WebhookNotifier.js": {
+      "issues": [
+        {
+          "type": "MISSING_METHOD",
+          "severity": "APOCALYPSE",
+          "file": "WebhookNotifier.js",
+          "line": 1,
+          "column": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "analyzer": "pattern-violations",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "path": "utils/WebhookNotifier.js"
+    }
+  },
+  "summary": {
+    "filesScanned": 138,
+    "totalIssues": 253,
+    "issuesBySeverity": {
+      "APOCALYPSE": 125,
+      "WARNING": 109,
+      "DANGER": 19
+    },
+    "issuesByType": {
+      "MISSING_METHOD": 121,
+      "TRAILING_SPACE": 102,
+      "HOMOGLYPH": 6,
+      "SMART_QUOTE": 7,
+      "INVISIBLE_CHAR": 4,
+      "MEMORY_LEAK": 13
+    }
+  },
+  "stats": {
+    "startTime": 1750441551250,
+    "endTime": 1750441551536,
+    "duration": 286
+  }
+}

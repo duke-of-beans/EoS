@@ -1,7 +1,7 @@
 /**
  * Purpose: Saves and restores full scan state snapshot for Eye of Sauron analysis
  * Dependencies: Node.js std lib (fs/promises, path)
- * API: 
+ * API:
  *   - new KaizenSnapshot(snapshotPath)
  *   - async save(vision, config, metadata) → void
  *   - async load() → { vision, config, metadata } | null

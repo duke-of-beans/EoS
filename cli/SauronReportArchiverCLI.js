@@ -2,7 +2,7 @@
 
 /**
  * SauronReportArchiverCLI.js
- * 
+ *
  * Purpose: CLI tool to archive scan reports using SauronReportArchiver
  * Dependencies: Node.js std lib (fs, path), SauronReportArchiver
  * Public API: CLI executable with args: --id, --json, --html, --local, --s3
@@ -111,13 +111,13 @@ async function main() {
   try {
     // Parse arguments
     const args = parseArgs();
-    
+
     // Show help if requested
     if (args.help) {
       console.log(USAGE_MESSAGE);
       process.exit(0);
     }
-    
+
     // Validate required arguments
     if (!validateArgs(args)) {
       console.log(USAGE_MESSAGE);
@@ -154,13 +154,13 @@ async function main() {
 
     // Prepare archiver options
     const archiverOptions = {};
-    
+
     // Set local directory if provided
     if (args.local) {
       archiverOptions.localPath = args.local;
       console.log(`Using custom local directory: ${args.local}`);
     }
-    
+
     // Configure S3 if requested
     if (args.s3) {
       archiverOptions.s3Config = {
@@ -185,15 +185,15 @@ async function main() {
     if (result.success) {
       console.log('\n✅ Archive successful!');
       console.log('\nArchived to:');
-      
+
       if (result.localPath) {
         console.log(`  📁 Local: ${result.localPath}`);
       }
-      
+
       if (result.s3Path) {
         console.log(`  ☁️  S3: ${result.s3Path}`);
       }
-      
+
       console.log(`\n📊 Report ID: ${result.reportId}`);
       console.log(`🕐 Timestamp: ${new Date(result.timestamp).toISOString()}`);
     } else {

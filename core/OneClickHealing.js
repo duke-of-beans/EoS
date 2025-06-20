@@ -8,7 +8,7 @@ export class OneClickHealing {
   constructor() {
     // Initialize fix patterns
     this.invisibleChars = /[\u0000-\u001F\u007F-\u009F\u00AD\u061C\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF\uFFF9-\uFFFB]/g;
-    
+
     // Smart quotes map with proper Unicode characters
     this.smartQuotes = new Map([
       ['\u201C', '"'],  // " Left double quotation mark (U+201C)
@@ -22,7 +22,7 @@ export class OneClickHealing {
       ['\u2039', "'"],  // ‹ Single left-pointing angle quotation mark (U+2039)
       ['\u203A', "'"]   // › Single right-pointing angle quotation mark (U+203A)
     ]);
-    
+
     // Pre-compile smart quote regex with escaped characters
     const smartQuoteChars = Array.from(this.smartQuotes.keys())
       .map(char => char.replace(/[.*+?^${}()|[\]\\]/g, '\\    // Initialize fix patterns
@@ -43,7 +43,7 @@ export class OneClickHealing {
     this.doubleSemicolons = /;;+/g;')) // Escape regex metacharacters
       .join('|');
     this.smartQuoteRegex = new RegExp(`(${smartQuoteChars})`, 'g');
-    
+
     this.trailingSpaces = /[ \t]+$/gm;
     this.doubleSemicolons = /;;+/g;
   }

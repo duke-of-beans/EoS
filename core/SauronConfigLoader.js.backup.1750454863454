@@ -1,0 +1,10 @@
+import PropTypes from 'prop-types';
+
+export default function SauronConfigLoader(config) {
+  // Assume processing config
+  
+}
+
+SauronConfigLoader.propTypes = {
+  config: PropTypes.object.isRequired
+};

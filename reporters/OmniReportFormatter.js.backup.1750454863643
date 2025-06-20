@@ -1,0 +1,80 @@
+export default class OmniReportFormatter {
+  format(vision, format = 'console') {
+    switch (format) {
+      case 'json':
+        return JSON.stringify(vision, null, 2);
+      
+      case 'console':
+        return this.formatConsole(vision);
+      
+      case 'html':
+        return this.formatHTML(vision);
+      
+      default:
+        throw new Error(`Unknown format: ${format}`);
+    }
+  }
+
+  formatConsole(vision) {
+    let output = '';
+    
+    // Summary
+    output += `\nScan Results Summary\n`;
+    output += `===================\n`;
+    output += `Files Scanned: ${vision.summary.filesScanned}\n`;
+    output += `Total Issues: ${vision.summary.totalIssues}\n\n`;
+    
+    // Issues by severity
+    output += `Issues by Severity:\n`;
+    Object.entries(vision.summary.issuesBySeverity).forEach(([sev, count]) => {
+      output += `  ${sev}: ${count}\n`;
+    });
+    
+    // File details
+    output += `\nFiles with Issues:\n`;
+    Object.entries(vision.files).forEach(([file, data]) => {
+      output += `\n${file} (${data.issues.length} issues):\n`;
+      data.issues.forEach(issue => {
+        output += `  [${issue.severity}] Line ${issue.line}: ${issue.message}\n`;
+      });
+    });
+    
+    return output;
+  }
+
+  formatHTML(vision) {
+    // Implementation for HTML format
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <title>Eye of Sauron Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .summary { background: #f0f0f0; padding: 15px; border-radius: 5px; }
+    .file { margin: 20px 0; }
+    .issue { margin: 10px 0; padding: 10px; border-left: 3px solid #ff0000; }
+    .WARNING { border-left-color: #ffa500; }
+    .INFO { border-left-color: #0000ff; }
+  </style>
+</head>
+<body>
+  <h1>Eye of Sauron Scan Report</h1>
+  <div class="summary">
+    <h2>Summary</h2>
+    <p>Files Scanned: ${vision.summary.filesScanned}</p>
+    <p>Total Issues: ${vision.summary.totalIssues}</p>
+  </div>
+  ${Object.entries(vision.files).map(([file, data]) => `
+    <div class="file">
+      <h3>${file}</h3>
+      ${data.issues.map(issue => `
+        <div class="issue ${issue.severity}">
+          <strong>[${issue.severity}]</strong> Line ${issue.line}: ${issue.message}
+        </div>
+      `).join('')}
+    </div>
+  `).join('')}
+</body>
+</html>`;
+  }
+}

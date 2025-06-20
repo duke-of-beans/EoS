@@ -1,0 +1,221 @@
+/**
+ * Purpose: Enforces custom security policies during pipeline execution
+ * Dependencies: Node.js std lib
+ * API: SauronSecurityPolicyEnforcer().enforce(scanReport, auditTrail)
+ */
+
+class SauronSecurityPolicyEnforcer {
+  constructor(config = {}) {
+    this.policies = config.policies || [
+      {
+        rule: 'noCriticalFindings',
+        condition: report => report.summary?.critical === 0,
+        description: 'No critical findings allowed'
+      },
+      {
+        rule: 'maxHighFindings',
+        condition: report => report.summary?.high <= 5,
+        description: 'High findings <= 5'
+      }
+    ];
+    this.maxResults = config.maxResults || 100;
+  }
+
+  /**
+   * Enforces security policies against scan report and audit trail
+   * @param {object} scanReport - The scan report to evaluate
+   * @param {object} auditTrail - The audit trail data
+   * @returns {object} Enforcement results with passed/failed policies
+   */
+  enforce(scanReport, auditTrail) {
+    try {
+      const passed = [];
+      const failed = [];
+      const enforcedAt = new Date().toISOString();
+
+      // Validate inputs
+      if (!scanReport || typeof scanReport !== 'object') {
+        return this._createSafeResult('Invalid scan report provided');
+      }
+
+      // Evaluate each policy
+      for (const policy of this.policies) {
+        try {
+          const policyResult = {
+            rule: policy.rule,
+            description: policy.description,
+            evaluatedAt: enforcedAt
+          };
+
+          // Test the policy condition
+          const conditionMet = policy.condition(scanReport, auditTrail);
+
+          if (conditionMet) {
+            passed.push({
+              ...policyResult,
+              status: 'passed'
+            });
+          } else {
+            failed.push({
+              ...policyResult,
+              status: 'failed',
+              reason: this._redactSensitiveInfo(
+                this._generateFailureReason(policy, scanReport)
+              )
+            });
+          }
+        } catch (policyError) {
+          // Policy evaluation error - treat as failed
+          failed.push({
+            rule: policy.rule,
+            description: policy.description,
+            status: 'failed',
+            reason: 'Policy evaluation error',
+            error: policyError.message
+          });
+        }
+      }
+
+      // Cap results to maxResults
+      const cappedPassed = passed.slice(0, this.maxResults);
+      const cappedFailed = failed.slice(0, this.maxResults);
+
+      // Log enforcement summary
+      this._logEnforcementSummary(cappedPassed.length, cappedFailed.length);
+
+      return {
+        passed: cappedPassed,
+        failed: cappedFailed,
+        summary: {
+          passedCount: cappedPassed.length,
+          failedCount: cappedFailed.length
+        },
+        metadata: {
+          enforcedAt,
+          policiesCount: this.policies.length,
+          truncated: passed.length > this.maxResults || failed.length > this.maxResults
+        }
+      };
+
+    } catch (error) {
+      console.error('[SauronSecurityPolicyEnforcer] Enforcement error:', error.message);
+      return this._createSafeResult(`Enforcement failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Generates failure reason for a policy
+   * @private
+   */
+  _generateFailureReason(policy, scanReport) {
+    const reasons = {
+      noCriticalFindings: `Found ${scanReport.summary?.critical || 0} critical findings`,
+      maxHighFindings: `Found ${scanReport.summary?.high || 0} high findings (max allowed: 5)`,
+    };
+
+    return reasons[policy.rule] || 'Policy condition not met';
+  }
+
+  /**
+   * Redacts sensitive information from failure reasons
+   * @private
+   */
+  _redactSensitiveInfo(reason) {
+    // Redact file paths and specific identifiers
+    return reason
+      .replace(/\/[^\s]+\.(js|json|ts|jsx|tsx)/g, '[REDACTED_FILE]')
+      .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '[REDACTED_ID]')
+      .replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '[REDACTED_IP]');
+  }
+
+  /**
+   * Logs enforcement summary
+   * @private
+   */
+  _logEnforcementSummary(passedCount, failedCount) {
+    const total = passedCount + failedCount;
+
+
+    if (failedCount > 0) {
+      console.warn(`[SauronSecurityPolicyEnforcer] ${failedCount} policies failed`);
+    }
+  }
+
+  /**
+   * Creates a safe minimal result object on failure
+   * @private
+   */
+  _createSafeResult(reason) {
+    return {
+      passed: [],
+      failed: [],
+      summary: {
+        passedCount: 0,
+        failedCount: 0
+      },
+      metadata: {
+        enforcedAt: new Date().toISOString(),
+        policiesCount: 0,
+        error: reason
+      }
+    };
+  }
+
+  /**
+   * Exports enforcement results as canonical JSON
+   * @param {object} results - The enforcement results
+   * @returns {string} Canonical JSON string
+   */
+  exportToJson(results) {
+    try {
+      // Sort keys for deterministic output
+      return JSON.stringify(results, Object.keys(results).sort(), 2);
+    } catch (error) {
+      console.error('[SauronSecurityPolicyEnforcer] JSON export error:', error.message);
+      return '{}';
+    }
+  }
+
+  /**
+   * Adds a custom policy
+   * @param {object} policy - Policy with rule, condition, and description
+   */
+  addPolicy(policy) {
+    if (!policy || !policy.rule || !policy.condition || !policy.description) {
+      throw new Error('Invalid policy: must have rule, condition, and description');
+    }
+
+    // Check for duplicate rules
+    if (this.policies.some(p => p.rule === policy.rule)) {
+      throw new Error(`Policy with rule '${policy.rule}' already exists`);
+    }
+
+    this.policies.push(policy);
+  }
+
+  /**
+   * Removes a policy by rule name
+   * @param {string} ruleName - The rule name to remove
+   * @returns {boolean} True if removed, false if not found
+   */
+  removePolicy(ruleName) {
+    const initialLength = this.policies.length;
+    this.policies = this.policies.filter(p => p.rule !== ruleName);
+    return this.policies.length < initialLength;
+  }
+
+  /**
+   * Lists all configured policies
+   * @returns {array} Array of policy descriptions
+   */
+  listPolicies() {
+    return this.policies.map(p => ({
+      rule: p.rule,
+      description: p.description
+    }));
+  }
+}
+
+module.exports = SauronSecurityPolicyEnforcer;
+export default SauronSecurityPolicyEnforcer;
+

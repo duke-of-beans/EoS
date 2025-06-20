@@ -4,10 +4,10 @@
  * Purpose: CLI entry point for Eye of Sauron - All-seeing code analysis framework
  * Dependencies: commander, Node.js std lib (fs, path), Config, EyeOfSauronOmniscient, OmniReportFormatter
  * Public API: None - CLI executable only
- * 
+ *
  * Handles command-line argument parsing, config loading, scanner initialization,
  * and report generation for the Eye of Sauron code analysis system.
- * 
+ *
  * Note: This file is designed to be run directly as a CLI tool and will execute
  * immediately when imported.
  */
@@ -228,7 +228,7 @@ class EyeOfSauronCLI {
     console.log(`  Files analyzed: ${chalk.cyan(fileCount)}`);
     console.log(`  Total issues: ${chalk.yellow(totalIssues)}`);
     console.log(`  Duration: ${chalk.cyan(duration)}s`);
-    
+
     if (vision.summary) {
       const summary = vision.summary;
       console.log('');

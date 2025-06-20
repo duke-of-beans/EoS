@@ -1,0 +1,219 @@
+#!/usr/bin/env node
+
+/**
+ * Purpose: Final working CLI for Eye of Sauron scanner
+ * Dependencies: Node.js std lib (fs, path), EyeOfSauronOmniscient
+ * Public API: Command-line executable only
+ * 
+ * Based on comprehensive testing that confirmed the scanner works correctly.
+ * Uses createEye() method and handles the actual results structure.
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Import the working scanner
+import { createEye } from '../core/EyeOfSauronOmniscient.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Parse command line arguments
+ * @returns {object} Parsed arguments
+ */
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const options = {
+    path: '.',
+    mode: 'deep',
+    output: null,
+    help: false
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    
+    if (arg === '--help' || arg === '-h') {
+      options.help = true;
+    } else if (arg === '--path' || arg === '-p') {
+      options.path = args[++i] || '.';
+    } else if (arg === '--mode' || arg === '-m') {
+      options.mode = args[++i] || 'deep';
+    } else if (arg === '--output' || arg === '-o') {
+      options.output = args[++i];
+    }
+  }
+
+  return options;
+}
+
+/**
+ * Show help information
+ */
+function showHelp() {
+  console.log(`
+🔍 Eye of Sauron Scanner CLI v1.0
+
+Usage: node simple-cli.js [options]
+
+Options:
+  --path, -p <path>      Path to scan (default: .)
+  --mode, -m <mode>      Scan mode: quick|deep|quantum (default: deep)
+  --output, -o <file>    Output file for results (default: console only)
+  --help, -h            Show this help
+
+Examples:
+  node simple-cli.js --path ./src --mode deep
+  node simple-cli.js --path . --output scan-results.json
+  node simple-cli.js --path ./components --mode quick
+
+Note: Debug messages from BatchProcessor are normal and can be ignored.
+      The scanner will find actual issues and display them properly.
+`);
+}
+
+/**
+ * Main scan function
+ * @param {object} options - CLI options
+ */
+async function runScan(options) {
+  try {
+    console.log('🔍 Eye of Sauron Scanner');
+    console.log(`📁 Scanning path: ${options.path}`);
+    console.log(`⚙️  Mode: ${options.mode}`);
+    console.log('');
+
+    // Check if path exists
+    const scanPath = path.resolve(options.path);
+    try {
+      await fs.access(scanPath);
+    } catch (error) {
+      console.error(`❌ Error: Path '${scanPath}' does not exist or is not accessible`);
+      process.exit(1);
+    }
+
+    // Initialize scanner using the tested method
+    console.log('⏳ Initializing scanner...');
+    const scanner = createEye();
+    
+    // Execute scan
+    console.log('⏳ Starting scan...');
+    console.log('📝 Note: Debug messages from BatchProcessor are normal...');
+    console.log('');
+    
+    const startTime = Date.now();
+    
+    const results = await scanner.scan(scanPath, options.mode);
+    
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    
+    // Process results using the structure we confirmed works
+    console.log('\n📊 Scan Results:');
+    console.log('═'.repeat(50));
+    
+    if (results && results.summary) {
+      const summary = results.summary;
+      console.log(`📊 Files scanned: ${summary.filesScanned || 0}`);
+      console.log(`🚨 Total issues: ${summary.totalIssues || 0}`);
+      
+      if (summary.totalIssues > 0) {
+        console.log('\n📋 Issues by severity:');
+        Object.entries(summary.issuesBySeverity || {}).forEach(([severity, count]) => {
+          if (count > 0) {
+            const icon = severity === 'CRITICAL' ? '🔴' : severity === 'WARNING' ? '🟡' : '🔵';
+            console.log(`  ${icon} ${severity}: ${count}`);
+          }
+        });
+      }
+    }
+
+    // Show detailed file results - using the structure we confirmed
+    if (results && results.files && Object.keys(results.files).length > 0) {
+      console.log('\n📂 Files with Issues:');
+      console.log('-'.repeat(50));
+      
+      // Sort files by issue count for better display
+      const fileEntries = Object.entries(results.files)
+        .filter(([_, fileData]) => fileData.issues && fileData.issues.length > 0)
+        .sort(([_, a], [__, b]) => (b.issues?.length || 0) - (a.issues?.length || 0));
+      
+      if (fileEntries.length === 0) {
+        console.log('🎉 No issues found! Your code is clean.');
+      } else {
+        // Show top 10 files with most issues
+        fileEntries.slice(0, 10).forEach(([filePath, fileData]) => {
+          const relativePath = path.relative(process.cwd(), filePath);
+          console.log(`\n📄 ${relativePath} (${fileData.issues.length} issues):`);
+          
+          // Show first 3 issues for each file
+          fileData.issues.slice(0, 3).forEach((issue, idx) => {
+            const severity = issue.severity || 'INFO';
+            const type = issue.type || 'unknown';
+            const message = issue.message || 'No description';
+            const line = issue.line ? `:${issue.line}` : '';
+            
+            console.log(`  ${idx + 1}. [${severity}] ${type}${line} - ${message}`);
+          });
+          
+          if (fileData.issues.length > 3) {
+            console.log(`     ... and ${fileData.issues.length - 3} more issues`);
+          }
+        });
+        
+        if (fileEntries.length > 10) {
+          console.log(`\n... and ${fileEntries.length - 10} more files with issues`);
+        }
+      }
+    }
+
+    // Save to file if requested
+    if (options.output) {
+      const outputPath = path.resolve(options.output);
+      await fs.writeFile(outputPath, JSON.stringify(results, null, 2));
+      console.log(`\n💾 Results saved to: ${outputPath}`);
+      
+      const fileStats = await fs.stat(outputPath);
+      const fileSizeKB = (fileStats.size / 1024).toFixed(1);
+      console.log(`📊 File size: ${fileSizeKB} KB`);
+    }
+
+    console.log(`\n✅ Scan completed in ${duration}s`);
+    
+    // Exit with appropriate code
+    const hasIssues = results?.summary?.totalIssues > 0;
+    process.exit(hasIssues ? 1 : 0);
+    
+  } catch (error) {
+    console.error('\n❌ Scan failed:');
+    console.error(`   ${error.message}`);
+    if (error.stack && process.env.DEBUG) {
+      console.error('\nStack trace:');
+      console.error(error.stack);
+    }
+    process.exit(1);
+  }
+}
+
+// Main execution
+async function main() {
+  const options = parseArgs();
+  
+  if (options.help) {
+    showHelp();
+    process.exit(0);
+  }
+  
+  await runScan(options);
+}
+
+// Execute if run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(error => {
+    console.error('Fatal error:', error.message);
+    process.exit(1);
+  });
+}
+
+export default { runScan, parseArgs, showHelp };

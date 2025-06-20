@@ -1,0 +1,203 @@
+/**
+ * Purpose: Generates compact CI text summaries from scan reports
+ * Dependencies: Node.js std lib
+ * API: SauronCISummaryGenerator(config).generate(scanReport, riskScore) → string
+ */
+
+export class SauronCISummaryGenerator {
+  constructor(config = {}) {
+    this.maxLines = config.maxLines || 20;
+    this.lineLength = config.lineLength || 120;
+    this.includeAnsi = config.includeAnsi || false;
+    this.toolVersion = config.toolVersion || '1.0.0';
+  }
+
+  /**
+   * Generates a compact text summary for CI/CD logs
+   * @param {object} scanReport - The scan report object
+   * @param {object} riskScore - The risk score object with score and category
+   * @returns {string} Compact text summary
+   */
+  generate(scanReport, riskScore) {
+    try {
+      const lines = [];
+      const timestamp = new Date().toISOString();
+      
+      // Header
+      lines.push(this._truncateLine(`Eye of Sauron Scan Summary - ${timestamp}`));
+      lines.push(this._truncateLine(`Version: ${this.toolVersion}`));
+      lines.push(this._truncateLine('─'.repeat(80)));
+      
+      // File and issue counts
+      const fileCount = this._getFileCount(scanReport);
+      const issueCounts = this._getIssueCounts(scanReport);
+      
+      lines.push(this._truncateLine(`Files Scanned: ${fileCount}`));
+      lines.push(this._truncateLine(`Total Issues: ${issueCounts.total}`));
+      
+      // Issue breakdown by severity
+      if (issueCounts.total > 0) {
+        lines.push(this._truncateLine(''));
+        lines.push(this._truncateLine('Issues by Severity:'));
+        if (issueCounts.critical > 0) lines.push(this._truncateLine(`  • Critical: ${issueCounts.critical}`));
+        if (issueCounts.high > 0) lines.push(this._truncateLine(`  • High: ${issueCounts.high}`));
+        if (issueCounts.medium > 0) lines.push(this._truncateLine(`  • Medium: ${issueCounts.medium}`));
+        if (issueCounts.low > 0) lines.push(this._truncateLine(`  • Low: ${issueCounts.low}`));
+      }
+      
+      // Top issue types
+      const topIssueTypes = this._getTopIssueTypes(scanReport, 3);
+      if (topIssueTypes.length > 0) {
+        lines.push(this._truncateLine(''));
+        lines.push(this._truncateLine('Top Issue Types:'));
+        topIssueTypes.forEach(({ type, count }) => {
+          lines.push(this._truncateLine(`  • ${type}: ${count}`));
+        });
+      }
+      
+      // Risk score
+      if (riskScore && typeof riskScore.score !== 'undefined') {
+        lines.push(this._truncateLine(''));
+        lines.push(this._truncateLine(`Risk Score: ${riskScore.score}/100 (${riskScore.category || 'Unknown'})`));
+      }
+      
+      // Compliance failures
+      const complianceFailures = this._getComplianceFailures(scanReport);
+      if (complianceFailures.length > 0) {
+        lines.push(this._truncateLine(''));
+        lines.push(this._truncateLine('Key Compliance Failures:'));
+        complianceFailures.slice(0, 3).forEach(failure => {
+          lines.push(this._truncateLine(`  • ${failure}`));
+        });
+      }
+      
+      // Footer
+      lines.push(this._truncateLine('─'.repeat(80)));
+      
+      // Enforce max lines
+      return lines.slice(0, this.maxLines).join('\n');
+      
+    } catch (error) {
+      // Defensive: return minimal valid output on error
+      return this._getMinimalOutput(error);
+    }
+  }
+
+  /**
+   * Get file count from scan report
+   * @private
+   */
+  _getFileCount(scanReport) {
+    if (!scanReport || !scanReport.files) return 0;
+    return Object.keys(scanReport.files).length;
+  }
+
+  /**
+   * Get issue counts by severity
+   * @private
+   */
+  _getIssueCounts(scanReport) {
+    const counts = {
+      total: 0,
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0
+    };
+    
+    if (!scanReport || !scanReport.files) return counts;
+    
+    Object.values(scanReport.files).forEach(file => {
+      if (file.issues && Array.isArray(file.issues)) {
+        file.issues.forEach(issue => {
+          counts.total++;
+          const severity = (issue.severity || 'low').toLowerCase();
+          if (counts.hasOwnProperty(severity)) {
+            counts[severity]++;
+          }
+        });
+      }
+    });
+    
+    return counts;
+  }
+
+  /**
+   * Get top issue types
+   * @private
+   */
+  _getTopIssueTypes(scanReport, limit = 3) {
+    const typeCounts = {};
+    
+    if (!scanReport || !scanReport.files) return [];
+    
+    Object.values(scanReport.files).forEach(file => {
+      if (file.issues && Array.isArray(file.issues)) {
+        file.issues.forEach(issue => {
+          const type = issue.type || 'unknown';
+          typeCounts[type] = (typeCounts[type] || 0) + 1;
+        });
+      }
+    });
+    
+    return Object.entries(typeCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([type, count]) => ({ type, count }));
+  }
+
+  /**
+   * Get compliance failures from report
+   * @private
+   */
+  _getComplianceFailures(scanReport) {
+    const failures = [];
+    
+    if (scanReport && scanReport.compliance && scanReport.compliance.failures) {
+      scanReport.compliance.failures.forEach(failure => {
+        if (failure.rule) {
+          failures.push(failure.rule);
+        }
+      });
+    }
+    
+    // Also check for policy violations in metadata
+    if (scanReport && scanReport.metadata && scanReport.metadata.policyViolations) {
+      scanReport.metadata.policyViolations.forEach(violation => {
+        if (violation.name) {
+          failures.push(violation.name);
+        }
+      });
+    }
+    
+    return [...new Set(failures)]; // Remove duplicates
+  }
+
+  /**
+   * Truncate line to max length
+   * @private
+   */
+  _truncateLine(line) {
+    if (line.length <= this.lineLength) return line;
+    return line.substring(0, this.lineLength - 3) + '...';
+  }
+
+  /**
+   * Get minimal output for error cases
+   * @private
+   */
+  _getMinimalOutput(error) {
+    const lines = [
+      `Eye of Sauron Scan Summary - ${new Date().toISOString()}`,
+      `Version: ${this.toolVersion}`,
+      '─'.repeat(80),
+      'Error generating summary',
+      `Details: ${error.message || 'Unknown error'}`,
+      '─'.repeat(80)
+    ];
+    
+    return lines.slice(0, this.maxLines).join('\n');
+  }
+}
+export default SauronCISummaryGenerator;
+

@@ -18,14 +18,14 @@ export class CodeEvolutionTracker {
   compareReports(previous, current) {
     const previousIssues = this._extractAllIssues(previous);
     const currentIssues = this._extractAllIssues(current);
-    
+
     // Create maps for easier lookup
     const previousMap = new Map(previousIssues.map(issue => [issue.key, issue]));
     const currentMap = new Map(currentIssues.map(issue => [issue.key, issue]));
-    
+
     const newIssues = currentIssues.filter(issue => !previousMap.has(issue.key));
     const resolvedIssues = previousIssues.filter(issue => !currentMap.has(issue.key));
-    
+
     // For unchanged issues, merge properties to show evolution
     const unchangedIssues = currentIssues
       .filter(issue => previousMap.has(issue.key))
@@ -37,7 +37,7 @@ export class CodeEvolutionTracker {
           _hasChanged: this._detectPropertyChanges(previousIssue, currentIssue)
         };
       });
-    
+
     return {
       newIssues,
       resolvedIssues,
@@ -59,23 +59,23 @@ export class CodeEvolutionTracker {
    */
   _extractAllIssues(report) {
     const issues = [];
-    
+
     if (!report?.vision?.files) {
       return issues;
     }
-    
+
     for (const [filePath, fileData] of Object.entries(report.vision.files)) {
       if (!fileData?.issues || !Array.isArray(fileData.issues)) {
         continue;
       }
-      
+
       for (const issue of fileData.issues) {
         // Validate and normalize issue fields
         const normalizedIssue = this._normalizeIssue(issue);
-        
+
         // Create a unique key for each issue based on file, type, and line
         const key = this._generateIssueKey(filePath, normalizedIssue);
-        
+
         issues.push({
           ...normalizedIssue,
           filePath,
@@ -83,7 +83,7 @@ export class CodeEvolutionTracker {
         });
       }
     }
-    
+
     return issues;
   }
 
@@ -98,7 +98,7 @@ export class CodeEvolutionTracker {
     // Use file path, issue type, and line number as minimal unique identifier
     const type = issue.type || 'unknown';
     const line = issue.line || 0;
-    
+
     return `${filePath}::${type}::${line}`;
   }
 
@@ -174,16 +174,16 @@ export class CodeEvolutionTracker {
   _detectPropertyChanges(previous, current) {
     const changes = {};
     const ignoreKeys = ['key', 'filePath', '_previous', '_hasChanged', 'timestamp'];
-    
+
     // Check all keys from both objects
     const allKeys = new Set([
       ...Object.keys(previous),
       ...Object.keys(current)
     ]);
-    
+
     for (const key of allKeys) {
       if (ignoreKeys.includes(key)) continue;
-      
+
       if (!(key in previous)) {
         changes[key] = { added: true, newValue: current[key] };
       } else if (!(key in current)) {
@@ -196,7 +196,7 @@ export class CodeEvolutionTracker {
         };
       }
     }
-    
+
     return Object.keys(changes).length > 0 ? changes : null;
   }
 
@@ -207,7 +207,7 @@ export class CodeEvolutionTracker {
    */
   groupByType(issues) {
     const grouped = {};
-    
+
     for (const issue of issues) {
       const type = issue.type || 'unknown';
       if (!grouped[type]) {
@@ -219,7 +219,7 @@ export class CodeEvolutionTracker {
       grouped[type].count++;
       grouped[type].issues.push(issue);
     }
-    
+
     return grouped;
   }
 
@@ -230,7 +230,7 @@ export class CodeEvolutionTracker {
    */
   groupByFile(issues) {
     const grouped = {};
-    
+
     for (const issue of issues) {
       const filePath = issue.filePath || 'unknown';
       if (!grouped[filePath]) {
@@ -242,7 +242,7 @@ export class CodeEvolutionTracker {
       grouped[filePath].count++;
       grouped[filePath].issues.push(issue);
     }
-    
+
     return grouped;
   }
 
@@ -254,7 +254,7 @@ export class CodeEvolutionTracker {
    */
   generateEvolutionReport(previous, current) {
     const comparison = this.compareReports(previous, current);
-    
+
     return {
       ...comparison,
       statistics: {

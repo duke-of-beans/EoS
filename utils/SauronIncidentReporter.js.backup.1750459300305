@@ -1,0 +1,413 @@
+/**
+ * Purpose: Generates structured incident reports from audit trail + scan findings
+ * Dependencies: Node.js std lib
+ * API: SauronIncidentReporter().generate(auditTrail, scanReport)
+ */
+
+export class SauronIncidentReporter {
+  constructor(config = {}) {
+    this.maxEntries = config.maxEntries || 1000;
+    this.toolVersion = '1.0.0';
+    this.sensitiveFields = new Set([
+      'password',
+      'token',
+      'secret',
+      'apiKey',
+      'privateKey',
+      'credential',
+      'authorization',
+      'sessionId',
+      'cookie'
+    ]);
+  }
+
+  /**
+   * Generate structured incident report from audit trail and scan findings
+   * @param {object} auditTrail - Audit trail data
+   * @param {object} scanReport - Scan report data
+   * @returns {object} Structured incident report
+   */
+  generate(auditTrail, scanReport) {
+    try {
+      const incidents = this._extractIncidents(auditTrail, scanReport);
+      const criticalFindings = this._extractCriticalFindings(scanReport);
+      const keyActions = this._extractKeyActions(incidents, criticalFindings);
+
+      // Sort deterministically by timestamp first, then severity
+      const sortedIncidents = incidents.sort((a, b) => {
+        const timeDiff = new Date(a.timestamp) - new Date(b.timestamp);
+        if (timeDiff !== 0) return timeDiff;
+        return this._getSeverityScore(b.severity) - this._getSeverityScore(a.severity);
+      });
+
+      // Limit to maxEntries
+      const limitedIncidents = sortedIncidents.slice(0, this.maxEntries);
+
+      // Redact sensitive fields
+      const sanitizedIncidents = limitedIncidents.map(incident =>
+        this._redactSensitiveData(incident)
+      );
+
+      return {
+        summary: {
+          incidents: incidents.length,
+          criticalFindings: criticalFindings.length,
+          keyActions: keyActions
+        },
+        details: sanitizedIncidents,
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          toolVersion: this.toolVersion,
+          entriesLimited: incidents.length > this.maxEntries,
+          totalEntries: incidents.length,
+          displayedEntries: sanitizedIncidents.length
+        }
+      };
+    } catch (error) {
+      // Defensive: return minimal safe report on failure
+      return {
+        summary: {
+          incidents: 0,
+          criticalFindings: 0,
+          keyActions: ['Failed to generate report - manual review required']
+        },
+        details: [],
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          toolVersion: this.toolVersion,
+          error: 'Report generation failed',
+          reason: error.message || 'Unknown error'
+        }
+      };
+    }
+  }
+
+  /**
+   * Extract incidents from audit trail and scan report
+   * @private
+   */
+  _extractIncidents(auditTrail, scanReport) {
+    const incidents = [];
+
+    // Extract from audit trail events
+    if (auditTrail && Array.isArray(auditTrail.events)) {
+      for (const event of auditTrail.events) {
+        if (this._isIncident(event)) {
+          incidents.push({
+            timestamp: event.timestamp || new Date().toISOString(),
+            action: event.action || 'Unknown action',
+            context: this._extractContext(event),
+            severity: this._determineSeverity(event),
+            notes: event.notes || event.description || ''
+          });
+        }
+      }
+    }
+
+    // Extract from scan report issues
+    if (scanReport && scanReport.vision) {
+      for (const [filePath, fileData] of Object.entries(scanReport.vision.files || {})) {
+        if (Array.isArray(fileData.issues)) {
+          for (const issue of fileData.issues) {
+            if (issue.severity === 'critical' || issue.severity === 'error') {
+              incidents.push({
+                timestamp: scanReport.metadata?.scanDate || new Date().toISOString(),
+                action: 'Code issue detected',
+                context: {
+                  file: filePath,
+                  type: issue.type,
+                  line: issue.line,
+                  column: issue.column
+                },
+                severity: issue.severity,
+                notes: issue.description || issue.message || ''
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return incidents;
+  }
+
+  /**
+   * Extract critical findings from scan report
+   * @private
+   */
+  _extractCriticalFindings(scanReport) {
+    const criticalFindings = [];
+
+    if (!scanReport || !scanReport.vision) return criticalFindings;
+
+    // Check for critical issues in files
+    for (const [filePath, fileData] of Object.entries(scanReport.vision.files || {})) {
+      if (Array.isArray(fileData.issues)) {
+        const criticals = fileData.issues.filter(i => i.severity === 'critical');
+        for (const issue of criticals) {
+          criticalFindings.push({
+            file: filePath,
+            type: issue.type,
+            description: issue.description || issue.message,
+            location: issue.line ? `Line ${issue.line}` : 'Unknown location'
+          });
+        }
+      }
+    }
+
+    // Check for security violations
+    if (scanReport.security && Array.isArray(scanReport.security.violations)) {
+      for (const violation of scanReport.security.violations) {
+        criticalFindings.push({
+          type: 'Security violation',
+          description: violation.description || violation.message,
+          rule: violation.rule || 'Unknown rule'
+        });
+      }
+    }
+
+    return criticalFindings;
+  }
+
+  /**
+   * Extract key actions from incidents and findings
+   * @private
+   */
+  _extractKeyActions(incidents, criticalFindings) {
+    const actions = [];
+
+    // Immediate actions for critical findings
+    if (criticalFindings.length > 0) {
+      actions.push(`Review and fix ${criticalFindings.length} critical finding(s) immediately`);
+    }
+
+    // Count incidents by severity
+    const severityCounts = {};
+    for (const incident of incidents) {
+      severityCounts[incident.severity] = (severityCounts[incident.severity] || 0) + 1;
+    }
+
+    // Add actions based on severity counts
+    if (severityCounts.critical > 0) {
+      actions.push(`Investigate ${severityCounts.critical} critical incident(s)`);
+    }
+    if (severityCounts.error > 5) {
+      actions.push(`Address ${severityCounts.error} error-level incidents`);
+    }
+
+    // Security-specific actions
+    const securityIncidents = incidents.filter(i =>
+      i.action && i.action.toLowerCase().includes('security')
+    );
+    if (securityIncidents.length > 0) {
+      actions.push(`Conduct security review for ${securityIncidents.length} security-related incident(s)`);
+    }
+
+    // Default action if no specific actions
+    if (actions.length === 0) {
+      actions.push('Continue monitoring - no immediate actions required');
+    }
+
+    return actions;
+  }
+
+  /**
+   * Determine if an event is an incident
+   * @private
+   */
+  _isIncident(event) {
+    if (!event) return false;
+
+    // Check for explicit incident markers
+    if (event.type === 'incident' || event.isIncident) return true;
+
+    // Check for severity indicators
+    if (event.severity && ['critical', 'error', 'high'].includes(event.severity)) return true;
+
+    // Check for security-related events
+    if (event.category === 'security' || event.tags?.includes('security')) return true;
+
+    // Check for failure/error events
+    if (event.status === 'failed' || event.result === 'error') return true;
+
+    // Check for violation events
+    if (event.action && event.action.toLowerCase().includes('violation')) return true;
+
+    return false;
+  }
+
+  /**
+   * Extract context from event
+   * @private
+   */
+  _extractContext(event) {
+    const context = {};
+
+    // Copy relevant fields
+    const contextFields = ['user', 'ip', 'module', 'file', 'resource', 'target'];
+    for (const field of contextFields) {
+      if (event[field]) {
+        context[field] = event[field];
+      }
+    }
+
+    // Add metadata if present
+    if (event.metadata && typeof event.metadata === 'object') {
+      Object.assign(context, event.metadata);
+    }
+
+    return context;
+  }
+
+  /**
+   * Determine severity from event
+   * @private
+   */
+  _determineSeverity(event) {
+    // Use explicit severity if present
+    if (event.severity) return event.severity;
+
+    // Infer from other fields
+    if (event.level) return event.level;
+    if (event.priority === 'high') return 'critical';
+    if (event.type === 'error') return 'error';
+    if (event.category === 'security') return 'high';
+
+    // Default based on status
+    if (event.status === 'failed') return 'error';
+    if (event.result === 'violation') return 'high';
+
+    return 'medium';
+  }
+
+  /**
+   * Get numeric score for severity (for sorting)
+   * @private
+   */
+  _getSeverityScore(severity) {
+    const scores = {
+      critical: 4,
+      error: 3,
+      high: 3,
+      medium: 2,
+      low: 1,
+      info: 0
+    };
+    return scores[severity] || 0;
+  }
+
+  /**
+   * Redact sensitive data from incident
+   * @private
+   */
+  _redactSensitiveData(incident) {
+    const sanitized = JSON.parse(JSON.stringify(incident)); // Deep clone
+
+    // Redact in context object
+    if (sanitized.context && typeof sanitized.context === 'object') {
+      for (const [key, value] of Object.entries(sanitized.context)) {
+        if (this._isSensitiveField(key)) {
+          sanitized.context[key] = '[REDACTED]';
+        } else if (typeof value === 'string' && this._containsSensitiveData(value)) {
+          sanitized.context[key] = this._redactSensitiveString(value);
+        }
+      }
+    }
+
+    // Redact in notes
+    if (sanitized.notes && this._containsSensitiveData(sanitized.notes)) {
+      sanitized.notes = this._redactSensitiveString(sanitized.notes);
+    }
+
+    return sanitized;
+  }
+
+  /**
+   * Check if field name is sensitive
+   * @private
+   */
+  _isSensitiveField(fieldName) {
+    const lowerField = fieldName.toLowerCase();
+    for (const sensitive of this.sensitiveFields) {
+      if (lowerField.includes(sensitive)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Check if string contains sensitive data
+   * @private
+   */
+  _containsSensitiveData(str) {
+    if (!str || typeof str !== 'string') return false;
+
+    // Check for common patterns
+    const patterns = [
+      /password\s*[:=]\s*\S+/i,
+      /token\s*[:=]\s*\S+/i,
+      /api[-_]?key\s*[:=]\s*\S+/i,
+      /secret\s*[:=]\s*\S+/i,
+      /Bearer\s+\S+/i
+    ];
+
+    return patterns.some(pattern => pattern.test(str));
+  }
+
+  /**
+   * Redact sensitive parts of a string
+   * @private
+   */
+  _redactSensitiveString(str) {
+    let redacted = str;
+
+    // Redact common patterns
+    redacted = redacted.replace(/password\s*[:=]\s*\S+/gi, 'password: [REDACTED]');
+    redacted = redacted.replace(/token\s*[:=]\s*\S+/gi, 'token: [REDACTED]');
+    redacted = redacted.replace(/api[-_]?key\s*[:=]\s*\S+/gi, 'api-key: [REDACTED]');
+    redacted = redacted.replace(/secret\s*[:=]\s*\S+/gi, 'secret: [REDACTED]');
+    redacted = redacted.replace(/Bearer\s+\S+/gi, 'Bearer [REDACTED]');
+
+    return redacted;
+  }
+
+  /**
+   * Export report as canonical JSON
+   * @param {object} report - Generated report
+   * @returns {string} Canonical JSON string
+   */
+  toCanonicalJSON(report) {
+    try {
+      // Sort keys recursively for deterministic output
+      const sorted = this._sortKeysRecursive(report);
+      return JSON.stringify(sorted, null, 2);
+    } catch (error) {
+      return JSON.stringify({
+        error: 'Failed to generate canonical JSON',
+        reason: error.message
+      }, null, 2);
+    }
+  }
+
+  /**
+   * Sort object keys recursively
+   * @private
+   */
+  _sortKeysRecursive(obj) {
+    if (Array.isArray(obj)) {
+      return obj.map(item => this._sortKeysRecursive(item));
+    }
+
+    if (obj !== null && typeof obj === 'object') {
+      const sorted = {};
+      const keys = Object.keys(obj).sort();
+      for (const key of keys) {
+        sorted[key] = this._sortKeysRecursive(obj[key]);
+      }
+      return sorted;
+    }
+
+    return obj;
+  }
+}
+export default SauronIncidentReporter;
+

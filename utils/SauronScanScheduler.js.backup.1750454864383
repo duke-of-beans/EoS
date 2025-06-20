@@ -1,0 +1,220 @@
+/**
+ * Purpose: Schedules + monitors scan jobs
+ * Dependencies: Node.js std lib
+ * API: SauronScanScheduler().schedule(), list(), cancel()
+ * 
+ * Note: Job history is stored in-memory only. For persistence,
+ * consider integrating with ScanHistoryManager.js
+ * 
+ * Example with cooperative cancellation:
+ * 
+ * scheduler.schedule(async (signal) => {
+ *   for (const file of files) {
+ *     if (signal?.aborted) throw new Error('Scan canceled');
+ *     await scanFile(file);
+ *   }
+ * });
+ */
+
+import { randomBytes } from 'crypto';
+
+class SauronScanScheduler {
+  constructor(config = {}) {
+    this.maxConcurrent = config.maxConcurrent || 1;
+    this.jobs = new Map(); // jobId -> jobInfo (in-memory only)
+    this.queue = []; // queue of pending job IDs
+    this.running = new Set(); // set of running job IDs
+    this.cancellationTokens = new Map(); // jobId -> AbortController
+  }
+
+  /**
+   * Schedule a job for execution
+   * @param {Function} job - Async function to execute. 
+   *                        Can accept an AbortSignal as first parameter for cooperative cancellation.
+   * @returns {string} - Unique job ID
+   */
+  schedule(job) {
+    if (typeof job !== 'function') {
+      throw new Error('Job must be a function');
+    }
+
+    const jobId = this._generateJobId();
+    const abortController = new AbortController();
+    
+    const jobInfo = {
+      id: jobId,
+      job,
+      status: 'queued',
+      scheduledAt: new Date().toISOString(),
+      startedAt: null,
+      completedAt: null,
+      error: null,
+      errorStack: null,
+      result: null
+    };
+
+    this.jobs.set(jobId, jobInfo);
+    this.cancellationTokens.set(jobId, abortController);
+    this.queue.push(jobId);
+
+    // Process queue without blocking
+    setImmediate(() => this._processQueue());
+
+    return jobId;
+  }
+
+  /**
+   * List all jobs with their current status
+   * @returns {Array} - Array of job summaries
+   */
+  list() {
+    const summaries = [];
+    
+    for (const [jobId, jobInfo] of this.jobs) {
+      summaries.push({
+        id: jobId,
+        status: jobInfo.status,
+        scheduledAt: jobInfo.scheduledAt,
+        startedAt: jobInfo.startedAt,
+        completedAt: jobInfo.completedAt,
+        error: jobInfo.error ? jobInfo.error.message : null,
+        errorStack: jobInfo.errorStack,
+        duration: this._calculateDuration(jobInfo)
+      });
+    }
+
+    return summaries.sort((a, b) => 
+      new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+    );
+  }
+
+  /**
+   * Cancel a scheduled or running job
+   * @param {string} jobId - Job ID to cancel
+   * @returns {boolean} - True if canceled, false if not found or already completed
+   * 
+   * Note: For running jobs, this sends an abort signal. Jobs must check
+   * the signal.aborted property or listen to 'abort' event for cooperative cancellation.
+   */
+  cancel(jobId) {
+    const jobInfo = this.jobs.get(jobId);
+    const abortController = this.cancellationTokens.get(jobId);
+    
+    if (!jobInfo) {
+      return false;
+    }
+
+    if (jobInfo.status === 'completed' || jobInfo.status === 'failed') {
+      return false;
+    }
+
+    if (jobInfo.status === 'queued') {
+      // Remove from queue
+      const index = this.queue.indexOf(jobId);
+      if (index > -1) {
+        this.queue.splice(index, 1);
+      }
+    }
+
+    if (jobInfo.status === 'running' && abortController) {
+      // Send abort signal to running job
+      abortController.abort();
+      this.running.delete(jobId);
+    }
+
+    jobInfo.status = 'canceled';
+    jobInfo.completedAt = new Date().toISOString();
+    
+    // Clean up cancellation token
+    this.cancellationTokens.delete(jobId);
+    
+    return true;
+  }
+
+  /**
+   * Process the job queue respecting concurrency limits
+   * @private
+   */
+  async _processQueue() {
+    while (this.queue.length > 0 && this.running.size < this.maxConcurrent) {
+      const jobId = this.queue.shift();
+      const jobInfo = this.jobs.get(jobId);
+
+      if (!jobInfo || jobInfo.status !== 'queued') {
+        continue;
+      }
+
+      this.running.add(jobId);
+      jobInfo.status = 'running';
+      jobInfo.startedAt = new Date().toISOString();
+
+      // Execute job asynchronously
+      this._executeJob(jobId, jobInfo).then(() => {
+        this.running.delete(jobId);
+        // Process next job in queue
+        if (this.queue.length > 0) {
+          setImmediate(() => this._processQueue());
+        }
+      });
+    }
+  }
+
+  /**
+   * Execute a single job with error handling
+   * @private
+   */
+  async _executeJob(jobId, jobInfo) {
+    const abortController = this.cancellationTokens.get(jobId);
+    
+    try {
+      // Pass AbortSignal to job for cooperative cancellation
+      const result = await jobInfo.job(abortController?.signal);
+      
+      // Check if job was canceled during execution
+      if (jobInfo.status === 'canceled') {
+        return;
+      }
+
+      jobInfo.status = 'completed';
+      jobInfo.completedAt = new Date().toISOString();
+      jobInfo.result = result;
+    } catch (error) {
+      jobInfo.status = 'failed';
+      jobInfo.completedAt = new Date().toISOString();
+      jobInfo.error = error;
+      jobInfo.errorStack = error.stack || error.toString();
+    } finally {
+      // Clean up cancellation token
+      this.cancellationTokens.delete(jobId);
+    }
+  }
+
+  /**
+   * Generate a unique job ID
+   * @private
+   */
+  _generateJobId() {
+    const timestamp = Date.now().toString(36);
+    const random = randomBytes(4).toString('hex');
+    return `job_${timestamp}_${random}`;
+  }
+
+  /**
+   * Calculate job duration in milliseconds
+   * @private
+   */
+  _calculateDuration(jobInfo) {
+    if (!jobInfo.startedAt) {
+      return null;
+    }
+
+    const start = new Date(jobInfo.startedAt).getTime();
+    const end = jobInfo.completedAt ? 
+      new Date(jobInfo.completedAt).getTime() : 
+      Date.now();
+    
+    return end - start;
+  }
+}
+
+export default SauronScanScheduler;

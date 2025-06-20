@@ -98,7 +98,7 @@ export class SauronPerformanceProfiler {
     // Calculate recent trends with dynamic window adjustment
     const effectiveWindow = this._getEffectiveTrendWindow();
     const recentRuns = this.history.slice(-effectiveWindow);
-    
+
     if (recentRuns.length >= 2) {
       metrics.forEach(metric => {
         const recentValues = recentRuns.map(run => run[metric]).filter(v => v !== undefined);
@@ -142,7 +142,7 @@ export class SauronPerformanceProfiler {
     try {
       const data = await fs.readFile(this.historyPath, 'utf8');
       const loadedHistory = JSON.parse(data);
-      
+
       // Validate loaded data
       if (!Array.isArray(loadedHistory)) {
         throw new Error('Invalid history format: expected array');
@@ -224,7 +224,7 @@ export class SauronPerformanceProfiler {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substr(2, 9);
     const baseId = `run_${timestamp}_${random}`;
-    
+
     if (this.useHashedRunIds) {
       // Create a hash for obfuscation
       const hash = createHash('sha256')
@@ -233,7 +233,7 @@ export class SauronPerformanceProfiler {
         .substring(0, 16); // Use first 16 chars for reasonable length
       return `run_${hash}`;
     }
-    
+
     return baseId;
   }
 
@@ -244,7 +244,7 @@ export class SauronPerformanceProfiler {
 
     // Dynamic adjustment based on history size
     const historySize = this.history.length;
-    
+
     if (historySize < 10) {
       // Very small history: use all available data
       return Math.max(2, historySize);
@@ -281,13 +281,13 @@ export class SauronPerformanceProfiler {
 
   _calculateTrend(values) {
     if (values.length < 2) return 0;
-    
+
     const firstHalf = values.slice(0, Math.floor(values.length / 2));
     const secondHalf = values.slice(Math.floor(values.length / 2));
-    
+
     const firstAvg = this._calculateAverage(firstHalf);
     const secondAvg = this._calculateAverage(secondHalf);
-    
+
     if (firstAvg === 0) return 0;
     return ((secondAvg - firstAvg) / firstAvg) * 100;
   }

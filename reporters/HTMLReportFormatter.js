@@ -4,7 +4,7 @@
  * Public API:
  *   - new HTMLReportFormatter(config) - Creates formatter instance
  *   - format(report) - Generates HTML string from report object
- * 
+ *
  * Config options:
  *   - maxIssuesShown: number (default: 100)
  *   - theme: string (default: 'dark', future: 'light')
@@ -58,11 +58,11 @@ export class HTMLReportFormatter {
         </header>
 
         ${this._renderSummary(filesScanned, totalIssues, duration, issuesBySeverity)}
-        
+
         ${this._renderIssuesList(limitedIssues, totalIssues)}
-        
+
         ${prophecies.length > 0 ? this._renderProphecies(prophecies) : ''}
-        
+
         ${this._renderFooter()}
     </div>
 </body>
@@ -118,7 +118,7 @@ export class HTMLReportFormatter {
     }
 
     const issuesHtml = issues.map(issue => this._renderIssue(issue)).join('');
-    const truncatedMessage = totalIssues > this.config.maxIssuesShown 
+    const truncatedMessage = totalIssues > this.config.maxIssuesShown
       ? `<div class="truncated-message">Showing ${this.config.maxIssuesShown} of ${totalIssues} issues</div>`
       : '';
 
@@ -188,25 +188,25 @@ export class HTMLReportFormatter {
       'major': 'major',
       'minor': 'minor',
       'trivial': 'trivial',
-      
+
       // Common aliases
       'error': 'major',
       'warning': 'minor',
       'info': 'trivial',
       'note': 'trivial',
-      
+
       // Numeric levels
       '1': 'critical',
       '2': 'major',
       '3': 'minor',
       '4': 'trivial',
-      
+
       // High/medium/low
       'high': 'critical',
       'medium': 'major',
       'low': 'minor'
     };
-    
+
     const normalized = String(severity).toLowerCase();
     return severityMap[normalized] || 'minor'; // Default to minor if unknown
   }
@@ -239,27 +239,27 @@ export class HTMLReportFormatter {
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             color: #e0e0e0;
             background: #0a0a0a;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
-        
+
         header {
             text-align: center;
             margin-bottom: 3rem;
             padding-bottom: 2rem;
             border-bottom: 2px solid #333;
         }
-        
+
         h1 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
@@ -267,35 +267,35 @@ export class HTMLReportFormatter {
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
+
         .timestamp {
             color: #888;
             font-size: 0.9rem;
         }
-        
+
         section {
             margin-bottom: 3rem;
         }
-        
+
         h2 {
             font-size: 1.8rem;
             margin-bottom: 1rem;
             color: #ffd93d;
         }
-        
+
         h3 {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
             color: #ff6b6b;
         }
-        
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
-        
+
         .stat-card {
             background: #1a1a1a;
             border: 1px solid #333;
@@ -303,40 +303,40 @@ export class HTMLReportFormatter {
             padding: 1.5rem;
             text-align: center;
         }
-        
+
         .stat-value {
             font-size: 2rem;
             font-weight: bold;
             color: #ffd93d;
         }
-        
+
         .stat-card.has-issues .stat-value {
             color: #ff6b6b;
         }
-        
+
         .stat-card.no-issues .stat-value {
             color: #4ecdc4;
         }
-        
+
         .stat-label {
             color: #888;
             font-size: 0.9rem;
             margin-top: 0.5rem;
         }
-        
+
         .severity-breakdown {
             background: #1a1a1a;
             border: 1px solid #333;
             border-radius: 8px;
             padding: 1.5rem;
         }
-        
+
         .severity-bars {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
         }
-        
+
         .severity-bar {
             display: flex;
             justify-content: space-between;
@@ -345,18 +345,18 @@ export class HTMLReportFormatter {
             background: #222;
             border-radius: 4px;
         }
-        
+
         .severity-label {
             font-weight: bold;
             text-transform: uppercase;
             font-size: 0.85rem;
         }
-        
+
         .severity-critical { color: #ff4444; }
         .severity-major { color: #ff8844; }
         .severity-minor { color: #ffbb44; }
         .severity-trivial { color: #88cc88; }
-        
+
         .no-issues-message {
             text-align: center;
             padding: 3rem;
@@ -366,7 +366,7 @@ export class HTMLReportFormatter {
             color: #4ecdc4;
             font-size: 1.2rem;
         }
-        
+
         .truncated-message {
             background: #2a2a2a;
             border: 1px solid #444;
@@ -376,13 +376,13 @@ export class HTMLReportFormatter {
             color: #ffd93d;
             text-align: center;
         }
-        
+
         .issues-list {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
-        
+
         .issue {
             background: #1a1a1a;
             border: 1px solid #333;
@@ -390,12 +390,12 @@ export class HTMLReportFormatter {
             padding: 1rem;
             border-left: 4px solid;
         }
-        
+
         .issue.severity-critical { border-left-color: #ff4444; }
         .issue.severity-major { border-left-color: #ff8844; }
         .issue.severity-minor { border-left-color: #ffbb44; }
         .issue.severity-trivial { border-left-color: #88cc88; }
-        
+
         .issue-header {
             display: flex;
             justify-content: space-between;
@@ -404,13 +404,13 @@ export class HTMLReportFormatter {
             flex-wrap: wrap;
             gap: 0.5rem;
         }
-        
+
         .issue-location {
             font-family: 'Courier New', monospace;
             color: #888;
             font-size: 0.9rem;
         }
-        
+
         .issue-severity, .issue-category {
             font-size: 0.8rem;
             padding: 0.2rem 0.5rem;
@@ -418,12 +418,12 @@ export class HTMLReportFormatter {
             background: #2a2a2a;
             text-transform: uppercase;
         }
-        
+
         .issue-message {
             color: #e0e0e0;
             margin-bottom: 0.5rem;
         }
-        
+
         .issue-evidence {
             background: #0a0a0a;
             border: 1px solid #333;
@@ -434,20 +434,20 @@ export class HTMLReportFormatter {
             font-size: 0.85rem;
             color: #888;
         }
-        
+
         .prophecies {
             background: #1a1a1a;
             border: 1px solid #333;
             border-radius: 8px;
             padding: 2rem;
         }
-        
+
         .prophecies-intro {
             color: #888;
             margin-bottom: 1rem;
             font-style: italic;
         }
-        
+
         .prophecy {
             background: #2a2a2a;
             border: 1px solid #444;
@@ -455,18 +455,18 @@ export class HTMLReportFormatter {
             padding: 1rem;
             margin-bottom: 1rem;
         }
-        
+
         .prophecy-vision {
             font-size: 1.1rem;
             color: #ffd93d;
             margin-bottom: 0.5rem;
         }
-        
+
         .prophecy-probability {
             color: #888;
             font-size: 0.9rem;
         }
-        
+
         footer {
             text-align: center;
             padding-top: 2rem;
@@ -474,16 +474,16 @@ export class HTMLReportFormatter {
             color: #666;
             font-size: 0.9rem;
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
             }
-            
+
             h1 {
                 font-size: 2rem;
             }
-            
+
             .issue-header {
                 flex-direction: column;
                 align-items: flex-start;

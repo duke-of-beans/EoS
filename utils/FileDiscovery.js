@@ -39,13 +39,13 @@ export class FileDiscovery {
     // Normalize to lowercase for consistent matching
     const defaultExtensions = [
       '.js',
-      '.ts', 
+      '.ts',
       '.jsx',
       '.tsx',
       '.mjs',
       '.cjs'
     ];
-    
+
     this.fileExtensions = (config.fileExtensions || defaultExtensions)
       .map(ext => ext.toLowerCase());
   }
@@ -59,27 +59,27 @@ export class FileDiscovery {
    */
   async discover(rootPath, maxDepth = Infinity, skipTests = false) {
     const discoveredFiles = [];
-    
+
     const shouldExclude = (path) => {
       return this.excludePatterns.some(pattern => pattern.test(path));
     };
 
     const isTestFile = (filePath) => {
       if (!skipTests) return false;
-      
+
       const base = basename(filePath);
       const dir = dirname(filePath);
-      
+
       // Check if file has test/spec suffix
       const testSuffixes = [
         '.test.', '.spec.', '_test.', '_spec.',
         '.test', '.spec', '_test', '_spec'
       ];
-      
-      const hasTestSuffix = testSuffixes.some(suffix => 
+
+      const hasTestSuffix = testSuffixes.some(suffix =>
         base.includes(suffix)
       );
-      
+
       // Check if file is in test directories
       const testDirs = ['__tests__', '__mocks__', 'test', 'tests', 'spec', 'specs'];
       const inTestDir = testDirs.some(testDir => {
@@ -87,24 +87,24 @@ export class FileDiscovery {
         const pathParts = dir.split(sep);
         return pathParts.includes(testDir);
       });
-      
+
       return hasTestSuffix || inTestDir;
     };
 
     const walk = async (currentPath, currentDepth = 0) => {
       // Check depth limit
       if (currentDepth > maxDepth) return;
-      
+
       // Check exclusion patterns
       if (shouldExclude(currentPath)) return;
 
       try {
         const stats = await stat(currentPath);
-        
+
         if (stats.isDirectory()) {
           // Read directory contents
           const entries = await readdir(currentPath);
-          
+
           // Process entries in parallel for performance
           await Promise.all(
             entries.map(entry => {
@@ -129,7 +129,7 @@ export class FileDiscovery {
     };
 
     await walk(rootPath);
-    
+
     // Return sorted array for consistent output
     return discoveredFiles.sort();
   }

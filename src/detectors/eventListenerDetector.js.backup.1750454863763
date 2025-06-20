@@ -1,0 +1,172 @@
+/**
+ * Event Listener Detector - Detects potential memory leaks from unremoved event listeners
+ * Dependencies: None
+ * Public API: detect(content, filePath, config)
+ */
+
+class EventListenerDetector {
+  constructor() {
+    this.name = 'EventListenerDetector';
+    this.patterns = {
+      addEventListener: /(\w+)\.addEventListener\s*\(\s*['"`](\w+)['"`]\s*,\s*([^,)]+)/g,
+      removeEventListener: /(\w+)\.removeEventListener\s*\(\s*['"`](\w+)['"`]\s*,\s*([^,)]+)/g,
+      jqueryOn: /\$\([^)]+\)\.on\s*\(\s*['"`](\w+)['"`]/g,
+      jqueryOff: /\$\([^)]+\)\.off\s*\(\s*['"`](\w+)['"`]/g,
+      reactHook: /use(?:Effect|LayoutEffect|Memo|Callback)\s*\(/,
+      componentLifecycle: /(?:componentDidMount|componentWillUnmount|connectedCallback|disconnectedCallback)/
+    };
+  }
+
+  detect(content, filePath, config = {}) {
+    const issues = [];
+    
+    // Skip test files
+    if (filePath.match(/\.(test|spec|mock)\.(js|jsx|ts|tsx)$/i)) {
+      return [];
+    }
+
+    // Parse all event listener additions and removals
+    const listeners = this.parseEventListeners(content);
+    
+    // Check for React hooks with proper cleanup
+    if (this.patterns.reactHook.test(content)) {
+      return this.checkReactCleanup(content, filePath, listeners);
+    }
+    
+    // Check for component lifecycle cleanup
+    if (this.patterns.componentLifecycle.test(content)) {
+      return this.checkLifecycleCleanup(content, filePath, listeners);
+    }
+    
+    // For other files, check if all listeners are removed
+    const unmatched = this.findUnmatchedListeners(listeners);
+    
+    unmatched.forEach(listener => {
+      issues.push({
+        type: 'event-listener-leak',
+        severity: 'warning',
+        message: `Event listener '${listener.event}' on '${listener.target}' may not be properly removed`,
+        file: filePath,
+        line: listener.line,
+        column: listener.column,
+        snippet: listener.snippet,
+        suggestion: 'Ensure all event listeners are removed when no longer needed'
+      });
+    });
+
+    return issues;
+  }
+
+  parseEventListeners(content) {
+    const lines = content.split('\n');
+    const listeners = {
+      added: [],
+      removed: []
+    };
+
+    lines.forEach((line, index) => {
+      // addEventListener
+      const addMatches = [...line.matchAll(this.patterns.addEventListener)];
+      addMatches.forEach(match => {
+        listeners.added.push({
+          target: match[1],
+          event: match[2],
+          handler: match[3].trim(),
+          line: index + 1,
+          column: match.index + 1,
+          snippet: line.trim()
+        });
+      });
+
+      // removeEventListener
+      const removeMatches = [...line.matchAll(this.patterns.removeEventListener)];
+      removeMatches.forEach(match => {
+        listeners.removed.push({
+          target: match[1],
+          event: match[2],
+          handler: match[3].trim(),
+          line: index + 1,
+          column: match.index + 1,
+          snippet: line.trim()
+        });
+      });
+    });
+
+    return listeners;
+  }
+
+  checkReactCleanup(content, filePath, listeners) {
+    const issues = [];
+    const effectPattern = /useEffect\s*\(\s*\(\s*\)\s*=>\s*{([^}]+)}/g;
+    
+    let match;
+    while ((match = effectPattern.exec(content)) !== null) {
+      const effectBody = match[1];
+      const hasEventListener = this.patterns.addEventListener.test(effectBody);
+      const hasCleanup = /return\s+/.test(effectBody);
+      
+      if (hasEventListener && !hasCleanup) {
+        const line = content.substring(0, match.index).split('\n').length;
+        issues.push({
+          type: 'event-listener-leak',
+          severity: 'warning',
+          message: 'useEffect with event listener missing cleanup function',
+          file: filePath,
+          line: line,
+          column: 1,
+          snippet: match[0].substring(0, 100),
+          suggestion: 'Return a cleanup function from useEffect to remove event listeners'
+        });
+      }
+    }
+    
+    return issues;
+  }
+
+  checkLifecycleCleanup(content, filePath, listeners) {
+    const issues = [];
+    const hasDidMount = /componentDidMount|connectedCallback/.test(content);
+    const hasWillUnmount = /componentWillUnmount|disconnectedCallback/.test(content);
+    
+    if (hasDidMount && listeners.added.length > 0 && !hasWillUnmount) {
+      issues.push({
+        type: 'event-listener-leak',
+        severity: 'warning',
+        message: 'Component adds event listeners but missing cleanup lifecycle method',
+        file: filePath,
+        line: 1,
+        column: 1,
+        snippet: 'Missing componentWillUnmount or disconnectedCallback',
+        suggestion: 'Implement cleanup lifecycle method to remove event listeners'
+      });
+    }
+    
+    return issues;
+  }
+
+  findUnmatchedListeners(listeners) {
+    const unmatched = [];
+    
+    listeners.added.forEach(added => {
+      const isRemoved = listeners.removed.some(removed => 
+        removed.target === added.target &&
+        removed.event === added.event &&
+        this.handlersMatch(added.handler, removed.handler)
+      );
+      
+      if (!isRemoved) {
+        unmatched.push(added);
+      }
+    });
+    
+    return unmatched;
+  }
+
+  handlersMatch(handler1, handler2) {
+    // Normalize handlers for comparison
+    const normalize = (h) => h.replace(/\s+/g, '').replace(/[()]/g, '');
+    return normalize(handler1) === normalize(handler2);
+  }
+}
+
+module.exports = EventListenerDetector;

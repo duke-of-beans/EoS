@@ -1,0 +1,171 @@
+#!/usr/bin/env node
+
+/**
+ * Comprehensive Scanner Test Script
+ * Tests the exact EyeOfSauronOmniscient usage to identify the issue
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+
+console.log('🧪 Comprehensive Scanner Test');
+console.log('═'.repeat(50));
+
+async function testScanner() {
+  try {
+    // Test 1: Import the module
+    console.log('📦 Step 1: Testing imports...');
+    
+    let EyeOfSauronOmniscient, createEye;
+    
+    try {
+      const module = await import('./core/EyeOfSauronOmniscient.js');
+      EyeOfSauronOmniscient = module.default;
+      createEye = module.createEye;
+      
+      console.log('✅ Import successful');
+      console.log(`   Default export: ${typeof EyeOfSauronOmniscient}`);
+      console.log(`   createEye function: ${typeof createEye}`);
+      console.log(`   All exports: ${Object.keys(module).join(', ')}`);
+    } catch (error) {
+      console.log('❌ Import failed:', error.message);
+      return;
+    }
+    
+    // Test 2: Create scanner instance
+    console.log('\n🔧 Step 2: Testing scanner creation...');
+    
+    let scanner;
+    
+    try {
+      // Try method 1: Using createEye function
+      console.log('   Trying createEye() function...');
+      scanner = createEye();
+      console.log('✅ createEye() worked');
+    } catch (error) {
+      console.log(`❌ createEye() failed: ${error.message}`);
+      
+      try {
+        // Try method 2: Direct constructor
+        console.log('   Trying new EyeOfSauronOmniscient()...');
+        scanner = new EyeOfSauronOmniscient();
+        console.log('✅ new EyeOfSauronOmniscient() worked');
+      } catch (error2) {
+        console.log(`❌ Constructor failed: ${error2.message}`);
+        return;
+      }
+    }
+    
+    // Test 3: Examine scanner object
+    console.log('\n🔍 Step 3: Examining scanner object...');
+    console.log(`   Scanner type: ${typeof scanner}`);
+    console.log(`   Scanner constructor: ${scanner.constructor.name}`);
+    
+    // Get all methods
+    const methods = [];
+    let obj = scanner;
+    while (obj) {
+      Object.getOwnPropertyNames(obj).forEach(name => {
+        if (typeof scanner[name] === 'function' && name !== 'constructor') {
+          methods.push(name);
+        }
+      });
+      obj = Object.getPrototypeOf(obj);
+    }
+    
+    console.log(`   Available methods: ${methods.slice(0, 10).join(', ')}${methods.length > 10 ? '...' : ''}`);
+    
+    // Check for scan methods
+    const scanMethods = methods.filter(m => m.includes('scan'));
+    console.log(`   Scan-related methods: ${scanMethods.join(', ') || 'None found'}`);
+    
+    // Test 4: Try scan operation
+    console.log('\n📊 Step 4: Testing scan operation...');
+    
+    const testPath = '.';
+    console.log(`   Scanning path: ${testPath}`);
+    
+    let scanMethod = null;
+    let results = null;
+    
+    // Try different scan methods
+    if (typeof scanner.scan === 'function') {
+      console.log('   Trying scanner.scan()...');
+      scanMethod = 'scan';
+    } else if (typeof scanner.scanPath === 'function') {
+      console.log('   Trying scanner.scanPath()...');
+      scanMethod = 'scanPath';
+    } else {
+      console.log('❌ No scan method found');
+      console.log('   Available methods starting with "s":', methods.filter(m => m.startsWith('s')));
+      return;
+    }
+    
+    try {
+      console.log(`   Calling scanner.${scanMethod}("${testPath}", "deep")...`);
+      
+      // Set a timeout to prevent hanging
+      const scanPromise = scanner[scanMethod](testPath, 'deep');
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Scan timeout after 30 seconds')), 30000)
+      );
+      
+      results = await Promise.race([scanPromise, timeoutPromise]);
+      
+      console.log('✅ Scan completed successfully!');
+      console.log(`   Results type: ${typeof results}`);
+      console.log(`   Results keys: ${results ? Object.keys(results).join(', ') : 'null'}`);
+      
+      if (results && results.summary) {
+        console.log(`   Files scanned: ${results.summary.filesScanned || 'Unknown'}`);
+        console.log(`   Total issues: ${results.summary.totalIssues || 'Unknown'}`);
+      }
+      
+      if (results && results.files) {
+        const fileCount = Object.keys(results.files).length;
+        console.log(`   Files with results: ${fileCount}`);
+        
+        if (fileCount > 0) {
+          const firstFile = Object.keys(results.files)[0];
+          const firstFileData = results.files[firstFile];
+          console.log(`   First file: ${firstFile}`);
+          console.log(`   First file issues: ${firstFileData.issues?.length || 0}`);
+        }
+      }
+      
+    } catch (error) {
+      console.log('❌ Scan failed:', error.message);
+      console.log('   Stack:', error.stack?.split('\n')[0]);
+      return;
+    }
+    
+    // Test 5: Save results
+    console.log('\n💾 Step 5: Testing result saving...');
+    
+    if (results) {
+      try {
+        const outputPath = 'test-scanner-output.json';
+        await fs.writeFile(outputPath, JSON.stringify(results, null, 2));
+        console.log(`✅ Results saved to: ${outputPath}`);
+        
+        const fileSize = (await fs.stat(outputPath)).size;
+        console.log(`   File size: ${fileSize} bytes`);
+      } catch (error) {
+        console.log('❌ Save failed:', error.message);
+      }
+    } else {
+      console.log('⚠️  No results to save');
+    }
+    
+    console.log('\n🎉 Test completed successfully!');
+    console.log('   The scanner is working correctly.');
+    console.log('   Check test-scanner-output.json for detailed results.');
+    
+  } catch (error) {
+    console.log('\n❌ Test failed with unexpected error:');
+    console.log(`   ${error.message}`);
+    console.log(`   Stack: ${error.stack}`);
+  }
+}
+
+testScanner();

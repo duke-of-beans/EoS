@@ -29,11 +29,11 @@ export class SauronReportIndexer {
     for (const [filePath, fileData] of Object.entries(report.vision.files)) {
       // Store file data
       this.fileIndex.set(filePath, fileData);
-      
+
       // Store issues for this file
       if (fileData.issues && Array.isArray(fileData.issues)) {
         this.fileIssuesMap.set(filePath, fileData.issues);
-        
+
         // Index by issue type and severity
         fileData.issues.forEach(issue => {
           // Index by type
@@ -43,7 +43,7 @@ export class SauronReportIndexer {
             }
             this.issueTypeIndex.get(issue.type).add(filePath);
           }
-          
+
           // Index by severity
           if (issue.severity) {
             if (!this.severityIndex.has(issue.severity)) {
@@ -71,12 +71,12 @@ export class SauronReportIndexer {
     }
 
     let matchingFiles = new Set();
-    
+
     // Start with all files if no specific criteria
     if (!query.filePath && !query.issueType && !query.severity) {
       matchingFiles = new Set(this.fileIndex.keys());
     }
-    
+
     // Filter by file path substring
     if (query.filePath) {
       const pathQuery = query.filePath.toLowerCase(); // Case-insensitive matching
@@ -86,7 +86,7 @@ export class SauronReportIndexer {
         }
       }
     }
-    
+
     // Filter by issue type
     if (query.issueType) {
       const typeFiles = this.issueTypeIndex.get(query.issueType);
@@ -103,7 +103,7 @@ export class SauronReportIndexer {
         return [];
       }
     }
-    
+
     // Filter by severity
     if (query.severity) {
       const severityFiles = this.severityIndex.get(query.severity);
@@ -119,12 +119,12 @@ export class SauronReportIndexer {
         return [];
       }
     }
-    
+
     // Build results array
     const results = [];
     for (const filePath of matchingFiles) {
       const issues = this.fileIssuesMap.get(filePath) || [];
-      
+
       // Filter issues based on query criteria
       let filteredIssues = issues;
       if (query.issueType) {
@@ -133,7 +133,7 @@ export class SauronReportIndexer {
       if (query.severity) {
         filteredIssues = filteredIssues.filter(i => i.severity === query.severity);
       }
-      
+
       // Only include files that have matching issues after filtering
       if (filteredIssues.length > 0 || (!query.issueType && !query.severity)) {
         if (query.lightMode) {
@@ -156,10 +156,10 @@ export class SauronReportIndexer {
         }
       }
     }
-    
+
     // Sort by issue count (descending) for relevance
     results.sort((a, b) => b.issueCount - a.issueCount);
-    
+
     return results;
   }
 

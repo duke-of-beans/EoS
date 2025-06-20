@@ -1,6 +1,6 @@
 /**
  * MetricsExporter.js
- * 
+ *
  * Purpose: Exports Eye of Sauron scan metrics in common monitoring formats (Prometheus, DataDog, NewRelic)
  * Dependencies: Node.js standard library only
  * Public API:
@@ -8,7 +8,7 @@
  *   - generatePrometheus(report) - Generate Prometheus exposition format
  *   - generateDataDog(report) - Generate DataDog StatsD format
  *   - generateNewRelic(report) - Generate NewRelic metrics JSON format
- * 
+ *
  * Severity Mapping:
  *   Scanner Output -> Metric Label
  *   critical -> critical
@@ -38,11 +38,11 @@ export default class MetricsExporter {
     lines.push(`# HELP ${this.namespace}_files_scanned Number of files scanned`);
     lines.push(`# TYPE ${this.namespace}_files_scanned gauge`);
     lines.push(`${this.namespace}_files_scanned{${this._formatPrometheusLabels(metrics.labels)}} ${metrics.filesScanned} ${timestamp}`);
-    
+
     lines.push(`# HELP ${this.namespace}_total_issues Total number of issues found`);
     lines.push(`# TYPE ${this.namespace}_total_issues gauge`);
     lines.push(`${this.namespace}_total_issues{${this._formatPrometheusLabels(metrics.labels)}} ${metrics.totalIssues} ${timestamp}`);
-    
+
     lines.push(`# HELP ${this.namespace}_duration_seconds Scan duration in seconds`);
     lines.push(`# TYPE ${this.namespace}_duration_seconds gauge`);
     lines.push(`${this.namespace}_duration_seconds{${this._formatPrometheusLabels(metrics.labels)}} ${metrics.duration} ${timestamp}`);
@@ -50,7 +50,7 @@ export default class MetricsExporter {
     // Issues by severity
     lines.push(`# HELP ${this.namespace}_issues Number of issues by severity`);
     lines.push(`# TYPE ${this.namespace}_issues gauge`);
-    
+
     Object.entries(metrics.issuesBySeverity).forEach(([severity, count]) => {
       const severityLabels = { ...metrics.labels, severity };
       lines.push(`${this.namespace}_issues{${this._formatPrometheusLabels(severityLabels)}} ${count} ${timestamp}`);
@@ -89,7 +89,7 @@ export default class MetricsExporter {
   generateNewRelic(report) {
     const metrics = this._extractMetrics(report);
     const timestamp = Math.floor(Date.now() / 1000);
-    
+
     const payload = [{
       metrics: [
         {
@@ -134,10 +134,10 @@ export default class MetricsExporter {
   _extractMetrics(report) {
     const summary = report.summary || {};
     const vision = report.vision || {};
-    
+
     // Calculate files scanned
     const filesScanned = Object.keys(vision.files || {}).length;
-    
+
     // Calculate total issues with proper severity mapping
     let totalIssues = 0;
     const issuesBySeverity = {
@@ -164,7 +164,7 @@ export default class MetricsExporter {
     Object.values(vision.files || {}).forEach(fileData => {
       const issues = fileData.issues || [];
       totalIssues += issues.length;
-      
+
       issues.forEach(issue => {
         const rawSeverity = (issue.severity || 'info').toLowerCase();
         const normalizedSeverity = severityMap[rawSeverity] || 'info';
@@ -202,26 +202,26 @@ export default class MetricsExporter {
       // Assume numbers > 1000 are milliseconds, otherwise seconds
       return duration > 1000 ? duration / 1000 : duration;
     }
-    
+
     if (typeof duration === 'string') {
       // Handle common string formats: "12.34s", "1234ms", "12.34"
       const msMatch = duration.match(/^(\d+(?:\.\d+)?)\s*ms$/i);
       if (msMatch) {
         return parseFloat(msMatch[1]) / 1000;
       }
-      
+
       const secMatch = duration.match(/^(\d+(?:\.\d+)?)\s*s$/i);
       if (secMatch) {
         return parseFloat(secMatch[1]);
       }
-      
+
       // Plain number string - assume seconds if < 1000, ms otherwise
       const plainNumber = parseFloat(duration);
       if (!isNaN(plainNumber)) {
         return plainNumber > 1000 ? plainNumber / 1000 : plainNumber;
       }
     }
-    
+
     return 0; // Default fallback
   }
 
@@ -248,14 +248,14 @@ export default class MetricsExporter {
 
 // Update manifest requirement
 // Add to /docs/EoS-manifest.md:
-// 
+//
 // ## MetricsExporter
 // **Location:** `eye-of-sauron/utils/MetricsExporter.js`
 // **Purpose:** Exports scan metrics in Prometheus, DataDog, and NewRelic formats
 // **API:**
 // - `new MetricsExporter(config)` - Initialize with optional namespace and labels
 // - `generatePrometheus(report)` - Returns Prometheus exposition format string
-// - `generateDataDog(report)` - Returns DataDog StatsD format string  
+// - `generateDataDog(report)` - Returns DataDog StatsD format string
 // - `generateNewRelic(report)` - Returns NewRelic metrics API JSON string
 // **Notes:**
 // - Normalizes all durations to seconds (handles ms, s, and numeric inputs)

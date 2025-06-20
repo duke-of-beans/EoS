@@ -166,7 +166,7 @@ export class SauronReportAnalyzer {
         stats.filesWithIssues = Object.values(report.vision.files)
           .filter(fileData => fileData.issues && fileData.issues.length > 0)
           .length;
-        
+
         if (stats.filesScanned > 0) {
           stats.coverage = (stats.filesWithIssues / stats.filesScanned) * 100;
         }
@@ -241,12 +241,12 @@ export class SauronReportAnalyzer {
       const durations = performanceData
         .filter(d => d.scanDuration > 0)
         .map(d => d.scanDuration);
-      
+
       if (durations.length > 0) {
         const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
         const stdDev = this._calculateStdDev(durations);
         const threshold = this.config.performanceThresholds.scanDurationStdDev;
-        
+
         performanceData.forEach((data, index) => {
           if (data.scanDuration > avgDuration + (threshold * stdDev)) {
             anomalies.push({
@@ -265,11 +265,11 @@ export class SauronReportAnalyzer {
       const throughputs = performanceData
         .filter(d => d.filesPerSecond > 0)
         .map(d => d.filesPerSecond);
-      
+
       if (throughputs.length > 0) {
         const avgThroughput = throughputs.reduce((a, b) => a + b, 0) / throughputs.length;
         const dropThreshold = this.config.performanceThresholds.throughputDropRatio;
-        
+
         performanceData.forEach((data, index) => {
           if (data.filesPerSecond > 0 && data.filesPerSecond < avgThroughput * dropThreshold) {
             anomalies.push({
@@ -331,16 +331,16 @@ export class SauronReportAnalyzer {
     if (values.length >= 3) {
       let consistentSteps = 0;
       let totalSteps = values.length - 1;
-      
+
       for (let i = 1; i < values.length; i++) {
         const localChange = values[i] - values[i - 1];
         const overallDirection = percentChange > 0;
-        
+
         if ((overallDirection && localChange >= 0) || (!overallDirection && localChange <= 0)) {
           consistentSteps++;
         }
       }
-      
+
       scores.consistency = consistentSteps / totalSteps;
     } else {
       scores.consistency = 0.5; // Neutral for insufficient data
@@ -358,16 +358,16 @@ export class SauronReportAnalyzer {
       const midPoint = Math.floor(values.length / 2);
       const firstHalf = values.slice(0, midPoint);
       const secondHalf = values.slice(midPoint);
-      
+
       const firstHalfChange = this._calculatePercentChange(
-        firstHalf[0], 
+        firstHalf[0],
         firstHalf[firstHalf.length - 1]
       );
       const secondHalfChange = this._calculatePercentChange(
-        secondHalf[0], 
+        secondHalf[0],
         secondHalf[secondHalf.length - 1]
       );
-      
+
       // Higher score if recent change is more pronounced
       if (Math.sign(firstHalfChange) === Math.sign(secondHalfChange)) {
         scores.recency = Math.abs(secondHalfChange) > Math.abs(firstHalfChange) ? 0.8 : 0.4;
@@ -379,7 +379,7 @@ export class SauronReportAnalyzer {
     }
 
     // Calculate weighted significance
-    const significance = 
+    const significance =
       (scores.consistency * weights.consistency) +
       (scores.magnitude * weights.magnitude) +
       (scores.recency * weights.recency);
@@ -402,11 +402,11 @@ export class SauronReportAnalyzer {
    */
   _calculateStdDev(values) {
     if (values.length === 0) return 0;
-    
+
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
     const squaredDiffs = values.map(v => Math.pow(v - mean, 2));
     const avgSquaredDiff = squaredDiffs.reduce((a, b) => a + b, 0) / values.length;
-    
+
     return Math.sqrt(avgSquaredDiff);
   }
 
@@ -433,11 +433,11 @@ export class SauronReportAnalyzer {
     }
 
     // Overall assessment
-    const hasSecurityConcerns = securityTrends.some(t => 
-      t.type === 'security_degradation' || 
+    const hasSecurityConcerns = securityTrends.some(t =>
+      t.type === 'security_degradation' ||
       (t.type === 'overall_security' && t.trend.direction === 'rising')
     );
-    
+
     if (hasSecurityConcerns && performanceAnomalies.length > 0) {
       parts.push('⚠️ Action needed: Both security and performance issues detected');
     } else if (hasSecurityConcerns) {

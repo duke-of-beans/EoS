@@ -1,0 +1,202 @@
+/**
+ * Purpose: Coordinates full secure archive lifecycle: compress, encrypt, sign, upload
+ * Dependencies: Node.js std lib + existing Sauron components
+ * API: SauronSecurePipelineOrchestrator().processAndUpload(report, uploadUrl)
+ */
+
+import { SauronReportCompressor } from './SauronReportCompressor.js';
+import { SauronReportEncryptor } from './SauronReportEncryptor.js';
+import { SauronScanSignatureGenerator } from './SauronScanSignatureGenerator.js';
+import { SauronSecureTransporter } from './SauronSecureTransporter.js';
+
+export class SauronSecurePipelineOrchestrator {
+    constructor(config = {}) {
+        this.compressionFormat = config.compressionFormat || 'gzip';
+        this.encryptionAlgorithm = config.encryptionAlgorithm || 'aes-256-gcm';
+        this.signAlgorithm = config.signAlgorithm || 'sha256';
+
+        if (!config.key || !Buffer.isBuffer(config.key)) {
+            throw new Error('SauronSecurePipelineOrchestrator requires a Buffer key in config');
+        }
+        this.key = config.key;
+
+        if (!config.transporterConfig || typeof config.transporterConfig !== 'object') {
+            throw new Error('SauronSecurePipelineOrchestrator requires transporterConfig object');
+        }
+        this.transporterConfig = config.transporterConfig;
+
+        // Initialize components
+        this.compressor = new SauronReportCompressor({ format: this.compressionFormat });
+        this.encryptor = new SauronReportEncryptor({
+            algorithm: this.encryptionAlgorithm,
+            key: this.key
+        });
+        this.signatureGenerator = new SauronScanSignatureGenerator({
+            algorithm: this.signAlgorithm,
+            key: this.key
+        });
+        this.transporter = new SauronSecureTransporter(this.transporterConfig);
+
+        // Size limit: 50MB
+        this.MAX_SIZE_BYTES = 50 * 1024 * 1024;
+    }
+
+    /**
+     * Process and upload report through full secure pipeline
+     * @param {object} report - The scan report to process
+     * @param {string} uploadUrl - The URL to upload the processed report to
+     * @returns {Promise<object>} Processing result with metadata
+     */
+    async processAndUpload(report, uploadUrl) {
+        const startTime = Date.now();
+        const metadata = {
+            generatedAt: new Date().toISOString(),
+            algorithms: {
+                compression: this.compressionFormat,
+                encryption: this.encryptionAlgorithm,
+                signature: this.signAlgorithm
+            }
+        };
+
+        try {
+            // Validate inputs
+            if (!report || typeof report !== 'object') {
+                return this._createFailureResult('Invalid report object', metadata);
+            }
+
+            if (!uploadUrl || typeof uploadUrl !== 'string') {
+                return this._createFailureResult('Invalid upload URL', metadata);
+            }
+
+
+
+            // Step 1: Compress the report
+
+            const compressionStart = Date.now();
+            let compressedData;
+
+            try {
+                compressedData = await this.compressor.compress(JSON.stringify(report));
+                 - compressionStart}ms`);
+            } catch (error) {
+                console.error('[SauronSecurePipelineOrchestrator] Compression failed:', error.message);
+                return this._createFailureResult('Compression failed: ' + error.message, metadata);
+            }
+
+            // Check size limit after compression
+            if (compressedData.length > this.MAX_SIZE_BYTES) {
+                const sizeMB = (compressedData.length / 1024 / 1024).toFixed(2);
+                return this._createFailureResult(`Compressed size ${sizeMB}MB exceeds 50MB limit`, metadata);
+            }
+
+            // Step 2: Encrypt the compressed data
+
+            const encryptionStart = Date.now();
+            let encryptedData;
+
+            try {
+                encryptedData = await this.encryptor.encrypt(compressedData);
+                 - encryptionStart}ms`);
+            } catch (error) {
+                console.error('[SauronSecurePipelineOrchestrator] Encryption failed:', error.message);
+                return this._createFailureResult('Encryption failed: ' + error.message, metadata);
+            }
+
+            // Step 3: Generate signature
+
+            const signatureStart = Date.now();
+            let signature;
+
+            try {
+                signature = await this.signatureGenerator.sign(encryptedData);
+                 - signatureStart}ms`);
+            } catch (error) {
+                console.error('[SauronSecurePipelineOrchestrator] Signature generation failed:', error.message);
+                return this._createFailureResult('Signature generation failed: ' + error.message, metadata);
+            }
+
+            // Step 4: Upload the encrypted data
+
+            const uploadStart = Date.now();
+            let uploadResult;
+
+            try {
+                uploadResult = await this.transporter.upload(encryptedData, uploadUrl, {
+                    headers: {
+                        'X-Sauron-Signature': signature,
+                        'X-Sauron-Algorithm': this.encryptionAlgorithm,
+                        'X-Sauron-Compression': this.compressionFormat,
+                        'Content-Type': 'application/octet-stream'
+                    }
+                });
+                 - uploadStart}ms`);
+            } catch (error) {
+                console.error('[SauronSecurePipelineOrchestrator] Upload failed:', error.message);
+                return this._createFailureResult('Upload failed: ' + error.message, metadata);
+            }
+
+            // Calculate final metrics
+            const totalDuration = Date.now() - startTime;
+            const archiveSize = encryptedData.length;
+
+
+
+            .length} bytes`);
+
+
+            .length * 100).toFixed(1)}%`);
+
+            return {
+                success: true,
+                signature: signature,
+                archiveSize: archiveSize,
+                uploadResult: uploadResult,
+                metadata: {
+                    ...metadata,
+                    processingDuration: totalDuration,
+                    stages: {
+                        compression: compressionStart ? Date.now() - compressionStart : 0,
+                        encryption: encryptionStart ? Date.now() - encryptionStart : 0,
+                        signature: signatureStart ? Date.now() - signatureStart : 0,
+                        upload: uploadStart ? Date.now() - uploadStart : 0
+                    },
+                    sizes: {
+                        original: JSON.stringify(report).length,
+                        compressed: compressedData.length,
+                        final: archiveSize
+                    }
+                }
+            };
+
+        } catch (error) {
+            console.error('[SauronSecurePipelineOrchestrator] Unexpected error:', error);
+            return this._createFailureResult('Unexpected error: ' + error.message, metadata);
+        }
+    }
+
+    /**
+     * Create a standardized failure result
+     * @private
+     */
+    _createFailureResult(reason, metadata) {
+        return {
+            success: false,
+            signature: null,
+            archiveSize: 0,
+            uploadResult: null,
+            metadata: {
+                ...metadata,
+                failureReason: reason
+            }
+        };
+    }
+}
+
+// Update /docs/EoS-manifest.md entry:
+// ### SauronSecurePipelineOrchestrator.js
+// - Purpose: Coordinates full secure archive lifecycle: compress, encrypt, sign, upload
+// - API: SauronSecurePipelineOrchestrator(config).processAndUpload(report, uploadUrl) → Promise<{success, signature, archiveSize, uploadResult, metadata}>
+// - Dependencies: SauronReportCompressor, SauronReportEncryptor, SauronScanSignatureGenerator, SauronSecureTransporter
+// - Integration: CLI tools, API endpoints, CI pipelines
+export default SauronSecurePipelineOrchestrator;
+

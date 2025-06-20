@@ -28,7 +28,7 @@ export class SauronDependencyGraph {
   buildGraph(packageLockPath) {
     const resolvedPath = resolve(packageLockPath);
     let lockData;
-    
+
     try {
       const content = readFileSync(resolvedPath, 'utf8');
       lockData = JSON.parse(content);
@@ -39,7 +39,7 @@ export class SauronDependencyGraph {
     const graph = {};
     const depTypes = {}; // Track dependency types if enabled
     const lockVersion = lockData.lockfileVersion || 1;
-    
+
     // Extract root package name
     const rootName = lockData.name || 'root';
     graph[rootName] = [];
@@ -90,7 +90,7 @@ export class SauronDependencyGraph {
       if (pkgData.requires) {
         const deps = Object.keys(pkgData.requires);
         graph[pkgName] = [...new Set([...graph[pkgName], ...deps])];
-        
+
         if (this.distinguishDepTypes) {
           for (const dep of deps) {
             depTypes[pkgName][dep] = 'prod';
@@ -118,14 +118,14 @@ export class SauronDependencyGraph {
 
       // Extract package name from path
       const pkgName = this._extractPackageName(pkgPath);
-      
+
       if (!pkgName) {
         if (this.enableLogging) {
           console.warn(`Could not extract package name from path: ${pkgPath}`);
         }
         continue;
       }
-      
+
       if (!graph[pkgName]) {
         graph[pkgName] = [];
         if (this.distinguishDepTypes) {
@@ -137,7 +137,7 @@ export class SauronDependencyGraph {
       if (pkgData.dependencies) {
         const deps = Object.keys(pkgData.dependencies);
         graph[pkgName] = [...new Set([...graph[pkgName], ...deps])];
-        
+
         if (this.distinguishDepTypes) {
           for (const dep of deps) {
             depTypes[pkgName][dep] = 'prod';
@@ -149,7 +149,7 @@ export class SauronDependencyGraph {
       if (pkgData.devDependencies) {
         const devDeps = Object.keys(pkgData.devDependencies);
         graph[pkgName] = [...new Set([...graph[pkgName], ...devDeps])];
-        
+
         if (this.distinguishDepTypes) {
           for (const dep of devDeps) {
             depTypes[pkgName][dep] = 'dev';
@@ -161,7 +161,7 @@ export class SauronDependencyGraph {
       if (pkgData.peerDependencies) {
         const peerDeps = Object.keys(pkgData.peerDependencies);
         graph[pkgName] = [...new Set([...graph[pkgName], ...peerDeps])];
-        
+
         if (this.distinguishDepTypes) {
           for (const dep of peerDeps) {
             depTypes[pkgName][dep] = 'peer';
@@ -183,14 +183,14 @@ export class SauronDependencyGraph {
         const cleanPath = pkgPath.replace(/^\/+/, '');
         return cleanPath.split('/')[0] || null;
       }
-      
+
       const parts = pkgPath.split('node_modules/');
       const lastPart = parts[parts.length - 1];
-      
+
       if (!lastPart) {
         return null;
       }
-      
+
       // Handle scoped packages
       if (lastPart.startsWith('@')) {
         const scopeParts = lastPart.split('/');
@@ -199,7 +199,7 @@ export class SauronDependencyGraph {
         }
         return null;
       }
-      
+
       // Regular packages
       const pkgName = lastPart.split('/')[0];
       return pkgName || null;
@@ -220,11 +220,11 @@ export class SauronDependencyGraph {
     const isEnriched = input.graph && input.depTypes;
     const graph = isEnriched ? input.graph : input;
     const depTypes = isEnriched ? input.depTypes : null;
-    
+
     const lines = ['digraph dependencies {'];
     lines.push('  rankdir=LR;');
     lines.push('  node [shape=box];');
-    
+
     // Add legend if we're distinguishing dependency types
     if (depTypes) {
       lines.push('');
@@ -242,7 +242,7 @@ export class SauronDependencyGraph {
       lines.push('      </TABLE>>];');
       lines.push('  }');
     }
-    
+
     lines.push('');
 
     // Track all unique edges to avoid duplicates
@@ -251,7 +251,7 @@ export class SauronDependencyGraph {
     for (const [node, dependencies] of Object.entries(graph)) {
       // Escape node names for DOT format
       const escapedNode = this._escapeDotLabel(node);
-      
+
       if (dependencies.length === 0) {
         // Include isolated nodes
         lines.push(`  "${escapedNode}";`);
@@ -262,10 +262,10 @@ export class SauronDependencyGraph {
             this.circularDeps.add(`${node} -> ${node} (self-reference)`);
             continue;
           }
-          
+
           const escapedDep = this._escapeDotLabel(dep);
           let edgeStyle = '';
-          
+
           // Add edge styling based on dependency type
           if (depTypes && depTypes[node] && depTypes[node][dep]) {
             const depType = depTypes[node][dep];
@@ -281,10 +281,10 @@ export class SauronDependencyGraph {
                 edgeStyle = ' [color=black]';
             }
           }
-          
+
           const edge = `"${escapedNode}" -> "${escapedDep}"${edgeStyle}`;
           const edgeKey = `${escapedNode}->${escapedDep}`;
-          
+
           if (!edges.has(edgeKey)) {
             edges.add(edgeKey);
             lines.push(`  ${edge};`);
@@ -294,13 +294,13 @@ export class SauronDependencyGraph {
     }
 
     lines.push('}');
-    
+
     // Log circular dependencies if found and logging enabled
     if (this.enableLogging && this.circularDeps.size > 0) {
       console.log('Circular dependencies detected:');
       this.circularDeps.forEach(dep => console.log(`  - ${dep}`));
     }
-    
+
     return lines.join('\n');
   }
 
@@ -322,11 +322,11 @@ export class SauronDependencyGraph {
   toJson(input) {
     const isEnriched = input.graph && input.depTypes;
     const graph = isEnriched ? input.graph : input;
-    
+
     // Create a clean copy to handle circular references
     const safeGraph = {};
     const detectedCircular = [];
-    
+
     for (const [node, deps] of Object.entries(graph)) {
       // Filter out circular dependencies
       safeGraph[node] = deps.filter(dep => {
@@ -337,26 +337,26 @@ export class SauronDependencyGraph {
         return true;
       });
     }
-    
+
     // Log circular dependencies if found and logging enabled
     if (this.enableLogging && detectedCircular.length > 0) {
       console.log('Circular dependencies filtered from JSON output:');
       detectedCircular.forEach(dep => console.log(`  - ${dep}`));
     }
-    
+
     // Return enriched structure if input was enriched
     if (isEnriched) {
       return JSON.stringify({ graph: safeGraph, depTypes: input.depTypes }, null, 2);
     }
-    
+
     return JSON.stringify(safeGraph, null, 2);
   }
 }
 
 // Example usage (commented out for production):
-// const analyzer = new SauronDependencyGraph({ 
+// const analyzer = new SauronDependencyGraph({
 //   enableLogging: true,
-//   distinguishDepTypes: true 
+//   distinguishDepTypes: true
 // });
 // const result = analyzer.buildGraph('./package-lock.json');
 // console.log(analyzer.toDot(result));

@@ -1,0 +1,79 @@
+{
+  "allowConsole": false,
+  "skipPropTypesCheck": false,
+  "webpackVersion": "5.85.0",
+  "ignorePatterns": [
+    "PLACEHOLDER",
+    "YOUR_API_KEY_HERE",
+    "test-key",
+    "demo-key"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git",
+    "vendor",
+    "public/assets",
+    "**/*.min.js"
+  ],
+  "include": [
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "lib/**/*.js",
+    "config/**/*.js",
+    "src/utils/results-renderer.js",
+    "src/render/results-renderer-styles.css"
+  ],
+  "severityThreshold": "warning",
+  "output": {
+    "format": "json",
+    "file": "patch-report.json",
+    "quiet": false,
+    "verbose": true
+  },
+  "maxConcurrency": 4,
+  "maxFileSize": 1048576,
+  "customDetectors": [
+    "src/utils/apiKeyDetector.js",
+    "src/utils/consoleDetector.js",
+    "src/utils/eventListenerDetector.js",
+    "src/utils/webpackDetector.js"
+  ],
+  "disabledDetectors": [],
+  "rules": {
+    "console": {
+      "enabled": true,
+      "autoFix": true
+    },
+    "unusedImports": {
+      "enabled": true,
+      "autoFix": true
+    },
+    "unguardedAwaits": {
+      "enabled": true,
+      "autoFix": false
+    },
+    "hardcodedSecrets": {
+      "enabled": true,
+      "autoFix": false
+    },
+    "eventListeners": {
+      "enabled": true,
+      "autoFix": false
+    },
+    "deprecatedWebpack": {
+      "enabled": true,
+      "autoFix": true
+    }
+  },
+  "thresholds": {
+    "entropyThreshold": 4.5,
+    "minSecretLength": 10,
+    "confidenceThreshold": 0.8
+  },
+  "backupDir": ".eos-backups"
+}

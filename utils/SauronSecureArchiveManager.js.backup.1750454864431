@@ -1,0 +1,334 @@
+/**
+ * Purpose: Manages encrypted + compressed report storage with versioning
+ * Dependencies: Node.js std lib (fs, crypto, zlib)
+ * API: SauronSecureArchiveManager().save(report), load(archiveId), list()
+ */
+
+import { promises as fs } from 'fs';
+import { createHash, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import { gzip, gunzip, brotliCompress, brotliDecompress } from 'zlib';
+import { promisify } from 'util';
+import { join, dirname } from 'path';
+
+const gzipAsync = promisify(gzip);
+const gunzipAsync = promisify(gunzip);
+const brotliCompressAsync = promisify(brotliCompress);
+const brotliDecompressAsync = promisify(brotliDecompress);
+
+const MAX_ARCHIVE_SIZE = 50 * 1024 * 1024; // 50MB cap
+
+export class SauronSecureArchiveManager {
+  constructor(config = {}) {
+    if (!config.archiveDir) {
+      throw new Error('archiveDir is required');
+    }
+    if (!config.key || !Buffer.isBuffer(config.key)) {
+      throw new Error('key must be a Buffer');
+    }
+    if (config.key.length !== 32) {
+      throw new Error('key must be 32 bytes for aes-256-gcm');
+    }
+
+    this.archiveDir = config.archiveDir;
+    this.format = config.format || 'gzip';
+    this.algorithm = config.algorithm || 'aes-256-gcm';
+    this.key = config.key;
+    this.logger = config.logger || console;
+  }
+
+  /**
+   * Save compressed + encrypted report as versioned file
+   * @param {object} report - Report object to archive
+   * @returns {Promise<string>} Archive ID
+   */
+  async save(report) {
+    const startTime = Date.now();
+    
+    try {
+      // Ensure archive directory exists
+      await fs.mkdir(this.archiveDir, { recursive: true });
+
+      // Generate archive ID (timestamp + random hash)
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const randomHash = createHash('sha256').update(randomBytes(16)).digest('hex').slice(0, 8);
+      const archiveId = `archive-${timestamp}-${randomHash}`;
+
+      // Serialize report
+      const reportJson = JSON.stringify(report, null, 2);
+      const reportBuffer = Buffer.from(reportJson, 'utf8');
+
+      // Check size limit
+      if (reportBuffer.length > MAX_ARCHIVE_SIZE) {
+        throw new Error(`Report exceeds maximum size of ${MAX_ARCHIVE_SIZE} bytes`);
+      }
+
+      // Compress
+      let compressed;
+      if (this.format === 'brotli') {
+        compressed = await brotliCompressAsync(reportBuffer);
+      } else {
+        compressed = await gzipAsync(reportBuffer);
+      }
+
+      // Encrypt
+      const iv = randomBytes(16);
+      const cipher = createCipheriv(this.algorithm, this.key, iv);
+      
+      const encrypted = Buffer.concat([
+        cipher.update(compressed),
+        cipher.final()
+      ]);
+      
+      const authTag = cipher.getAuthTag();
+
+      // Combine IV + authTag + encrypted data
+      const finalData = Buffer.concat([iv, authTag, encrypted]);
+
+      // Save encrypted archive
+      const archivePath = join(this.archiveDir, `${archiveId}.bin`);
+      await fs.writeFile(archivePath, finalData);
+
+      // Save metadata
+      const metadata = {
+        archiveId,
+        format: this.format,
+        algorithm: this.algorithm,
+        originalSize: reportBuffer.length,
+        compressedSize: compressed.length,
+        encryptedSize: finalData.length,
+        createdAt: new Date().toISOString(),
+        reportSummary: {
+          scanDate: report.scanDate,
+          rootPath: report.rootPath,
+          mode: report.mode,
+          issueCount: report.summary?.totalIssues || 0
+        }
+      };
+
+      const metadataPath = join(this.archiveDir, `${archiveId}.meta.json`);
+      await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+
+      const duration = Date.now() - startTime;
+      this.logger.log(`[SecureArchive] Saved ${archiveId} - Original: ${reportBuffer.length} bytes, Compressed: ${compressed.length} bytes, Duration: ${duration}ms`);
+
+      return archiveId;
+    } catch (error) {
+      this.logger.error('[SecureArchive] Save error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Load + decrypt + decompress report
+   * @param {string} archiveId - Archive ID to load
+   * @returns {Promise<object|null>} Report object or null if not found
+   */
+  async load(archiveId) {
+    const startTime = Date.now();
+
+    try {
+      // Validate archiveId format
+      if (!archiveId || !archiveId.match(/^archive-[\d-T]+-[a-f0-9]{8}$/)) {
+        throw new Error('Invalid archive ID format');
+      }
+
+      const archivePath = join(this.archiveDir, `${archiveId}.bin`);
+      const metadataPath = join(this.archiveDir, `${archiveId}.meta.json`);
+
+      // Check if files exist
+      try {
+        await fs.access(archivePath);
+      } catch {
+        this.logger.warn(`[SecureArchive] Archive not found: ${archiveId}`);
+        return null;
+      }
+
+      // Load metadata (optional, for logging)
+      let metadata = {};
+      try {
+        const metadataContent = await fs.readFile(metadataPath, 'utf8');
+        metadata = JSON.parse(metadataContent);
+      } catch {
+        // Metadata is optional, continue without it
+      }
+
+      // Load encrypted data
+      const encryptedData = await fs.readFile(archivePath);
+
+      // Extract IV, authTag, and encrypted content
+      const iv = encryptedData.slice(0, 16);
+      const authTag = encryptedData.slice(16, 32);
+      const encrypted = encryptedData.slice(32);
+
+      // Decrypt
+      const decipher = createDecipheriv(this.algorithm, this.key, iv);
+      decipher.setAuthTag(authTag);
+
+      const compressed = Buffer.concat([
+        decipher.update(encrypted),
+        decipher.final()
+      ]);
+
+      // Decompress
+      let decompressed;
+      const format = metadata.format || this.format;
+      if (format === 'brotli') {
+        decompressed = await brotliDecompressAsync(compressed);
+      } else {
+        decompressed = await gunzipAsync(compressed);
+      }
+
+      // Parse JSON
+      const reportJson = decompressed.toString('utf8');
+      const report = JSON.parse(reportJson);
+
+      const duration = Date.now() - startTime;
+      this.logger.log(`[SecureArchive] Loaded ${archiveId} - Size: ${decompressed.length} bytes, Duration: ${duration}ms`);
+
+      return report;
+    } catch (error) {
+      this.logger.error(`[SecureArchive] Load error for ${archiveId}:`, error.message);
+      
+      // Return minimal valid report on error
+      return {
+        error: 'Failed to load archive',
+        archiveId,
+        errorMessage: error.message,
+        timestamp: new Date().toISOString(),
+        summary: {
+          totalIssues: 0,
+          errorCount: 1
+        },
+        files: {}
+      };
+    }
+  }
+
+  /**
+   * List available archive IDs
+   * @returns {Promise<array>} Array of archive info objects
+   */
+  async list() {
+    try {
+      // Ensure directory exists
+      await fs.mkdir(this.archiveDir, { recursive: true });
+
+      // Read directory
+      const files = await fs.readdir(this.archiveDir);
+      
+      // Filter for .bin files and extract IDs
+      const archiveFiles = files.filter(f => f.endsWith('.bin'));
+      
+      const archives = [];
+      
+      for (const file of archiveFiles) {
+        const archiveId = file.replace('.bin', '');
+        
+        // Try to load metadata
+        let metadata = { archiveId };
+        try {
+          const metadataPath = join(this.archiveDir, `${archiveId}.meta.json`);
+          const metadataContent = await fs.readFile(metadataPath, 'utf8');
+          metadata = JSON.parse(metadataContent);
+        } catch {
+          // If no metadata, get basic info from file stats
+          const filePath = join(this.archiveDir, file);
+          const stats = await fs.stat(filePath);
+          metadata = {
+            archiveId,
+            createdAt: stats.mtime.toISOString(),
+            encryptedSize: stats.size
+          };
+        }
+        
+        archives.push({
+          archiveId: metadata.archiveId,
+          createdAt: metadata.createdAt,
+          originalSize: metadata.originalSize || 'unknown',
+          compressedSize: metadata.compressedSize || 'unknown',
+          encryptedSize: metadata.encryptedSize || 'unknown',
+          summary: metadata.reportSummary || {}
+        });
+      }
+
+      // Sort by creation date (newest first)
+      archives.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      this.logger.log(`[SecureArchive] Listed ${archives.length} archives`);
+      
+      return archives;
+    } catch (error) {
+      this.logger.error('[SecureArchive] List error:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Delete an archive by ID
+   * @param {string} archiveId - Archive ID to delete
+   * @returns {Promise<boolean>} Success status
+   */
+  async delete(archiveId) {
+    try {
+      // Validate archiveId format
+      if (!archiveId || !archiveId.match(/^archive-[\d-T]+-[a-f0-9]{8}$/)) {
+        throw new Error('Invalid archive ID format');
+      }
+
+      const archivePath = join(this.archiveDir, `${archiveId}.bin`);
+      const metadataPath = join(this.archiveDir, `${archiveId}.meta.json`);
+
+      // Delete both files
+      await Promise.all([
+        fs.unlink(archivePath).catch(() => {}),
+        fs.unlink(metadataPath).catch(() => {})
+      ]);
+
+      this.logger.log(`[SecureArchive] Deleted ${archiveId}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`[SecureArchive] Delete error for ${archiveId}:`, error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Clean up old archives based on age or count
+   * @param {object} options - Cleanup options
+   * @returns {Promise<number>} Number of archives deleted
+   */
+  async cleanup(options = {}) {
+    const { maxAge = 30 * 24 * 60 * 60 * 1000, maxCount = 100 } = options; // 30 days default
+    
+    try {
+      const archives = await this.list();
+      const now = Date.now();
+      let deleted = 0;
+
+      // Sort by date (oldest first for deletion)
+      archives.reverse();
+
+      for (let i = 0; i < archives.length; i++) {
+        const archive = archives[i];
+        const age = now - new Date(archive.createdAt).getTime();
+        
+        // Delete if too old or exceeds count limit
+        if (age > maxAge || i >= maxCount) {
+          await this.delete(archive.archiveId);
+          deleted++;
+        }
+      }
+
+      this.logger.log(`[SecureArchive] Cleanup deleted ${deleted} archives`);
+      return deleted;
+    } catch (error) {
+      this.logger.error('[SecureArchive] Cleanup error:', error.message);
+      return 0;
+    }
+  }
+}
+
+// Export for CommonJS compatibility
+export default SauronSecureArchiveManager;

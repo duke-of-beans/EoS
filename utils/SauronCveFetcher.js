@@ -41,12 +41,12 @@ export class SauronCveFetcher {
       }
 
       console.log(`[SauronCveFetcher] Fetching CVE data from ${this.endpoint}`);
-      
+
       // Fetch recent CVEs (last 7 days by default)
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const startDate = sevenDaysAgo.toISOString();
-      
+
       const allCves = [];
       let startIndex = 0;
       let hasMore = true;
@@ -56,18 +56,18 @@ export class SauronCveFetcher {
         url.searchParams.append('startIndex', startIndex.toString());
         url.searchParams.append('resultsPerPage', this.resultsPerPage.toString());
         url.searchParams.append('lastModStartDate', startDate);
-        
+
         const data = await this._fetchFromApi(url.toString());
-        
+
         if (data && data.vulnerabilities) {
           const cves = this._normalizeCveData(data.vulnerabilities);
           allCves.push(...cves);
-          
+
           // Check if there are more results
           const totalResults = data.totalResults || 0;
           startIndex += this.resultsPerPage;
           hasMore = startIndex < totalResults;
-          
+
           // Rate limiting: delay between requests to be respectful to the API
           if (hasMore && this.requestDelay > 0) {
             console.log(`[SauronCveFetcher] Waiting ${this.requestDelay}ms before next request...`);
@@ -88,7 +88,7 @@ export class SauronCveFetcher {
 
     } catch (error) {
       console.error('[SauronCveFetcher] Error fetching CVE data:', error.message);
-      
+
       // Fallback to cache if available
       if (this.cachePath) {
         console.log('[SauronCveFetcher] Attempting to load from cache as fallback');
@@ -97,7 +97,7 @@ export class SauronCveFetcher {
           return cachedData;
         }
       }
-      
+
       // Return empty array on complete failure
       return [];
     }
@@ -117,12 +117,12 @@ export class SauronCveFetcher {
       const cacheFile = path.join(this.cachePath, 'cve-cache.json');
       const data = await fs.readFile(cacheFile, 'utf8');
       const parsed = JSON.parse(data);
-      
+
       if (parsed && parsed.cves && Array.isArray(parsed.cves)) {
         console.log(`[SauronCveFetcher] Loaded ${parsed.cves.length} CVEs from cache`);
         return parsed.cves;
       }
-      
+
       return [];
     } catch (error) {
       if (error.code !== 'ENOENT') {
@@ -151,17 +151,17 @@ export class SauronCveFetcher {
     try {
       // Ensure cache directory exists
       await fs.mkdir(this.cachePath, { recursive: true });
-      
+
       const cacheFile = path.join(this.cachePath, 'cve-cache.json');
       const cacheData = {
         timestamp: new Date().toISOString(),
         count: data.length,
         cves: data
       };
-      
+
       await fs.writeFile(cacheFile, JSON.stringify(cacheData, null, 2), 'utf8');
       console.log(`[SauronCveFetcher] Cached ${data.length} CVEs to ${cacheFile}`);
-      
+
     } catch (error) {
       console.error('[SauronCveFetcher] Error saving cache:', error.message);
     }
@@ -175,17 +175,17 @@ export class SauronCveFetcher {
     try {
       const cacheFile = path.join(this.cachePath, 'cve-cache.json');
       const stats = await fs.stat(cacheFile);
-      
+
       // Check if cache is expired
       const age = Date.now() - stats.mtime.getTime();
       if (age > this.cacheMaxAge) {
         console.log('[SauronCveFetcher] Cache expired');
         return null;
       }
-      
+
       // Load and return cache
       return await this.loadCache();
-      
+
     } catch (error) {
       return null;
     }
@@ -248,11 +248,11 @@ export class SauronCveFetcher {
       const metrics = cve.metrics || {};
       const descriptions = cve.descriptions || [];
       const references = cve.references || [];
-      
+
       // Extract CVSS scores
       let cvssScore = 0;
       let severity = 'UNKNOWN';
-      
+
       if (metrics.cvssMetricV31 && metrics.cvssMetricV31.length > 0) {
         const cvss31 = metrics.cvssMetricV31[0];
         cvssScore = cvss31.cvssData?.baseScore || 0;
@@ -268,8 +268,8 @@ export class SauronCveFetcher {
       }
 
       // Get English description
-      const description = descriptions.find(d => d.lang === 'en')?.value || 
-                         descriptions[0]?.value || 
+      const description = descriptions.find(d => d.lang === 'en')?.value ||
+                         descriptions[0]?.value ||
                          'No description available';
 
       // Extract affected products
@@ -298,7 +298,7 @@ export class SauronCveFetcher {
    */
   _extractAffectedProducts(configurations) {
     const products = [];
-    
+
     for (const config of configurations) {
       if (config.nodes) {
         for (const node of config.nodes) {
@@ -311,7 +311,7 @@ export class SauronCveFetcher {
                   const vendor = parts[3];
                   const product = parts[4];
                   const version = parts[5] || '*';
-                  
+
                   const productEntry = {
                     vendor: vendor,
                     product: product,
@@ -321,7 +321,7 @@ export class SauronCveFetcher {
                     versionStartExcluding: cpe.versionStartExcluding,
                     versionStartIncluding: cpe.versionStartIncluding
                   };
-                  
+
                   // Check for potential version range conflicts
                   if (this._hasVersionRangeConflict(productEntry)) {
                     console.warn(`[SauronCveFetcher] Version range conflict detected for ${vendor}:${product}:`, {
@@ -331,7 +331,7 @@ export class SauronCveFetcher {
                       versionStartIncluding: cpe.versionStartIncluding
                     });
                   }
-                  
+
                   products.push(productEntry);
                 }
               }
@@ -340,7 +340,7 @@ export class SauronCveFetcher {
         }
       }
     }
-    
+
     return products;
   }
 
@@ -356,18 +356,18 @@ export class SauronCveFetcher {
       versionEndIncluding,
       versionEndExcluding
     } = product;
-    
+
     // Check for excluding and including the same version
-    if (versionStartIncluding && versionStartExcluding && 
+    if (versionStartIncluding && versionStartExcluding &&
         versionStartIncluding === versionStartExcluding) {
       return true;
     }
-    
-    if (versionEndIncluding && versionEndExcluding && 
+
+    if (versionEndIncluding && versionEndExcluding &&
         versionEndIncluding === versionEndExcluding) {
       return true;
     }
-    
+
     // Check if start is after end (when both are specified)
     if (versionStartIncluding && versionEndExcluding) {
       try {
@@ -379,7 +379,7 @@ export class SauronCveFetcher {
         // Ignore comparison errors for complex version strings
       }
     }
-    
+
     return false;
   }
 
@@ -392,7 +392,7 @@ export class SauronCveFetcher {
   _compareVersions(v1, v2) {
     const parts1 = v1.split('.').map(p => parseInt(p) || 0);
     const parts2 = v2.split('.').map(p => parseInt(p) || 0);
-    
+
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
       const p1 = parts1[i] || 0;
       const p2 = parts2[i] || 0;

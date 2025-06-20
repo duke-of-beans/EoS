@@ -1,0 +1,189 @@
+/**
+ * Purpose: Decompresses + validates compressed scan reports
+ * Dependencies: Node.js std lib (zlib)
+ * API: SauronReportRestorer().restore(buffer, algorithm)
+ */
+
+import { promisify } from 'util';
+import zlib from 'zlib';
+
+// Promisify zlib methods for async/await usage
+const gunzip = promisify(zlib.gunzip);
+const brotliDecompress = promisify(zlib.brotliDecompress);
+const unzip = promisify(zlib.unzip);
+
+export class SauronReportRestorer {
+  constructor(config = {}) {
+    this.maxSize = config.maxSize || 10 * 1024 * 1024; // Default 10MB
+    this.validationWarnings = [];
+  }
+
+  /**
+   * Decompresses buffer using specified algorithm and validates report structure
+   * @param {Buffer} buffer - Compressed report buffer
+   * @param {string} algorithm - Compression algorithm (gzip, brotli, deflate)
+   * @returns {Promise<object>} Decompressed and validated report object
+   */
+  async restore(buffer, algorithm) {
+    const startTime = Date.now();
+    this.validationWarnings = [];
+
+    try {
+      // Validate input buffer
+      if (!Buffer.isBuffer(buffer)) {
+        throw new Error('Input must be a Buffer');
+      }
+
+      if (buffer.length === 0) {
+        throw new Error('Buffer is empty');
+      }
+
+      // Decompress based on algorithm
+      let decompressed;
+      try {
+        switch (algorithm.toLowerCase()) {
+          case 'gzip':
+            decompressed = await gunzip(buffer);
+            break;
+          case 'brotli':
+            decompressed = await brotliDecompress(buffer);
+            break;
+          case 'deflate':
+            decompressed = await unzip(buffer);
+            break;
+          default:
+            throw new Error(`Unsupported algorithm: ${algorithm}`);
+        }
+      } catch (decompressError) {
+        // Handle truncated/corrupt buffers gracefully
+        console.error(`[SauronReportRestorer] Decompression failed for ${algorithm}:`, decompressError.message);
+        throw new Error(`Decompression failed: ${decompressError.message}`);
+      }
+
+      // Check decompressed size against maxSize
+      if (decompressed.length > this.maxSize) {
+        throw new Error(`Decompressed size ${decompressed.length} exceeds maximum allowed size ${this.maxSize}`);
+      }
+
+      // Parse JSON
+      let report;
+      try {
+        const jsonString = decompressed.toString('utf-8');
+        report = JSON.parse(jsonString);
+      } catch (parseError) {
+        console.error('[SauronReportRestorer] JSON parsing failed:', parseError.message);
+        throw new Error(`Invalid JSON structure: ${parseError.message}`);
+      }
+
+      // Validate report structure
+      this._validateReportStructure(report);
+
+      // Log restoration summary
+      const restorationTime = Date.now() - startTime;
+
+
+      // Add validation warnings to report if any exist
+      if (this.validationWarnings.length > 0) {
+        report._restorationWarnings = this.validationWarnings;
+      }
+
+      return report;
+
+    } catch (error) {
+      // Defensive: return minimal valid empty report on error
+      console.error('[SauronReportRestorer] Restoration failed, returning empty report:', error.message);
+
+      const emptyReport = this._createEmptyReport();
+      emptyReport._restorationError = error.message;
+
+      // Log restoration failure summary
+      const restorationTime = Date.now() - startTime;
+
+
+      return emptyReport;
+    }
+  }
+
+  /**
+   * Validates report structure and collects warnings
+   * @private
+   */
+  _validateReportStructure(report) {
+    // Check if report is an object
+    if (typeof report !== 'object' || report === null) {
+      throw new Error('Report must be an object');
+    }
+
+    // Validate required fields: summary and files
+    if (!report.summary) {
+      throw new Error('Report missing required field: summary');
+    }
+
+    if (!report.files) {
+      throw new Error('Report missing required field: files');
+    }
+
+    // Validate summary structure
+    if (typeof report.summary !== 'object') {
+      this.validationWarnings.push('Summary should be an object');
+    }
+
+    // Validate files structure
+    if (typeof report.files !== 'object') {
+      this.validationWarnings.push('Files should be an object');
+    }
+
+    // Check for common expected fields and add warnings if missing
+    if (!report.summary.totalIssues && report.summary.totalIssues !== 0) {
+      this.validationWarnings.push('Summary missing totalIssues count');
+    }
+
+    if (!report.summary.byType) {
+      this.validationWarnings.push('Summary missing issue breakdown by type');
+    }
+
+    if (!report.summary.bySeverity) {
+      this.validationWarnings.push('Summary missing issue breakdown by severity');
+    }
+
+    // Validate file entries
+    const fileCount = Object.keys(report.files || {}).length;
+    if (fileCount === 0) {
+      this.validationWarnings.push('No files found in report');
+    }
+
+    // Check a sample of files for expected structure
+    const sampleFiles = Object.entries(report.files || {}).slice(0, 5);
+    for (const [filePath, fileData] of sampleFiles) {
+      if (!fileData.issues) {
+        this.validationWarnings.push(`File ${filePath} missing issues array`);
+      } else if (!Array.isArray(fileData.issues)) {
+        this.validationWarnings.push(`File ${filePath} issues should be an array`);
+      }
+    }
+  }
+
+  /**
+   * Creates a minimal valid empty report
+   * @private
+   */
+  _createEmptyReport() {
+    return {
+      summary: {
+        totalIssues: 0,
+        byType: {},
+        bySeverity: {},
+        filesScanned: 0,
+        timestamp: new Date().toISOString()
+      },
+      files: {},
+      metadata: {
+        restored: true,
+        restoredAt: new Date().toISOString(),
+        reason: 'Restoration failed - empty report generated'
+      }
+    };
+  }
+}
+export default SauronReportRestorer;
+

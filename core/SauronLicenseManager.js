@@ -1,7 +1,7 @@
 /**
  * Purpose: Validates Sauron license keys and manages activation state
  * Dependencies: Node.js std lib (http, https, url)
- * API: 
+ * API:
  *   - new SauronLicenseManager(config)
  *     - config.licenseKey: string (optional)
  *     - config.validationEndpoint: string (optional)
@@ -150,7 +150,7 @@ export class SauronLicenseManager {
         const protocol = url.protocol === 'https:' ? https : http;
 
         const postData = JSON.stringify({ licenseKey: key });
-        
+
         const options = {
           hostname: url.hostname,
           port: url.port || (url.protocol === 'https:' ? 443 : 80),

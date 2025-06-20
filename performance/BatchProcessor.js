@@ -33,7 +33,7 @@ export class BatchProcessor {
     // Calculate chunk size based on maxWorkers
     const chunkSize = Math.ceil(items.length / this.maxWorkers);
     const chunks = [];
-    
+
     // Split items into chunks
     for (let i = 0; i < items.length; i += chunkSize) {
       chunks.push(items.slice(i, i + chunkSize));
@@ -46,7 +46,7 @@ export class BatchProcessor {
     // Aggregate results and errors from all chunks
     const results = [];
     const errors = [];
-    
+
     for (const chunkResult of chunkResults) {
       results.push(...chunkResult.results);
       errors.push(...chunkResult.errors);

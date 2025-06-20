@@ -20,8 +20,8 @@ export class IncrementalScanCache {
    */
   hasChanges(current, previous) {
     const changes = this.diff(current, previous);
-    return changes.added.length > 0 || 
-           changes.modified.length > 0 || 
+    return changes.added.length > 0 ||
+           changes.modified.length > 0 ||
            changes.deleted.length > 0;
   }
 
@@ -60,7 +60,7 @@ export class IncrementalScanCache {
       // Ensure directory exists
       const dir = dirname(this.cachePath);
       await mkdir(dir, { recursive: true });
-      
+
       // Write data as formatted JSON
       await writeFile(
         this.cachePath,
@@ -85,20 +85,20 @@ export class IncrementalScanCache {
       modified: [],
       deleted: []
     };
-    
+
     // Handle null/undefined inputs
     if (!current || !previous) {
       return changes;
     }
-    
+
     // Extract file data from scan structures
     const currentFiles = this._extractFileData(current);
     const previousFiles = this._extractFileData(previous);
-    
+
     // Find added or modified files
     for (const [path, currentData] of Object.entries(currentFiles)) {
       const previousData = previousFiles[path];
-      
+
       if (!previousData) {
         // New file
         changes.added.push(path);
@@ -107,14 +107,14 @@ export class IncrementalScanCache {
         changes.modified.push(path);
       }
     }
-    
+
     // Find deleted files
     for (const path of Object.keys(previousFiles)) {
       if (!currentFiles[path]) {
         changes.deleted.push(path);
       }
     }
-    
+
     return changes;
   }
 
@@ -126,7 +126,7 @@ export class IncrementalScanCache {
    */
   _extractFileData(scanData) {
     const files = {};
-    
+
     // Handle different scan data structures
     if (scanData.files) {
       // Flat structure: { files: { path: data } }
@@ -138,7 +138,7 @@ export class IncrementalScanCache {
       // Try to find any files property recursively
       this._findFilesRecursive(scanData, files);
     }
-    
+
     return files;
   }
 
@@ -150,7 +150,7 @@ export class IncrementalScanCache {
    */
   _findFilesRecursive(obj, accumulator) {
     if (!obj || typeof obj !== 'object') return;
-    
+
     for (const [key, value] of Object.entries(obj)) {
       if (key === 'files' && typeof value === 'object' && !Array.isArray(value)) {
         Object.assign(accumulator, value);
@@ -169,34 +169,34 @@ export class IncrementalScanCache {
    */
   _hasFileChanged(currentData, previousData) {
     // Priority order: checksum > hash > timestamp > size > issue count
-    
+
     // Check checksum/hash first (most reliable)
     if (currentData.checksum && previousData.checksum) {
       return currentData.checksum !== previousData.checksum;
     }
-    
+
     if (currentData.hash && previousData.hash) {
       return currentData.hash !== previousData.hash;
     }
-    
+
     // Check timestamp
     if (currentData.timestamp && previousData.timestamp) {
       return currentData.timestamp !== previousData.timestamp;
     }
-    
+
     if (currentData.modifiedTime && previousData.modifiedTime) {
       return currentData.modifiedTime !== previousData.modifiedTime;
     }
-    
+
     // Check file size
     if (currentData.size !== undefined && previousData.size !== undefined) {
       return currentData.size !== previousData.size;
     }
-    
+
     // Check issue count as last resort
     const currentIssueCount = this._countIssues(currentData);
     const previousIssueCount = this._countIssues(previousData);
-    
+
     return currentIssueCount !== previousIssueCount;
   }
 
@@ -208,7 +208,7 @@ export class IncrementalScanCache {
    */
   _countIssues(fileData) {
     let count = 0;
-    
+
     if (fileData.issues) {
       if (Array.isArray(fileData.issues)) {
         count += fileData.issues.length;
@@ -221,7 +221,7 @@ export class IncrementalScanCache {
         }
       }
     }
-    
+
     return count;
   }
 }

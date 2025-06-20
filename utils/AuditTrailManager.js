@@ -57,20 +57,20 @@ export class AuditTrailManager {
    */
   async listEvents(options = {}) {
     const parseErrors = [];
-    
+
     try {
       // Check if file exists
       await fs.access(this.logPath);
-      
+
       // Get file size for warning
       const stats = await fs.stat(this.logPath);
       if (stats.size > 50 * 1024 * 1024) { // 50MB warning threshold
         console.warn(`Audit log is ${(stats.size / 1024 / 1024).toFixed(2)}MB. Consider using streamEvents() for better memory efficiency.`);
       }
-      
+
       // Read the entire log file
       const content = await fs.readFile(this.logPath, 'utf8');
-      
+
       // Parse JSONL format (one JSON object per line)
       const events = content
         .split('\n')
@@ -95,7 +95,7 @@ export class AuditTrailManager {
       if (options.returnLegacyFormat) {
         return events;
       }
-      
+
       return { events, errors: parseErrors };
     } catch (error) {
       // File doesn't exist or other read error
@@ -122,19 +122,19 @@ export class AuditTrailManager {
 
     let totalEvents = 0;
     let totalErrors = 0;
-    
+
     try {
       // Check if file exists
       await fs.access(this.logPath);
-      
+
       // Read file line by line
       const content = await fs.readFile(this.logPath, 'utf8');
       const lines = content.split('\n');
-      
+
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
-        
+
         try {
           const event = JSON.parse(line);
           await onEvent(event, i);
@@ -150,7 +150,7 @@ export class AuditTrailManager {
           }
         }
       }
-      
+
       return { totalEvents, totalErrors };
     } catch (error) {
       if (error.code === 'ENOENT') {
@@ -173,7 +173,7 @@ export class AuditTrailManager {
 
 // Example usage (commented out for production):
 // const auditLog = new AuditTrailManager('./logs/audit.jsonl');
-// 
+//
 // // Record with auto-timestamp
 // await auditLog.recordEvent({
 //   type: 'scan',
@@ -182,20 +182,20 @@ export class AuditTrailManager {
 //   result: 'success',
 //   issuesFound: 3
 // });
-// 
+//
 // // Record with custom timestamp (for replays)
 // await auditLog.recordEvent({
 //   type: 'replay',
 //   action: 'test_scan'
 // }, { timestamp: '2024-01-01T00:00:00Z' });
-// 
+//
 // // List all events (normalized format - always returns { events, errors })
 // const { events, errors } = await auditLog.listEvents();
 // console.log(`Found ${events.length} events, ${errors.length} parse errors`);
-// 
+//
 // // Get just events array (convenience method)
 // const justEvents = await auditLog.getAllEvents();
-// 
+//
 // // Stream for large logs (recommended for files > 50MB)
 // const stats = await auditLog.streamEvents(
 //   (event, index) => console.log(`Event ${index}: ${event.type}`),

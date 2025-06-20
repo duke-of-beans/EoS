@@ -1,0 +1,262 @@
+/**
+ * MetricsExporter.js
+ * 
+ * Purpose: Exports Eye of Sauron scan metrics in common monitoring formats (Prometheus, DataDog, NewRelic)
+ * Dependencies: Node.js standard library only
+ * Public API:
+ *   - new MetricsExporter(config) - Create exporter with optional namespace/labels config
+ *   - generatePrometheus(report) - Generate Prometheus exposition format
+ *   - generateDataDog(report) - Generate DataDog StatsD format
+ *   - generateNewRelic(report) - Generate NewRelic metrics JSON format
+ * 
+ * Severity Mapping:
+ *   Scanner Output -> Metric Label
+ *   critical -> critical
+ *   high/major -> high
+ *   medium/minor -> medium
+ *   low -> low
+ *   info/informational -> info
+ */
+
+export default class MetricsExporter {
+  constructor(config = {}) {
+    this.namespace = config.namespace || 'eye_of_sauron';
+    this.defaultLabels = config.labels || {};
+  }
+
+  /**
+   * Generate metrics in Prometheus exposition format
+   * @param {Object} report - Eye of Sauron scan report
+   * @returns {string} Prometheus-formatted metrics
+   */
+  generatePrometheus(report) {
+    const metrics = this._extractMetrics(report);
+    const timestamp = Date.now();
+    const lines = [];
+
+    // Add HELP and TYPE comments for each metric
+    lines.push(`# HELP ${this.namespace}_files_scanned Number of files scanned`);
+    lines.push(`# TYPE ${this.namespace}_files_scanned gauge`);
+    lines.push(`${this.namespace}_files_scanned{${this._formatPrometheusLabels(metrics.labels)}} ${metrics.filesScanned} ${timestamp}`);
+    
+    lines.push(`# HELP ${this.namespace}_total_issues Total number of issues found`);
+    lines.push(`# TYPE ${this.namespace}_total_issues gauge`);
+    lines.push(`${this.namespace}_total_issues{${this._formatPrometheusLabels(metrics.labels)}} ${metrics.totalIssues} ${timestamp}`);
+    
+    lines.push(`# HELP ${this.namespace}_duration_seconds Scan duration in seconds`);
+    lines.push(`# TYPE ${this.namespace}_duration_seconds gauge`);
+    lines.push(`${this.namespace}_duration_seconds{${this._formatPrometheusLabels(metrics.labels)}} ${metrics.duration} ${timestamp}`);
+
+    // Issues by severity
+    lines.push(`# HELP ${this.namespace}_issues Number of issues by severity`);
+    lines.push(`# TYPE ${this.namespace}_issues gauge`);
+    
+    Object.entries(metrics.issuesBySeverity).forEach(([severity, count]) => {
+      const severityLabels = { ...metrics.labels, severity };
+      lines.push(`${this.namespace}_issues{${this._formatPrometheusLabels(severityLabels)}} ${count} ${timestamp}`);
+    });
+
+    return lines.join('\n') + '\n';
+  }
+
+  /**
+   * Generate metrics in DataDog StatsD format
+   * @param {Object} report - Eye of Sauron scan report
+   * @returns {string} DataDog-formatted metrics
+   */
+  generateDataDog(report) {
+    const metrics = this._extractMetrics(report);
+    const tags = this._formatDataDogTags(metrics.labels);
+    const lines = [];
+
+    lines.push(`${this.namespace}.files_scanned:${metrics.filesScanned}|g|${tags}`);
+    lines.push(`${this.namespace}.total_issues:${metrics.totalIssues}|g|${tags}`);
+    lines.push(`${this.namespace}.duration_seconds:${metrics.duration}|g|${tags}`);
+
+    // Issues by severity
+    Object.entries(metrics.issuesBySeverity).forEach(([severity, count]) => {
+      lines.push(`${this.namespace}.issues.${severity}:${count}|g|${tags}`);
+    });
+
+    return lines.join('\n') + '\n';
+  }
+
+  /**
+   * Generate metrics in NewRelic metrics API JSON format
+   * @param {Object} report - Eye of Sauron scan report
+   * @returns {string} NewRelic-formatted metrics JSON
+   */
+  generateNewRelic(report) {
+    const metrics = this._extractMetrics(report);
+    const timestamp = Math.floor(Date.now() / 1000);
+    
+    const payload = [{
+      metrics: [
+        {
+          name: `${this.namespace}.files_scanned`,
+          type: 'gauge',
+          value: metrics.filesScanned,
+          timestamp,
+          attributes: metrics.labels
+        },
+        {
+          name: `${this.namespace}.total_issues`,
+          type: 'gauge',
+          value: metrics.totalIssues,
+          timestamp,
+          attributes: metrics.labels
+        },
+        {
+          name: `${this.namespace}.duration_seconds`,
+          type: 'gauge',
+          value: metrics.duration,
+          timestamp,
+          attributes: metrics.labels
+        },
+        // Issues by severity
+        ...Object.entries(metrics.issuesBySeverity).map(([severity, count]) => ({
+          name: `${this.namespace}.issues`,
+          type: 'gauge',
+          value: count,
+          timestamp,
+          attributes: { ...metrics.labels, severity }
+        }))
+      ]
+    }];
+
+    return JSON.stringify(payload, null, 2);
+  }
+
+  /**
+   * Extract metrics from Eye of Sauron report
+   * @private
+   */
+  _extractMetrics(report) {
+    const summary = report.summary || {};
+    const vision = report.vision || {};
+    
+    // Calculate files scanned
+    const filesScanned = Object.keys(vision.files || {}).length;
+    
+    // Calculate total issues with proper severity mapping
+    let totalIssues = 0;
+    const issuesBySeverity = {
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+      info: 0
+    };
+
+    // Severity mapping for consistency with scanner output
+    const severityMap = {
+      critical: 'critical',
+      high: 'high',
+      major: 'high',      // Map major to high
+      medium: 'medium',
+      minor: 'medium',    // Map minor to medium
+      low: 'low',
+      info: 'info',
+      informational: 'info' // Alternative naming
+    };
+
+    // Count issues from all files
+    Object.values(vision.files || {}).forEach(fileData => {
+      const issues = fileData.issues || [];
+      totalIssues += issues.length;
+      
+      issues.forEach(issue => {
+        const rawSeverity = (issue.severity || 'info').toLowerCase();
+        const normalizedSeverity = severityMap[rawSeverity] || 'info';
+        issuesBySeverity[normalizedSeverity]++;
+      });
+    });
+
+    // Extract and normalize duration to seconds
+    const durationSeconds = this._normalizeDuration(summary.duration || 0);
+
+    // Build labels
+    const labels = {
+      ...this.defaultLabels,
+      scan_mode: report.mode || 'unknown',
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    return {
+      filesScanned,
+      totalIssues,
+      duration: durationSeconds,
+      issuesBySeverity,
+      labels
+    };
+  }
+
+  /**
+   * Normalize duration to seconds from various input formats
+   * @private
+   * @param {string|number} duration - Duration in various formats
+   * @returns {number} Duration in seconds
+   */
+  _normalizeDuration(duration) {
+    if (typeof duration === 'number') {
+      // Assume numbers > 1000 are milliseconds, otherwise seconds
+      return duration > 1000 ? duration / 1000 : duration;
+    }
+    
+    if (typeof duration === 'string') {
+      // Handle common string formats: "12.34s", "1234ms", "12.34"
+      const msMatch = duration.match(/^(\d+(?:\.\d+)?)\s*ms$/i);
+      if (msMatch) {
+        return parseFloat(msMatch[1]) / 1000;
+      }
+      
+      const secMatch = duration.match(/^(\d+(?:\.\d+)?)\s*s$/i);
+      if (secMatch) {
+        return parseFloat(secMatch[1]);
+      }
+      
+      // Plain number string - assume seconds if < 1000, ms otherwise
+      const plainNumber = parseFloat(duration);
+      if (!isNaN(plainNumber)) {
+        return plainNumber > 1000 ? plainNumber / 1000 : plainNumber;
+      }
+    }
+    
+    return 0; // Default fallback
+  }
+
+  /**
+   * Format labels for Prometheus
+   * @private
+   */
+  _formatPrometheusLabels(labels) {
+    return Object.entries(labels)
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(',');
+  }
+
+  /**
+   * Format tags for DataDog
+   * @private
+   */
+  _formatDataDogTags(labels) {
+    return '#' + Object.entries(labels)
+      .map(([key, value]) => `${key}:${value}`)
+      .join(',');
+  }
+}
+
+// Update manifest requirement
+// Add to /docs/EoS-manifest.md:
+// 
+// ## MetricsExporter
+// **Location:** `eye-of-sauron/utils/MetricsExporter.js`
+// **Purpose:** Exports scan metrics in Prometheus, DataDog, and NewRelic formats
+// **API:**
+// - `new MetricsExporter(config)` - Initialize with optional namespace and labels
+// - `generatePrometheus(report)` - Returns Prometheus exposition format string
+// - `generateDataDog(report)` - Returns DataDog StatsD format string  
+// - `generateNewRelic(report)` - Returns NewRelic metrics API JSON string
+// **Notes:**
+// - Normalizes all durations to seconds (handles ms, s, and numeric inputs)
+// - Maps severity levels: critical→critical, high/major→high, medium/minor→medium, low→low, info→info

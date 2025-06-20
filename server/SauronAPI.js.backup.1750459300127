@@ -1,0 +1,327 @@
+/**
+ * Purpose: Exposes REST + GraphQL API for Eye of Sauron scanning system
+ * Dependencies: Node.js std lib (http, url, crypto, fs/promises)
+ * API: Start with node SauronAPI.js [port] [authToken]
+ *      REST: GET /health, POST /scan, GET /report/:id
+ *      GraphQL: POST /graphql with queries/mutations
+ * 
+ * PRODUCTION NOTES:
+ * - GraphQL parser is extremely basic - use graphql-js or Apollo for production
+ * - No rate limiting implemented - add express-rate-limit or similar for production
+ * - No input validation on /scan - add joi or ajv for production use
+ */
+
+import { createServer } from 'http';
+import { URL } from 'url';
+import { randomBytes, createHash } from 'crypto';
+import { readFile } from 'fs/promises';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Configuration
+const PORT = process.argv[2] || process.env.SAURON_PORT || 3000;
+const AUTH_TOKEN = process.argv[3] || process.env.SAURON_AUTH_TOKEN || null;
+const REPORTS_DIR = join(__dirname, '../reports');
+
+// Try to load version from package.json
+let API_VERSION = '1.0.0';
+try {
+  const pkgPath = join(__dirname, '../package.json');
+  const pkg = JSON.parse(await readFile(pkgPath, 'utf-8').catch(() => '{}'));
+  API_VERSION = pkg.version || API_VERSION;
+} catch (e) {
+  // Fallback to default version
+}
+
+// In-memory report store (production would use database)
+const reportStore = new Map();
+
+// Mock scan executor (replace with actual Eye of Sauron integration)
+async function executeScan(options = {}) {
+  const scanId = randomBytes(16).toString('hex');
+  const startTime = Date.now();
+  
+  // Simulate scanning
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const report = {
+    id: scanId,
+    timestamp: new Date().toISOString(),
+    duration: Date.now() - startTime,
+    options,
+    summary: {
+      totalFiles: 42,
+      totalIssues: 7,
+      criticalIssues: 2,
+      warningIssues: 5
+    },
+    issues: [
+      {
+        file: 'src/example.js',
+        line: 10,
+        column: 5,
+        severity: 'critical',
+        type: 'security',
+        message: 'Potential SQL injection vulnerability',
+        code: 'SEC-001'
+      },
+      {
+        file: 'src/helper.js', 
+        line: 25,
+        column: 12,
+        severity: 'warning',
+        type: 'performance',
+        message: 'Inefficient loop detected',
+        code: 'PERF-003'
+      }
+    ]
+  };
+  
+  reportStore.set(scanId, report);
+  return report;
+}
+
+// Basic GraphQL parser/executor
+/**
+ * WARNING: This is an EXTREMELY basic GraphQL implementation for demo purposes.
+ * It only supports simple queries without variables, fragments, or directives.
+ * 
+ * PRODUCTION RECOMMENDATION: Replace with proper GraphQL library such as:
+ * - graphql-js (reference implementation)
+ * - Apollo Server
+ * - GraphQL Yoga
+ * 
+ * Current limitations:
+ * - No variable support
+ * - No fragment support  
+ * - No directive support
+ * - No schema validation
+ * - No nested field selection
+ * - Very basic string parsing
+ */
+class SimpleGraphQL {
+  static parse(query) {
+    // Very basic GraphQL parsing (production would use graphql-js)
+    const cleanQuery = query.replace(/\s+/g, ' ').trim();
+    const isQuery = cleanQuery.startsWith('query') || cleanQuery.startsWith('{');
+    const isMutation = cleanQuery.startsWith('mutation');
+    
+    if (isQuery) {
+      if (cleanQuery.includes('health')) {
+        return { type: 'query', operation: 'health' };
+      }
+      if (cleanQuery.includes('report')) {
+        const idMatch = cleanQuery.match(/id:\s*"([^"]+)"/);
+        return { type: 'query', operation: 'report', id: idMatch?.[1] };
+      }
+    }
+    
+    if (isMutation && cleanQuery.includes('runScan')) {
+      return { type: 'mutation', operation: 'runScan' };
+    }
+    
+    throw new Error('Invalid GraphQL query');
+  }
+  
+  static async execute(parsed) {
+    switch (parsed.type) {
+      case 'query':
+        if (parsed.operation === 'health') {
+          return { data: { health: { status: 'ok', timestamp: new Date().toISOString() } } };
+        }
+        if (parsed.operation === 'report') {
+          const report = reportStore.get(parsed.id);
+          return { data: { report: report || null } };
+        }
+        break;
+        
+      case 'mutation':
+        if (parsed.operation === 'runScan') {
+          const report = await executeScan();
+          return { data: { runScan: report } };
+        }
+        break;
+    }
+    
+    return { errors: [{ message: 'Unknown operation' }] };
+  }
+}
+
+// Authentication middleware
+function authenticate(req) {
+  if (!AUTH_TOKEN) return true;
+  
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return false;
+  
+  const [type, token] = authHeader.split(' ');
+  return type === 'Bearer' && token === AUTH_TOKEN;
+}
+
+// CORS headers
+function setCorsHeaders(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
+// Request handler
+async function handleRequest(req, res) {
+  setCorsHeaders(res);
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+  
+  // Check authentication
+  if (!authenticate(req)) {
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Unauthorized' }));
+    return;
+  }
+  
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = url.pathname;
+  
+  try {
+    // REST endpoints
+    if (pathname === '/health' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        version: API_VERSION
+      }));
+      return;
+    }
+    
+    if (pathname === '/scan' && req.method === 'POST') {
+      // PRODUCTION TODO: Add input validation and rate limiting
+      // Recommended libraries: joi, ajv for validation; express-rate-limit for rate limiting
+      const body = await getBody(req);
+      const options = body ? JSON.parse(body) : {};
+      
+      // Basic size check (production would need comprehensive validation)
+      if (body && body.length > 10000) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Request body too large' }));
+        return;
+      }
+      
+      const report = await executeScan(options);
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        reportId: report.id,
+        summary: report.summary
+      }));
+      return;
+    }
+    
+    if (pathname.startsWith('/report/') && req.method === 'GET') {
+      const reportId = pathname.split('/')[2];
+      const report = reportStore.get(reportId);
+      
+      if (!report) {
+        // Try to load from file system
+        try {
+          const filePath = join(REPORTS_DIR, `${reportId}.json`);
+          const content = await readFile(filePath, 'utf-8');
+          const fileReport = JSON.parse(content);
+          
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(fileReport));
+          return;
+        } catch (err) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Report not found' }));
+          return;
+        }
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(report));
+      return;
+    }
+    
+    // GraphQL endpoint
+    if (pathname === '/graphql' && req.method === 'POST') {
+      const body = await getBody(req);
+      const { query } = JSON.parse(body);
+      
+      const parsed = SimpleGraphQL.parse(query);
+      const result = await SimpleGraphQL.execute(parsed);
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(result));
+      return;
+    }
+    
+    // 404 for unknown routes
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Not found' }));
+    
+  } catch (error) {
+    console.error('Request error:', error);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Internal server error' }));
+  }
+}
+
+// Utility to get request body
+function getBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => resolve(body));
+    req.on('error', reject);
+  });
+}
+
+// Create and start server
+const server = createServer(handleRequest);
+
+server.listen(PORT, () => {
+  console.log(`🔍 Eye of Sauron API Server v${API_VERSION}`);
+  console.log(`📡 Listening on port ${PORT}`);
+  console.log(`🔐 Authentication: ${AUTH_TOKEN ? 'Enabled' : 'Disabled'}`);
+  console.log(`\n📍 Endpoints:`);
+  console.log(`   REST:`);
+  console.log(`     GET  /health       - Health check`);
+  console.log(`     POST /scan         - Execute scan`);
+  console.log(`     GET  /report/:id   - Get report by ID`);
+  console.log(`   GraphQL:`);
+  console.log(`     POST /graphql      - GraphQL endpoint`);
+  console.log(`\n💡 Example GraphQL queries:`);
+  console.log(`   { health { status timestamp } }`);
+  console.log(`   { report(id: "abc123") { id summary issues { file message } } }`);
+  console.log(`   mutation { runScan { id summary } }`);
+  
+  if (AUTH_TOKEN) {
+    console.log(`\n🔑 Include Authorization header: Bearer ${AUTH_TOKEN}`);
+  }
+  
+  console.log(`\n⚠️  PRODUCTION WARNINGS:`);
+  console.log(`   • GraphQL parser is basic - use graphql-js or Apollo Server`);
+  console.log(`   • No rate limiting - add express-rate-limit or similar`);
+  console.log(`   • Limited input validation - add joi or ajv`);
+  console.log(`   • See file header comments for details`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('\n👁️ Shutting down Eye of Sauron API Server...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+// Export for testing (though this is primarily a runnable module)
+export { executeScan, SimpleGraphQL, authenticate };

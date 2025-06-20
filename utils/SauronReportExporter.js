@@ -28,7 +28,7 @@ export class SauronReportExporter {
    */
   validateDestinations() {
     const validTypes = ['jira', 'github', 'webhook'];
-    
+
     this.destinations.forEach((dest, index) => {
       if (!dest.type || !validTypes.includes(dest.type)) {
         console.warn(`[SauronReportExporter] Invalid destination type at index ${index}: ${dest.type}`);
@@ -49,7 +49,7 @@ export class SauronReportExporter {
       return;
     }
 
-    const exportPromises = this.destinations.map(dest => 
+    const exportPromises = this.destinations.map(dest =>
       this.exportToDestination(dest, report)
     );
 
@@ -141,7 +141,7 @@ export class SauronReportExporter {
   calculateJiraPriority(report) {
     const criticalCount = report.criticalIssues || 0;
     const highCount = report.highSeverityIssues || 0;
-    
+
     if (criticalCount > 0) return { name: 'Critical' };
     if (highCount > 5) return { name: 'High' };
     if (highCount > 0) return { name: 'Medium' };
@@ -193,7 +193,7 @@ export class SauronReportExporter {
       body += `### Files Analyzed\n`;
       Object.entries(report.files).forEach(([file, data]) => {
         body += `- \`${file}\`: ${data.issues?.length || 0} issues\n`;
-        
+
         if (data.issues && data.issues.length > 0) {
           body += `  <details>\n  <summary>View issues</summary>\n\n`;
           data.issues.forEach(issue => {
@@ -247,7 +247,7 @@ export class SauronReportExporter {
   async makeRequest(urlString, options, payload) {
     const url = new URL(urlString);
     const protocol = url.protocol === 'https:' ? https : http;
-    
+
     options.hostname = url.hostname;
     options.port = url.port || (url.protocol === 'https:' ? 443 : 80);
     options.path = url.pathname + url.search;
@@ -255,11 +255,11 @@ export class SauronReportExporter {
     return new Promise((resolve, reject) => {
       const req = protocol.request(options, (res) => {
         let data = '';
-        
+
         res.on('data', (chunk) => {
           data += chunk;
         });
-        
+
         res.on('end', () => {
           if (res.statusCode >= 200 && res.statusCode < 300) {
             resolve({ statusCode: res.statusCode, body: data });

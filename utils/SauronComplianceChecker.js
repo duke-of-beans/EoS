@@ -1,15 +1,15 @@
 /**
  * Purpose: Cross-checks reports against compliance templates (ISO, NIST, OWASP, etc.)
  * Dependencies: Node.js std lib
- * API: 
+ * API:
  *   - new SauronComplianceChecker(templates?)
  *   - validate(report) → { passed: boolean, violations: array }
  *   - getTemplates() → object
- * 
+ *
  * Note: Critical severity issues generate violations both for specific compliance rules
  * AND as a general CRITICAL_ISSUES violation to ensure they're never overlooked.
  * This intentional double-counting ensures critical issues are always addressed.
- * 
+ *
  * Future improvements:
  * - Pattern matching currently uses substring search; could upgrade to regex
  * - Consider NLP/semantic matching for more intelligent rule application
@@ -293,7 +293,7 @@ export default class SauronComplianceChecker {
     // Check each template
     for (const [templateKey, template] of Object.entries(this.templates)) {
       const templateViolations = this._validateAgainstTemplate(report.issues, template, templateKey);
-      
+
       templateResults[templateKey] = {
         name: template.name,
         violations: templateViolations,
@@ -340,7 +340,7 @@ export default class SauronComplianceChecker {
       // Count issues matching this rule's patterns
       const matchingIssues = issues.filter(issue => {
         const issueText = `${issue.type} ${issue.description} ${issue.evidence || ''}`.toLowerCase();
-        
+
         // Simple substring matching - could be enhanced with regex or NLP
         return rule.patterns.some(pattern => {
           const patternLower = pattern.toLowerCase();
@@ -365,13 +365,13 @@ export default class SauronComplianceChecker {
               filePath: issue.filePath,
               line: issue.line
             };
-            
+
             // Include optional fields if present
             if (issue.column !== undefined) matchedIssue.column = issue.column;
             if (issue.rule !== undefined) matchedIssue.rule = issue.rule;
             if (issue.severity !== undefined) matchedIssue.severity = issue.severity;
             if (issue.evidence !== undefined) matchedIssue.evidence = issue.evidence;
-            
+
             return matchedIssue;
           })
         });
@@ -381,7 +381,7 @@ export default class SauronComplianceChecker {
     // Check for critical severity issues regardless of compliance rules
     // NOTE: This is intentional double-counting - critical issues appear both in
     // specific compliance rule violations AND as a general critical violation
-    const criticalIssues = issues.filter(issue => 
+    const criticalIssues = issues.filter(issue =>
       issue.severity === 'critical' || issue.priority === 'critical'
     );
 
@@ -400,13 +400,13 @@ export default class SauronComplianceChecker {
             filePath: issue.filePath,
             line: issue.line
           };
-          
+
           // Include optional fields if present
           if (issue.column !== undefined) matchedIssue.column = issue.column;
           if (issue.rule !== undefined) matchedIssue.rule = issue.rule;
           if (issue.severity !== undefined) matchedIssue.severity = issue.severity;
           if (issue.evidence !== undefined) matchedIssue.evidence = issue.evidence;
-          
+
           return matchedIssue;
         })
       });
@@ -426,7 +426,7 @@ export default class SauronComplianceChecker {
 
     // Validate rule structure
     for (const rule of template.rules) {
-      if (!rule.id || !rule.category || !rule.severity || 
+      if (!rule.id || !rule.category || !rule.severity ||
           !Array.isArray(rule.patterns) || typeof rule.maxAllowed !== 'number') {
         throw new Error('Invalid rule structure in template');
       }
@@ -440,9 +440,9 @@ export default class SauronComplianceChecker {
 // const checker = new SauronComplianceChecker();
 // const report = {
 //   issues: [
-//     { 
-//       type: 'security', 
-//       description: 'SQL injection vulnerability', 
+//     {
+//       type: 'security',
+//       description: 'SQL injection vulnerability',
 //       severity: 'critical',
 //       filePath: '/src/api/users.js',
 //       line: 45,
@@ -450,9 +450,9 @@ export default class SauronComplianceChecker {
 //       rule: 'no-sql-injection',
 //       evidence: 'Unsanitized user input in query'
 //     },
-//     { 
-//       type: 'security', 
-//       description: 'Weak password policy', 
+//     {
+//       type: 'security',
+//       description: 'Weak password policy',
 //       severity: 'high',
 //       filePath: '/src/auth/config.js',
 //       line: 8

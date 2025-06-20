@@ -2,7 +2,7 @@
  * Purpose: Utility for assembling final scan report for Eye of Sauron
  * Dependencies: Node.js std lib
  * API: ScanReportAssembler().assemble(vision, profiles, lastUsedMode) → object
- * 
+ *
  * Notes:
  * - Normalizes severity levels from various formats to standard Eye of Sauron levels
  * - Reads timing data from vision.stats with fallback to direct properties
@@ -24,13 +24,13 @@ export class ScanReportAssembler {
   assemble(vision, profiles, lastUsedMode) {
     // Convert vision.files Map to plain object
     const filesData = this._convertFilesMapToObject(vision.files);
-    
+
     // Calculate summary statistics
     const summary = this._generateSummary(filesData, vision, profiles);
-    
+
     // Assemble metadata
     const metadata = this._assembleMetadata(vision, lastUsedMode);
-    
+
     // Construct final report object
     const report = {
       metadata,
@@ -38,12 +38,12 @@ export class ScanReportAssembler {
       files: filesData,
       prophecies: vision.prophecies || []
     };
-    
+
     // Only include profiles if they contain meaningful data
     if (profiles && Object.keys(profiles).length > 0) {
       report.characterProfiles = profiles;
     }
-    
+
     return report;
   }
 
@@ -53,11 +53,11 @@ export class ScanReportAssembler {
    */
   _convertFilesMapToObject(filesMap) {
     const filesObj = {};
-    
+
     if (!filesMap || !(filesMap instanceof Map)) {
       return filesObj;
     }
-    
+
     for (const [filePath, fileData] of filesMap) {
       filesObj[filePath] = {
         path: fileData.path,
@@ -69,7 +69,7 @@ export class ScanReportAssembler {
         lastModified: fileData.lastModified
       };
     }
-    
+
     return filesObj;
   }
 
@@ -87,7 +87,7 @@ export class ScanReportAssembler {
       PROPHECY: 0,
       WHISPER: 0
     };
-    
+
     // Severity mapping for normalization
     const severityMap = {
       'critical': 'APOCALYPSE',
@@ -97,21 +97,21 @@ export class ScanReportAssembler {
       'info': 'WHISPER',
       'low': 'WHISPER'
     };
-    
+
     // Collect unique characters found
     const charactersFound = new Set();
-    
+
     for (const fileData of Object.values(filesData)) {
       if (fileData.issues) {
         totalIssues += fileData.issues.length;
-        
+
         fileData.issues.forEach(issue => {
           // Count by severity - normalize if needed
           const normalizedSeverity = severityMap[issue.severity] || issue.severity;
           if (issuesBySeverity[normalizedSeverity] !== undefined) {
             issuesBySeverity[normalizedSeverity]++;
           }
-          
+
           // Track characters found
           if (issue.character) {
             charactersFound.add(issue.character);
@@ -119,13 +119,13 @@ export class ScanReportAssembler {
         });
       }
     }
-    
+
     // Get timing from vision.stats if available, fallback to direct properties
     const stats = vision.stats || {};
-    const duration = stats.duration || (stats.endTime && stats.startTime 
-      ? stats.endTime - stats.startTime 
+    const duration = stats.duration || (stats.endTime && stats.startTime
+      ? stats.endTime - stats.startTime
       : 0);
-    
+
     return {
       filesScanned: Object.keys(filesData).length,
       totalIssues,
@@ -144,12 +144,12 @@ export class ScanReportAssembler {
   _assembleMetadata(vision, lastUsedMode) {
     const now = new Date();
     const stats = vision.stats || {};
-    
+
     // Get timing from vision.stats first, then fallback to direct properties
     const startTime = stats.startTime || vision.startTime;
     const endTime = stats.endTime || vision.endTime;
     const duration = stats.duration || (endTime && startTime ? endTime - startTime : 0);
-    
+
     return {
       version: '1.0.0',
       scanDate: now.toISOString(),

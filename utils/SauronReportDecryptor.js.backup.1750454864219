@@ -1,0 +1,247 @@
+/**
+ * SauronReportDecryptor.js
+ * 
+ * Purpose: Decrypts + verifies encrypted scan report buffers
+ * Dependencies: Node.js std lib (crypto)
+ * API: SauronReportDecryptor().decrypt(encrypted, iv, authTag)
+ */
+
+const crypto = require('crypto');
+
+class SauronReportDecryptor {
+  constructor(config = {}) {
+    // Validate and store configuration
+    this.algorithm = config.algorithm || 'aes-256-gcm';
+    this.maxDecryptedSize = config.maxDecryptedSize || 10 * 1024 * 1024; // 10MB default
+    this.enableWarnings = config.enableWarnings !== false; // true by default
+    
+    // Validate key requirement
+    if (!config.key || !Buffer.isBuffer(config.key)) {
+      throw new Error('SauronReportDecryptor: config.key is required and must be a Buffer');
+    }
+    
+    // Validate key length for algorithm
+    const expectedKeyLength = this._getExpectedKeyLength();
+    if (config.key.length !== expectedKeyLength) {
+      throw new Error(`SauronReportDecryptor: key length must be ${expectedKeyLength} bytes for ${this.algorithm}`);
+    }
+    
+    this.key = config.key;
+    
+    // Initialize metrics
+    this.metrics = {
+      totalDecryptions: 0,
+      successfulDecryptions: 0,
+      failedDecryptions: 0,
+      totalBytesDecrypted: 0
+    };
+  }
+  
+  /**
+   * Decrypts encrypted buffer using configured algorithm with IV and auth tag
+   * @param {Buffer} encrypted - Encrypted data buffer
+   * @param {Buffer} iv - Initialization vector
+   * @param {Buffer} authTag - Authentication tag for GCM mode
+   * @returns {Buffer} Decrypted buffer or empty buffer on failure
+   */
+  decrypt(encrypted, iv, authTag) {
+    const startTime = Date.now();
+    this.metrics.totalDecryptions++;
+    
+    try {
+      // Validate inputs
+      this._validateInputs(encrypted, iv, authTag);
+      
+      // Create decipher
+      const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv);
+      
+      // Set auth tag for GCM mode
+      if (this.algorithm.includes('gcm')) {
+        decipher.setAuthTag(authTag);
+      }
+      
+      // Decrypt data
+      const decrypted = Buffer.concat([
+        decipher.update(encrypted),
+        decipher.final()
+      ]);
+      
+      // Check size cap
+      if (decrypted.length > this.maxDecryptedSize) {
+        this._logError('Decrypted size exceeds maximum allowed', {
+          decryptedSize: decrypted.length,
+          maxSize: this.maxDecryptedSize
+        });
+        this.metrics.failedDecryptions++;
+        return Buffer.alloc(0);
+      }
+      
+      // Success metrics
+      this.metrics.successfulDecryptions++;
+      this.metrics.totalBytesDecrypted += decrypted.length;
+      
+      // Log success metrics
+      this._logMetrics('Decryption successful', {
+        algorithm: this.algorithm,
+        encryptedSize: encrypted.length,
+        decryptedSize: decrypted.length,
+        duration: Date.now() - startTime
+      });
+      
+      return decrypted;
+      
+    } catch (error) {
+      // Handle decryption failure
+      this.metrics.failedDecryptions++;
+      
+      let errorReason = 'Unknown decryption error';
+      let errorDetails = {};
+      
+      if (error.message.includes('auth')) {
+        errorReason = 'Authentication failed - invalid key or corrupted data';
+        errorDetails.authFailure = true;
+      } else if (error.message.includes('bad decrypt')) {
+        errorReason = 'Decryption failed - invalid key or algorithm mismatch';
+        errorDetails.decryptFailure = true;
+      } else if (error.code === 'ERR_CRYPTO_INVALID_IV') {
+        errorReason = 'Invalid initialization vector';
+        errorDetails.ivError = true;
+      } else {
+        errorReason = error.message;
+        errorDetails.generalError = true;
+      }
+      
+      this._logError(errorReason, {
+        ...errorDetails,
+        algorithm: this.algorithm,
+        encryptedSize: encrypted?.length || 0,
+        duration: Date.now() - startTime
+      });
+      
+      // Return minimal empty buffer on failure
+      return Buffer.alloc(0);
+    }
+  }
+  
+  /**
+   * Get current decryption metrics
+   * @returns {Object} Metrics object
+   */
+  getMetrics() {
+    return {
+      ...this.metrics,
+      successRate: this.metrics.totalDecryptions > 0 
+        ? (this.metrics.successfulDecryptions / this.metrics.totalDecryptions).toFixed(2)
+        : 0
+    };
+  }
+  
+  /**
+   * Reset metrics
+   */
+  resetMetrics() {
+    this.metrics = {
+      totalDecryptions: 0,
+      successfulDecryptions: 0,
+      failedDecryptions: 0,
+      totalBytesDecrypted: 0
+    };
+  }
+  
+  /**
+   * Validate input parameters
+   * @private
+   */
+  _validateInputs(encrypted, iv, authTag) {
+    // Validate encrypted buffer
+    if (!Buffer.isBuffer(encrypted)) {
+      throw new Error('Encrypted data must be a Buffer');
+    }
+    if (encrypted.length === 0) {
+      throw new Error('Encrypted data cannot be empty');
+    }
+    
+    // Validate IV
+    if (!Buffer.isBuffer(iv)) {
+      throw new Error('IV must be a Buffer');
+    }
+    
+    const expectedIvLength = this._getExpectedIvLength();
+    if (iv.length !== expectedIvLength) {
+      throw new Error(`IV must be ${expectedIvLength} bytes for ${this.algorithm}`);
+    }
+    
+    // Validate auth tag for GCM modes
+    if (this.algorithm.includes('gcm')) {
+      if (!Buffer.isBuffer(authTag)) {
+        throw new Error('Auth tag must be a Buffer for GCM mode');
+      }
+      if (authTag.length < 16) {
+        throw new Error('Auth tag must be at least 16 bytes for GCM mode');
+      }
+    }
+    
+    // Optional warnings
+    if (this.enableWarnings) {
+      if (encrypted.length > 1024 * 1024) { // 1MB
+        console.warn(`SauronReportDecryptor: Large encrypted buffer (${(encrypted.length / 1024 / 1024).toFixed(2)}MB)`);
+      }
+    }
+  }
+  
+  /**
+   * Get expected key length for algorithm
+   * @private
+   */
+  _getExpectedKeyLength() {
+    const keyLengths = {
+      'aes-256-gcm': 32,
+      'aes-256-cbc': 32,
+      'aes-192-gcm': 24,
+      'aes-192-cbc': 24,
+      'aes-128-gcm': 16,
+      'aes-128-cbc': 16
+    };
+    
+    return keyLengths[this.algorithm] || 32;
+  }
+  
+  /**
+   * Get expected IV length for algorithm
+   * @private
+   */
+  _getExpectedIvLength() {
+    // Most AES modes use 16-byte IVs
+    if (this.algorithm.startsWith('aes')) {
+      return 16;
+    }
+    
+    // Default for other algorithms
+    return 16;
+  }
+  
+  /**
+   * Log metrics
+   * @private
+   */
+  _logMetrics(message, details) {
+    .toISOString(),
+      ...details
+    });
+  }
+  
+  /**
+   * Log error with details
+   * @private
+   */
+  _logError(reason, details) {
+    console.error(`SauronReportDecryptor: ${reason}`, {
+      timestamp: new Date().toISOString(),
+      ...details
+    });
+  }
+}
+
+module.exports = SauronReportDecryptor;
+export default SauronReportDecryptor;
+

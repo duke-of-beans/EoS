@@ -1,0 +1,568 @@
+/**
+ * Purpose: Generates combined insight reports for human + API consumption
+ * Dependencies: Node.js std lib
+ * API: SauronInsightReporter(config).generate(metrics, adjustments, trends, violations)
+ */
+
+export class SauronInsightReporter {
+  constructor(config = {}) {
+    this.config = {
+      outputFormat: config.outputFormat || 'plain', // 'plain' or 'json'
+      includeTimestamp: config.includeTimestamp !== false,
+      reportTitle: config.reportTitle || 'Sauron Insight Report',
+      maxViolationsShown: config.maxViolationsShown || 10,
+      compactFormat: config.compactFormat || false,
+      // Health score deduction thresholds
+      healthScoring: {
+        criticalIssueDeduction: config.healthScoring?.criticalIssueDeduction || 10,
+        criticalIssueMaxDeduction: config.healthScoring?.criticalIssueMaxDeduction || 50,
+        otherIssueDeduction: config.healthScoring?.otherIssueDeduction || 2,
+        otherIssueMaxDeduction: config.healthScoring?.otherIssueMaxDeduction || 30,
+        criticalViolationDeduction: config.healthScoring?.criticalViolationDeduction || 5,
+        violationMaxDeduction: config.healthScoring?.violationMaxDeduction || 20,
+        ...config.healthScoring
+      },
+      ...config
+    };
+  }
+
+  /**
+   * Generate a combined insight report
+   * @param {Object} metrics - Scan metrics object
+   * @param {Object} adjustments - Tuner adjustments (applied/recommended)
+   * @param {Object} trends - Historical trends and anomalies
+   * @param {Array} policyViolations - Array of policy violation objects
+   * @returns {string} - Formatted report (plain text or JSON)
+   */
+  generate(metrics, adjustments, trends, policyViolations) {
+    const reportData = this._compileReportData(metrics, adjustments, trends, policyViolations);
+    
+    if (this.config.outputFormat === 'json') {
+      return JSON.stringify(reportData, null, 2);
+    }
+    
+    return this._formatPlainTextReport(reportData);
+  }
+
+  /**
+   * Compile all data into a structured report object
+   * @private
+   */
+  _compileReportData(metrics, adjustments, trends, policyViolations) {
+    const timestamp = this.config.includeTimestamp ? new Date().toISOString() : null;
+    
+    return {
+      title: this.config.reportTitle,
+      timestamp,
+      summary: this._generateSummary(metrics, adjustments, trends, policyViolations),
+      metrics: this._formatMetrics(metrics),
+      adjustments: this._formatAdjustments(adjustments),
+      trends: this._formatTrends(trends),
+      policyViolations: this._formatPolicyViolations(policyViolations),
+      recommendations: this._generateRecommendations(metrics, adjustments, trends, policyViolations)
+    };
+  }
+
+  /**
+   * Generate executive summary
+   * @private
+   */
+  _generateSummary(metrics, adjustments, trends, policyViolations) {
+    const totalIssues = this._calculateTotalIssues(metrics);
+    const criticalIssues = this._calculateCriticalIssues(metrics);
+    const adjustmentCount = this._countAdjustments(adjustments);
+    const violationCount = policyViolations?.length || 0;
+    const trendStatus = this._analyzeTrendStatus(trends);
+    
+    return {
+      totalIssues,
+      criticalIssues,
+      adjustmentCount,
+      violationCount,
+      trendStatus,
+      healthScore: this._calculateHealthScore(metrics, policyViolations)
+    };
+  }
+
+  /**
+   * Format metrics for report
+   * @private
+   */
+  _formatMetrics(metrics) {
+    if (!metrics || typeof metrics !== 'object') {
+      return { error: 'No metrics provided' };
+    }
+    
+    return {
+      fileCount: metrics.fileCount || 0,
+      issuesByType: metrics.issuesByType || {},
+      issuesBySeverity: metrics.issuesBySeverity || {},
+      performanceMetrics: metrics.performanceMetrics || {},
+      customMetrics: metrics.customMetrics || {}
+    };
+  }
+
+  /**
+   * Format adjustments for report
+   * @private
+   */
+  _formatAdjustments(adjustments) {
+    if (!adjustments || typeof adjustments !== 'object') {
+      return { error: 'No adjustments provided' };
+    }
+    
+    return {
+      applied: adjustments.applied || [],
+      recommended: adjustments.recommended || [],
+      impact: adjustments.impact || {},
+      effectiveness: adjustments.effectiveness || 'unknown'
+    };
+  }
+
+  /**
+   * Format trends for report
+   * @private
+   */
+  _formatTrends(trends) {
+    if (!trends || typeof trends !== 'object') {
+      return { error: 'No trends provided' };
+    }
+    
+    return {
+      historicalComparison: trends.historicalComparison || {},
+      anomalies: trends.anomalies || [],
+      patterns: trends.patterns || [],
+      projections: trends.projections || {}
+    };
+  }
+
+  /**
+   * Format policy violations for report
+   * @private
+   */
+  _formatPolicyViolations(violations) {
+    if (!Array.isArray(violations)) {
+      return { error: 'No violations provided' };
+    }
+    
+    const groupedViolations = this._groupViolationsByType(violations);
+    const topViolations = violations
+      .slice(0, this.config.maxViolationsShown)
+      .map(v => ({
+        type: v.type,
+        severity: v.severity,
+        file: v.file,
+        message: v.message
+      }));
+    
+    return {
+      total: violations.length,
+      byType: groupedViolations,
+      topViolations,
+      criticalCount: violations.filter(v => v.severity === 'critical').length
+    };
+  }
+
+  /**
+   * Generate actionable recommendations
+   * @private
+   */
+  _generateRecommendations(metrics, adjustments, trends, violations) {
+    const recommendations = [];
+    
+    // Critical issue recommendations
+    const criticalCount = this._calculateCriticalIssues(metrics);
+    if (criticalCount > 0) {
+      recommendations.push({
+        priority: 'high',
+        category: 'critical_issues',
+        action: `Address ${criticalCount} critical issues immediately`,
+        impact: 'Prevents potential system failures'
+      });
+    }
+    
+    // Policy violation recommendations
+    if (violations && violations.length > 0) {
+      const criticalViolations = violations.filter(v => v.severity === 'critical');
+      if (criticalViolations.length > 0) {
+        recommendations.push({
+          priority: 'high',
+          category: 'policy_violations',
+          action: `Fix ${criticalViolations.length} critical policy violations`,
+          impact: 'Ensures compliance with project standards'
+        });
+      }
+    }
+    
+    // Trend-based recommendations
+    if (trends?.anomalies && trends.anomalies.length > 0) {
+      recommendations.push({
+        priority: 'medium',
+        category: 'anomalies',
+        action: `Investigate ${trends.anomalies.length} detected anomalies`,
+        impact: 'Prevents regression and maintains code quality'
+      });
+    }
+    
+    // Adjustment recommendations
+    if (adjustments?.recommended && adjustments.recommended.length > 0) {
+      recommendations.push({
+        priority: 'medium',
+        category: 'tuning',
+        action: `Apply ${adjustments.recommended.length} recommended tuning adjustments`,
+        impact: 'Optimizes scan performance and accuracy'
+      });
+    }
+    
+    return recommendations;
+  }
+
+  /**
+   * Format report as plain text
+   * @private
+   */
+  _formatPlainTextReport(data) {
+    const sections = [];
+    const separator = this.config.compactFormat ? '\n' : '\n\n';
+    
+    // Header
+    sections.push(this._formatHeader(data.title, data.timestamp));
+    
+    // Executive Summary
+    sections.push(this._formatSummarySection(data.summary));
+    
+    // Key Metrics
+    sections.push(this._formatMetricsSection(data.metrics));
+    
+    // Adjustments
+    sections.push(this._formatAdjustmentsSection(data.adjustments));
+    
+    // Trends & Anomalies
+    sections.push(this._formatTrendsSection(data.trends));
+    
+    // Policy Violations
+    sections.push(this._formatViolationsSection(data.policyViolations));
+    
+    // Recommendations
+    sections.push(this._formatRecommendationsSection(data.recommendations));
+    
+    return sections.join(separator);
+  }
+
+  /**
+   * Format report header
+   * @private
+   */
+  _formatHeader(title, timestamp) {
+    const lines = [
+      '='.repeat(60),
+      title.toUpperCase(),
+      '='.repeat(60)
+    ];
+    
+    if (timestamp) {
+      lines.push(`Generated: ${new Date(timestamp).toLocaleString()}`);
+    }
+    
+    return lines.join('\n');
+  }
+
+  /**
+   * Format summary section
+   * @private
+   */
+  _formatSummarySection(summary) {
+    const lines = [
+      'EXECUTIVE SUMMARY',
+      '-'.repeat(40),
+      `Total Issues: ${summary.totalIssues}`,
+      `Critical Issues: ${summary.criticalIssues}`,
+      `Policy Violations: ${summary.violationCount}`,
+      `Adjustments Applied: ${summary.adjustmentCount}`,
+      `Trend Status: ${summary.trendStatus}`,
+      `Health Score: ${summary.healthScore}/100`
+    ];
+    
+    return lines.join('\n');
+  }
+
+  /**
+   * Format metrics section
+   * @private
+   */
+  _formatMetricsSection(metrics) {
+    const lines = [
+      'KEY METRICS',
+      '-'.repeat(40)
+    ];
+    
+    if (metrics.error) {
+      lines.push(metrics.error);
+    } else {
+      lines.push(`Files Analyzed: ${metrics.fileCount}`);
+      
+      if (metrics.issuesBySeverity) {
+        lines.push(this.config.compactFormat ? 'Issues by Severity:' : '\nIssues by Severity:');
+        Object.entries(metrics.issuesBySeverity).forEach(([severity, count]) => {
+          lines.push(`  ${severity}: ${count}`);
+        });
+      }
+      
+      if (metrics.issuesByType) {
+        lines.push(this.config.compactFormat ? 'Issues by Type:' : '\nIssues by Type:');
+        Object.entries(metrics.issuesByType).forEach(([type, count]) => {
+          lines.push(`  ${type}: ${count}`);
+        });
+      }
+    }
+    
+    return lines.join('\n');
+  }
+
+  /**
+   * Format adjustments section
+   * @private
+   */
+  _formatAdjustmentsSection(adjustments) {
+    const lines = [
+      'TUNING ADJUSTMENTS',
+      '-'.repeat(40)
+    ];
+    
+    if (adjustments.error) {
+      lines.push(adjustments.error);
+    } else {
+      if (adjustments.applied && adjustments.applied.length > 0) {
+        lines.push(`Applied Adjustments (${adjustments.applied.length}):`);
+        adjustments.applied.forEach(adj => {
+          lines.push(`  - ${adj.type}: ${adj.description || adj.value}`);
+        });
+      }
+      
+      if (adjustments.recommended && adjustments.recommended.length > 0) {
+        const prefix = this.config.compactFormat ? '' : '\n';
+        lines.push(`${prefix}Recommended Adjustments (${adjustments.recommended.length}):`);
+        adjustments.recommended.forEach(adj => {
+          lines.push(`  - ${adj.type}: ${adj.description || adj.value}`);
+        });
+      }
+      
+      if (adjustments.effectiveness && adjustments.effectiveness !== 'unknown') {
+        const prefix = this.config.compactFormat ? '' : '\n';
+        lines.push(`${prefix}Effectiveness: ${adjustments.effectiveness}`);
+      }
+    }
+    
+    return lines.join('\n');
+  }
+
+  /**
+   * Format trends section
+   * @private
+   */
+  _formatTrendsSection(trends) {
+    const lines = [
+      'TRENDS & ANOMALIES',
+      '-'.repeat(40)
+    ];
+    
+    if (trends.error) {
+      lines.push(trends.error);
+    } else {
+      if (trends.anomalies && trends.anomalies.length > 0) {
+        lines.push(`Detected Anomalies (${trends.anomalies.length}):`);
+        trends.anomalies.forEach(anomaly => {
+          lines.push(`  - ${anomaly.type}: ${anomaly.description}`);
+        });
+      }
+      
+      if (trends.patterns && trends.patterns.length > 0) {
+        const prefix = this.config.compactFormat ? '' : '\n';
+        lines.push(`${prefix}Identified Patterns:`);
+        trends.patterns.forEach(pattern => {
+          lines.push(`  - ${pattern.name}: ${pattern.description}`);
+        });
+      }
+    }
+    
+    return lines.join('\n');
+  }
+
+  /**
+   * Format violations section
+   * @private
+   */
+  _formatViolationsSection(violations) {
+    const lines = [
+      'POLICY VIOLATIONS',
+      '-'.repeat(40)
+    ];
+    
+    if (violations.error) {
+      lines.push(violations.error);
+    } else {
+      lines.push(`Total Violations: ${violations.total}`);
+      lines.push(`Critical Violations: ${violations.criticalCount}`);
+      
+      if (violations.byType) {
+        lines.push(this.config.compactFormat ? 'Violations by Type:' : '\nViolations by Type:');
+        Object.entries(violations.byType).forEach(([type, count]) => {
+          lines.push(`  ${type}: ${count}`);
+        });
+      }
+      
+      if (violations.topViolations && violations.topViolations.length > 0) {
+        const prefix = this.config.compactFormat ? '' : '\n';
+        lines.push(`${prefix}Top Violations:`);
+        violations.topViolations.forEach((v, i) => {
+          lines.push(`  ${i + 1}. [${v.severity}] ${v.type} in ${v.file}`);
+          lines.push(`     ${v.message}`);
+        });
+      }
+    }
+    
+    return lines.join('\n');
+  }
+
+  /**
+   * Format recommendations section
+   * @private
+   */
+  _formatRecommendationsSection(recommendations) {
+    const lines = [
+      'RECOMMENDATIONS',
+      '-'.repeat(40)
+    ];
+    
+    if (!recommendations || recommendations.length === 0) {
+      lines.push('No recommendations at this time.');
+    } else {
+      const byPriority = this._groupRecommendationsByPriority(recommendations);
+      const spacer = this.config.compactFormat ? '' : '\n';
+      
+      ['high', 'medium', 'low'].forEach(priority => {
+        if (byPriority[priority] && byPriority[priority].length > 0) {
+          lines.push(`${spacer}${priority.toUpperCase()} PRIORITY:`);
+          byPriority[priority].forEach((rec, i) => {
+            lines.push(`  ${i + 1}. ${rec.action}`);
+            lines.push(`     Impact: ${rec.impact}`);
+          });
+        }
+      });
+    }
+    
+    return lines.join('\n');
+  }
+
+  /**
+   * Helper: Calculate total issues from metrics
+   * @private
+   */
+  _calculateTotalIssues(metrics) {
+    if (!metrics?.issuesBySeverity) return 0;
+    return Object.values(metrics.issuesBySeverity).reduce((sum, count) => sum + count, 0);
+  }
+
+  /**
+   * Helper: Calculate critical issues from metrics
+   * @private
+   */
+  _calculateCriticalIssues(metrics) {
+    if (!metrics?.issuesBySeverity) return 0;
+    return metrics.issuesBySeverity.critical || 0;
+  }
+
+  /**
+   * Helper: Count adjustments
+   * @private
+   */
+  _countAdjustments(adjustments) {
+    if (!adjustments) return 0;
+    const applied = adjustments.applied?.length || 0;
+    const recommended = adjustments.recommended?.length || 0;
+    return applied + recommended;
+  }
+
+  /**
+   * Helper: Analyze trend status
+   * @private
+   */
+  _analyzeTrendStatus(trends) {
+    if (!trends) return 'Unknown';
+    
+    const hasAnomalies = trends.anomalies && trends.anomalies.length > 0;
+    const isImproving = trends.projections?.improving;
+    const isDegrading = trends.projections?.degrading;
+    
+    // Handle mixed projections
+    if (hasAnomalies && isImproving) return 'Improving with Anomalies';
+    if (hasAnomalies && isDegrading) return 'Degrading with Anomalies';
+    if (hasAnomalies) return 'Anomalies Detected';
+    if (isImproving && isDegrading) return 'Mixed Trends';
+    if (isImproving) return 'Improving';
+    if (isDegrading) return 'Degrading';
+    
+    return 'Stable';
+  }
+
+  /**
+   * Helper: Calculate health score
+   * @private
+   */
+  _calculateHealthScore(metrics, violations) {
+    let score = 100;
+    const scoring = this.config.healthScoring;
+    
+    // Deduct for issues
+    const totalIssues = this._calculateTotalIssues(metrics);
+    const criticalIssues = this._calculateCriticalIssues(metrics);
+    
+    score -= Math.min(
+      criticalIssues * scoring.criticalIssueDeduction, 
+      scoring.criticalIssueMaxDeduction
+    );
+    score -= Math.min(
+      (totalIssues - criticalIssues) * scoring.otherIssueDeduction, 
+      scoring.otherIssueMaxDeduction
+    );
+    
+    // Deduct for violations
+    if (violations && violations.length > 0) {
+      const criticalViolations = violations.filter(v => v.severity === 'critical').length;
+      score -= Math.min(
+        criticalViolations * scoring.criticalViolationDeduction, 
+        scoring.violationMaxDeduction
+      );
+    }
+    
+    return Math.max(0, Math.round(score));
+  }
+
+  /**
+   * Helper: Group violations by type
+   * @private
+   */
+  _groupViolationsByType(violations) {
+    const grouped = {};
+    violations.forEach(v => {
+      grouped[v.type] = (grouped[v.type] || 0) + 1;
+    });
+    return grouped;
+  }
+
+  /**
+   * Helper: Group recommendations by priority
+   * @private
+   */
+  _groupRecommendationsByPriority(recommendations) {
+    const grouped = { high: [], medium: [], low: [] };
+    recommendations.forEach(rec => {
+      if (grouped[rec.priority]) {
+        grouped[rec.priority].push(rec);
+      }
+    });
+    return grouped;
+  }
+}
+export default SauronInsightReporter;
+

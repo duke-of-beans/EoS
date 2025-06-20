@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+/**
+ * Simple CLI wrapper for Eye of Sauron
+ * Use this if the main CLI has issues
+ */
+
+import EyeOfSauronOmniscient from '../core/EyeOfSauronOmniscient.js';
+import { promises as fs } from 'fs';
+import path from 'path';
+
+async function runScan() {
+  const args = process.argv.slice(2);
+  
+  // Parse simple arguments
+  let scanPath = '.';
+  let mode = 'deep';
+  let outputFile = null;
+  
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--path' && args[i + 1]) {
+      scanPath = args[i + 1];
+      i++;
+    } else if (args[i] === '--mode' && args[i + 1]) {
+      mode = args[i + 1];
+      i++;
+    } else if (args[i] === '--output' && args[i + 1]) {
+      outputFile = args[i + 1];
+      i++;
+    }
+  }
+  
+  console.log('👁️  Eye of Sauron - Simple CLI');
+  console.log('📁 Scanning:', path.resolve(scanPath));
+  console.log('🔍 Mode:', mode);
+  
+  try {
+    const scanner = new EyeOfSauronOmniscient();
+    const startTime = Date.now();
+    
+    scanner.on('progress', (data) => {
+      process.stdout.write(`\r⏳ Progress: ${data.percentage}% (${data.processed}/${data.total} files)`);
+    });
+    
+    const results = await scanner.scan(scanPath, mode);
+    const duration = Date.now() - startTime;
+    
+    console.log('\n✅ Scan complete!');
+    console.log(`⏱️  Duration: ${(duration / 1000).toFixed(2)}s`);
+    console.log(`📊 Files scanned: ${results.summary.filesScanned}`);
+    console.log(`🚨 Total issues: ${results.summary.totalIssues}`);
+    
+    if (results.summary.totalIssues > 0) {
+      console.log('\n📈 Issues by severity:');
+      Object.entries(results.summary.issuesBySeverity).forEach(([sev, count]) => {
+        console.log(`   ${sev}: ${count}`);
+      });
+    }
+    
+    if (outputFile) {
+      await fs.writeFile(outputFile, JSON.stringify(results, null, 2));
+      console.log(`\n💾 Report saved to: ${outputFile}`);
+    }
+    
+  } catch (error) {
+    console.error('\n❌ Error:', error.message);
+    process.exit(1);
+  }
+}
+
+runScan();

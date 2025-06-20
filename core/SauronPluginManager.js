@@ -32,60 +32,60 @@ export class SauronPluginManager {
     try {
       // Resolve to absolute path
       const absolutePath = resolve(path);
-      
+
       // Check if file exists
       await access(absolutePath);
-      
+
       // Convert to file URL for dynamic import
       const moduleURL = pathToFileURL(absolutePath).href;
-      
+
       // Dynamic import of the ES module
       const pluginModule = await import(moduleURL);
-      
+
       // Validate plugin shape
       if (!pluginModule.default || typeof pluginModule.default !== 'object') {
         throw new Error(`Plugin at ${path} must export a default object`);
       }
-      
+
       const plugin = pluginModule.default;
-      
+
       // Validate required properties
       if (!plugin.name || typeof plugin.name !== 'string') {
         throw new Error(`Plugin at ${path} must have a 'name' property (string)`);
       }
-      
+
       // Validate name format
       if (!this.options.namePattern.test(plugin.name)) {
         throw new Error(`Plugin name '${plugin.name}' invalid. Must match pattern: ${this.options.namePattern.source}`);
       }
-      
+
       if (!plugin.run || typeof plugin.run !== 'function') {
         throw new Error(`Plugin at ${path} must have a 'run' method`);
       }
-      
+
       // Check for duplicate names
       if (this.plugins.has(plugin.name)) {
         throw new Error(`Plugin with name '${plugin.name}' already loaded`);
       }
-      
+
       // Store the plugin
       this.plugins.set(plugin.name, {
         ...plugin,
         path: absolutePath,
         loadedAt: new Date().toISOString()
       });
-      
+
     } catch (error) {
       if (error.code === 'ENOENT') {
         error = new Error(`Plugin file not found: ${path}`);
       }
-      
+
       // Soft failure mode - return error instead of throwing
       if (!this.options.strictErrors) {
         console.error(`[SauronPluginManager] Failed to load plugin from ${path}:`, error.message);
         return error;
       }
-      
+
       throw error;
     }
   }

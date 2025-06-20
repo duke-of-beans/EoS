@@ -1,0 +1,165 @@
+/**
+ * Purpose: Utility for assembling final scan report for Eye of Sauron
+ * Dependencies: Node.js std lib
+ * API: ScanReportAssembler().assemble(vision, profiles, lastUsedMode) → object
+ * 
+ * Notes:
+ * - Normalizes severity levels from various formats to standard Eye of Sauron levels
+ * - Reads timing data from vision.stats with fallback to direct properties
+ * - Includes character profiles only if non-empty
+ */
+
+export class ScanReportAssembler {
+  constructor() {
+    // No initialization needed - stateless utility
+  }
+
+  /**
+   * Assembles final scan report from vision data
+   * @param {object} vision - Vision object containing files Map and metadata
+   * @param {object} profiles - Character profiles object
+   * @param {string} lastUsedMode - The scan mode used
+   * @returns {object} Assembled report object ready for serialization
+   */
+  assemble(vision, profiles, lastUsedMode) {
+    // Convert vision.files Map to plain object
+    const filesData = this._convertFilesMapToObject(vision.files);
+    
+    // Calculate summary statistics
+    const summary = this._generateSummary(filesData, vision, profiles);
+    
+    // Assemble metadata
+    const metadata = this._assembleMetadata(vision, lastUsedMode);
+    
+    // Construct final report object
+    const report = {
+      metadata,
+      summary,
+      files: filesData,
+      prophecies: vision.prophecies || []
+    };
+    
+    // Only include profiles if they contain meaningful data
+    if (profiles && Object.keys(profiles).length > 0) {
+      report.characterProfiles = profiles;
+    }
+    
+    return report;
+  }
+
+  /**
+   * Converts files Map to plain object structure
+   * @private
+   */
+  _convertFilesMapToObject(filesMap) {
+    const filesObj = {};
+    
+    if (!filesMap || !(filesMap instanceof Map)) {
+      return filesObj;
+    }
+    
+    for (const [filePath, fileData] of filesMap) {
+      filesObj[filePath] = {
+        path: fileData.path,
+        size: fileData.size,
+        extension: fileData.extension,
+        relativePath: fileData.relativePath,
+        issues: fileData.issues || [],
+        metrics: fileData.metrics || {},
+        lastModified: fileData.lastModified
+      };
+    }
+    
+    return filesObj;
+  }
+
+  /**
+   * Generates summary statistics for the scan
+   * @private
+   */
+  _generateSummary(filesData, vision, profiles) {
+    // Count total issues across all files
+    let totalIssues = 0;
+    let issuesBySeverity = {
+      APOCALYPSE: 0,
+      DANGER: 0,
+      WARNING: 0,
+      PROPHECY: 0,
+      WHISPER: 0
+    };
+    
+    // Severity mapping for normalization
+    const severityMap = {
+      'critical': 'APOCALYPSE',
+      'high': 'DANGER',
+      'warning': 'WARNING',
+      'medium': 'WARNING',
+      'info': 'WHISPER',
+      'low': 'WHISPER'
+    };
+    
+    // Collect unique characters found
+    const charactersFound = new Set();
+    
+    for (const fileData of Object.values(filesData)) {
+      if (fileData.issues) {
+        totalIssues += fileData.issues.length;
+        
+        fileData.issues.forEach(issue => {
+          // Count by severity - normalize if needed
+          const normalizedSeverity = severityMap[issue.severity] || issue.severity;
+          if (issuesBySeverity[normalizedSeverity] !== undefined) {
+            issuesBySeverity[normalizedSeverity]++;
+          }
+          
+          // Track characters found
+          if (issue.character) {
+            charactersFound.add(issue.character);
+          }
+        });
+      }
+    }
+    
+    // Get timing from vision.stats if available, fallback to direct properties
+    const stats = vision.stats || {};
+    const duration = stats.duration || (stats.endTime && stats.startTime 
+      ? stats.endTime - stats.startTime 
+      : 0);
+    
+    return {
+      filesScanned: Object.keys(filesData).length,
+      totalIssues,
+      issuesBySeverity,
+      charactersDetected: Array.from(charactersFound),
+      totalCharacters: Object.keys(profiles || {}).length,
+      propheciesGenerated: (vision.prophecies || []).length,
+      scanDuration: duration
+    };
+  }
+
+  /**
+   * Assembles metadata for the report
+   * @private
+   */
+  _assembleMetadata(vision, lastUsedMode) {
+    const now = new Date();
+    const stats = vision.stats || {};
+    
+    // Get timing from vision.stats first, then fallback to direct properties
+    const startTime = stats.startTime || vision.startTime;
+    const endTime = stats.endTime || vision.endTime;
+    const duration = stats.duration || (endTime && startTime ? endTime - startTime : 0);
+    
+    return {
+      version: '1.0.0',
+      scanDate: now.toISOString(),
+      scanMode: lastUsedMode || 'unknown',
+      scanStartTime: startTime ? new Date(startTime).toISOString() : now.toISOString(),
+      scanEndTime: endTime ? new Date(endTime).toISOString() : now.toISOString(),
+      scanDuration: duration,
+      rootPath: vision.rootPath || process.cwd(),
+      excludedPaths: vision.excludedPaths || [],
+      fileExtensions: vision.fileExtensions || []
+    };
+  }
+}

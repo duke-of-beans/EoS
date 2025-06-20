@@ -1,0 +1,77 @@
+#!/usr/bin/env node
+
+/**
+ * CLI Using Exact Working Pattern from Comprehensive Test
+ * Copy-paste from the successful comprehensive-test.js 
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+
+console.log('🔍 Working Pattern CLI');
+console.log('Using exact same pattern as successful comprehensive-test.js');
+
+async function runWorkingPattern() {
+  try {
+    // EXACT SAME IMPORT AS WORKING TEST
+    console.log('📦 Importing module...');
+    const module = await import('./core/EyeOfSauronOmniscient.js');
+    const { createEye } = module;
+    
+    if (!createEye) {
+      throw new Error('createEye function not found in module');
+    }
+    console.log('✅ Import successful');
+    
+    // EXACT SAME SCANNER CREATION AS WORKING TEST
+    console.log('🔧 Creating scanner...');
+    const scanner = createEye();
+    console.log('✅ Scanner created');
+    
+    // EXACT SAME SCAN CALL AS WORKING TEST
+    console.log('📊 Starting scan...');
+    const testPath = '.';
+    const results = await scanner.scan(testPath, 'deep');
+    
+    console.log('✅ Scan completed successfully!');
+    console.log(`   Results type: ${typeof results}`);
+    console.log(`   Results keys: ${results ? Object.keys(results).join(', ') : 'null'}`);
+    
+    if (results && results.summary) {
+      console.log(`   Files scanned: ${results.summary.filesScanned || 'Unknown'}`);
+      console.log(`   Total issues: ${results.summary.totalIssues || 'Unknown'}`);
+    }
+    
+    if (results && results.files) {
+      const fileCount = Object.keys(results.files).length;
+      console.log(`   Files with results: ${fileCount}`);
+      
+      // Show a few files with issues
+      const filesWithIssues = Object.entries(results.files)
+        .filter(([_, data]) => data.issues && data.issues.length > 0)
+        .slice(0, 3);
+      
+      if (filesWithIssues.length > 0) {
+        console.log('\n📂 Sample files with issues:');
+        filesWithIssues.forEach(([filePath, data]) => {
+          const relativePath = path.relative(process.cwd(), filePath);
+          console.log(`   📄 ${relativePath} (${data.issues.length} issues)`);
+        });
+      }
+    }
+    
+    // Save results like the working test did
+    const outputPath = 'working-pattern-results.json';
+    await fs.writeFile(outputPath, JSON.stringify(results, null, 2));
+    console.log(`\n💾 Results saved to: ${outputPath}`);
+    
+    console.log('\n🎉 SUCCESS! This pattern works!');
+    
+  } catch (error) {
+    console.error('\n❌ Failed with error:');
+    console.error(`   ${error.message}`);
+    console.error(`   Stack: ${error.stack}`);
+  }
+}
+
+runWorkingPattern();

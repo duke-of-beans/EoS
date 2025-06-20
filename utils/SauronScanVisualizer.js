@@ -17,7 +17,7 @@ export class SauronScanVisualizer {
     this.includeChartLoader = config.includeChartLoader || false;
     this.maxFilenameLength = config.maxFilenameLength || 20;
     this.bubbleOpacity = config.bubbleOpacity || 0.4; // 0-1 range
-    
+
     this.colors = {
       dark: {
         critical: '#dc2626',
@@ -53,16 +53,16 @@ export class SauronScanVisualizer {
 
     const files = report.vision?.files || {};
     const summary = report.summary || {};
-    
+
     // Collect all issues from all files
     const allIssues = [];
     const fileMetrics = [];
-    
+
     Object.entries(files).forEach(([filepath, fileData]) => {
       if (fileData?.issues && Array.isArray(fileData.issues)) {
         allIssues.push(...fileData.issues);
       }
-      
+
       // Collect file metrics for scatter plot
       if (fileData?.metrics) {
         fileMetrics.push({
@@ -95,7 +95,7 @@ export class SauronScanVisualizer {
   generateHtml(report) {
     const chartData = this.generateCharts(report);
     const colors = this.colors[this.theme];
-    
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -167,7 +167,7 @@ export class SauronScanVisualizer {
       <h1>👁️ Eye of Sauron Scan Report</h1>
       <p>Generated: ${new Date(chartData.summary.timestamp).toLocaleString()}</p>
     </div>
-    
+
     <div class="summary">
       <div class="summary-card">
         <div class="label">Total Files</div>
@@ -182,37 +182,37 @@ export class SauronScanVisualizer {
         <div class="value" style="color: ${colors.critical}">${chartData.summary.criticalCount}</div>
       </div>
     </div>
-    
+
     <div class="charts">
       <div class="chart-container">
         <h2>Issue Severity Distribution</h2>
-        <div class="chart" 
-             data-chart-type="pie" 
+        <div class="chart"
+             data-chart-type="pie"
              data-chart-data='${JSON.stringify(chartData.severityDistribution)}'>
           <canvas id="severity-chart"></canvas>
         </div>
       </div>
-      
+
       <div class="chart-container">
         <h2>Issue Type Breakdown</h2>
-        <div class="chart" 
-             data-chart-type="bar" 
+        <div class="chart"
+             data-chart-type="bar"
              data-chart-data='${JSON.stringify(chartData.typeBreakdown)}'>
           <canvas id="type-chart"></canvas>
         </div>
       </div>
-      
+
       <div class="chart-container">
         <h2>File Complexity vs Size</h2>
-        <div class="chart" 
-             data-chart-type="scatter" 
+        <div class="chart"
+             data-chart-type="scatter"
              data-chart-data='${JSON.stringify(chartData.complexityScatter)}'>
           <canvas id="complexity-chart"></canvas>
         </div>
       </div>
     </div>
   </div>
-  
+
   <script>
     // Chart data is embedded in data attributes
     // External charting library can read and render these
@@ -233,16 +233,16 @@ export class SauronScanVisualizer {
       low: 0,
       info: 0
     };
-    
+
     issues.forEach(issue => {
       const severity = (issue.severity || 'info').toLowerCase();
       if (severity in severityCounts) {
         severityCounts[severity]++;
       }
     });
-    
+
     const colors = this.colors[this.theme];
-    
+
     return {
       labels: Object.keys(severityCounts),
       datasets: [{
@@ -260,17 +260,17 @@ export class SauronScanVisualizer {
 
   _generateTypeChart(issues) {
     const typeCounts = {};
-    
+
     issues.forEach(issue => {
       const type = issue.type || 'unknown';
       typeCounts[type] = (typeCounts[type] || 0) + 1;
     });
-    
+
     // Sort by count descending, limit to top 10
     const sortedTypes = Object.entries(typeCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
-    
+
     return {
       labels: sortedTypes.map(([type]) => type),
       datasets: [{
@@ -289,10 +289,10 @@ export class SauronScanVisualizer {
       r: Math.min(metric.issues * 3 + 5, 30), // Bubble size based on issues
       label: this._truncateFilename(metric.file)
     }));
-    
+
     // Convert opacity (0-1) to hex
     const opacityHex = Math.round(this.bubbleOpacity * 255).toString(16).padStart(2, '0');
-    
+
     return {
       datasets: [{
         label: 'Files',
@@ -329,7 +329,7 @@ export class SauronScanVisualizer {
     if (filename.length <= this.maxFilenameLength) {
       return filename;
     }
-    
+
     // Smart truncation: preserve extension
     const ext = filename.lastIndexOf('.');
     if (ext > 0 && ext > this.maxFilenameLength - 6) {
@@ -337,7 +337,7 @@ export class SauronScanVisualizer {
       const extension = filename.substring(ext);
       return name + '...' + extension;
     }
-    
+
     return filename.substring(0, this.maxFilenameLength - 3) + '...';
   }
 
@@ -345,7 +345,7 @@ export class SauronScanVisualizer {
     if (!this.includeChartLoader) {
       return '';
     }
-    
+
     return `
     // Inline Chart.js loader
     (function() {
@@ -358,7 +358,7 @@ export class SauronScanVisualizer {
           const canvas = container.querySelector('canvas');
           const type = container.dataset.chartType;
           const data = JSON.parse(container.dataset.chartData);
-          
+
           new Chart(canvas.getContext('2d'), {
             type: type,
             data: data,

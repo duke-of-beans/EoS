@@ -1,7 +1,7 @@
 /**
  * Purpose: Merges multiple scan reports into one normalized report with deduplication
  * Dependencies: Node.js std lib
- * Public API: 
+ * Public API:
  *   - new SauronScanMerger()
  *   - merge(reports) - Merges array of scan reports into single normalized report
  */
@@ -23,7 +23,7 @@ export default class SauronScanMerger {
     }
 
     // Filter out malformed reports
-    const validReports = reports.filter(report => 
+    const validReports = reports.filter(report =>
       report && typeof report === 'object'
     );
 
@@ -106,7 +106,7 @@ export default class SauronScanMerger {
 
     // Create unique key for deduplication
     const issueKey = this._createIssueKey(filePath, issue);
-    
+
     // Skip if we've already seen this issue
     if (this.seenIssues.has(issueKey)) {
       return;
@@ -149,7 +149,7 @@ export default class SauronScanMerger {
     const line = issue.line || 0;
     const column = issue.column || 0;
     const message = (issue.message || '').substring(0, 50); // Use first 50 chars
-    
+
     return `${filePath}:${type}:${line}:${column}:${message}`;
   }
 
@@ -160,12 +160,12 @@ export default class SauronScanMerger {
   _mergeSummary(targetSummary, sourceSummary) {
     // Note: File and issue counts are recalculated from actual data
     // This method is for merging any additional summary data
-    
+
     // Merge any custom fields that might exist
     for (const [key, value] of Object.entries(sourceSummary)) {
-      if (key !== 'totalFiles' && 
-          key !== 'totalIssues' && 
-          key !== 'issuesBySeverity' && 
+      if (key !== 'totalFiles' &&
+          key !== 'totalIssues' &&
+          key !== 'issuesBySeverity' &&
           key !== 'issuesByType') {
         // Preserve custom summary fields
         if (typeof value === 'number' && typeof targetSummary[key] === 'number') {

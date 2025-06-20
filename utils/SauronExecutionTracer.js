@@ -90,7 +90,7 @@ export class SauronExecutionTracer {
         // Fall through to JSON method
       }
     }
-    
+
     // Fallback to JSON serialization
     // Note: This won't preserve functions, undefined values, symbols, etc.
     try {
@@ -99,16 +99,16 @@ export class SauronExecutionTracer {
       if (this.logCloneFailures) {
         console.warn('[SauronExecutionTracer] JSON clone failed:', e.message);
       }
-      
+
       // If even JSON fails, return a basic clone attempt
       if (obj === null || typeof obj !== 'object') {
         return obj;
       }
-      
+
       if (Array.isArray(obj)) {
         return obj.map(item => this._deepClone(item));
       }
-      
+
       const clone = {};
       for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -122,7 +122,7 @@ export class SauronExecutionTracer {
 
 // Example usage (commented out for production):
 /*
-const tracer = new SauronExecutionTracer({ 
+const tracer = new SauronExecutionTracer({
   maxDepth: 500,
   highResTimestamps: true,
   logCloneFailures: true

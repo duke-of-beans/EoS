@@ -84,7 +84,7 @@ export class SauronReportSplitter {
     const sortedChunks = [...chunks].sort((a, b) => {
       const indexA = a._chunkInfo?.chunkIndex;
       const indexB = b._chunkInfo?.chunkIndex;
-      
+
       // Warn if chunk info is missing
       if (indexA === undefined && this.logger) {
         this.logger(`Warning: Chunk missing _chunkInfo.chunkIndex, treating as index 0`);
@@ -92,30 +92,30 @@ export class SauronReportSplitter {
       if (indexB === undefined && this.logger) {
         this.logger(`Warning: Chunk missing _chunkInfo.chunkIndex, treating as index 0`);
       }
-      
+
       return (indexA ?? 0) - (indexB ?? 0);
     });
 
     // Use first chunk as base for metadata
     const baseChunk = sortedChunks[0];
     const metadata = this._extractMetadata(baseChunk);
-    
+
     // Merge all files while deduplicating
     const fileMap = new Map();
-    
+
     for (const chunk of sortedChunks) {
       if (chunk.files && Array.isArray(chunk.files)) {
         for (const file of chunk.files) {
           // Use file path as unique key for deduplication
           let key = file.path;
-          
+
           if (!key) {
             key = JSON.stringify(file);
             if (this.logger) {
               this.logger(`Warning: File missing 'path' property, using JSON.stringify for deduplication`);
             }
           }
-          
+
           if (!fileMap.has(key)) {
             fileMap.set(key, this._deepClone(file));
           }
@@ -184,7 +184,7 @@ export class SauronReportSplitter {
 }
 
 // Example usage:
-// const splitter = new SauronReportSplitter({ 
+// const splitter = new SauronReportSplitter({
 //   chunkSize: 50,
 //   logger: console.warn,
 //   dateProvider: () => new Date('2024-01-01') // For deterministic testing

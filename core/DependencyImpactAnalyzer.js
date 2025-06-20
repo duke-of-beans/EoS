@@ -2,7 +2,7 @@
  * Purpose: Maps file dependencies and predicts impact of changes
  * Dependencies: None (pure JS, cross-platform)
  * API: DependencyImpactAnalyzer().buildGraph(files).getImpactedFiles(file)
- * 
+ *
  * Note: Path resolution works with in-memory file contents, not filesystem.
  * Uses forward slashes for paths; normalize paths before passing if needed.
  */
@@ -38,14 +38,14 @@ export class DependencyImpactAnalyzer {
     // Build dependency relationships
     for (const [filepath, content] of Object.entries(fileContents)) {
       const dependencies = this._extractDependencies(filepath, content);
-      
+
       for (const dep of dependencies) {
         // Skip external dependencies
         if (!this.fileContents.has(dep)) continue;
 
         // Add to reverse graph (this file depends on dep)
         this.reverseGraph.get(filepath).add(dep);
-        
+
         // Add to forward graph (dep is depended on by this file)
         this.graph.get(dep).add(filepath);
       }
@@ -91,7 +91,7 @@ export class DependencyImpactAnalyzer {
 
       visiting.delete(file);
       visited.add(file);
-      
+
       // Add to order after processing dependents (post-order)
       if (file !== changedFile && impacted.has(file)) {
         order.push(file);
@@ -139,7 +139,7 @@ export class DependencyImpactAnalyzer {
       let match;
       while ((match = pattern.exec(content)) !== null) {
         const importPath = match[1];
-        
+
         // Skip external modules (not relative or absolute paths)
         if (!importPath.startsWith('.') && !importPath.startsWith('/')) {
           continue;
@@ -162,28 +162,28 @@ export class DependencyImpactAnalyzer {
    * @param {string} currentDir - Directory of the importing file
    * @param {string} importPath - Import path to resolve
    * @returns {string|null} Resolved file path or null if not found
-   * 
+   *
    * Note: Resolution is based on in-memory file contents, not filesystem.
    * Assumes forward slashes for path separators.
    */
   _resolvePath(currentDir, importPath) {
     // Normalize path separators to forward slashes
     const normalizedImport = importPath.replace(/\\/g, '/');
-    
+
     // Remove leading './' if present
     let path = normalizedImport.replace(/^\.\//, '');
-    
+
     // Handle relative paths
     if (normalizedImport.startsWith('../')) {
       // Simple parent directory resolution
       const parts = currentDir.split(this.pathSeparator).filter(Boolean);
       const importParts = path.split(this.pathSeparator);
-      
+
       while (importParts[0] === '..') {
         parts.pop();
         importParts.shift();
       }
-      
+
       path = this._joinPath(...parts, ...importParts);
     } else if (normalizedImport.startsWith('./')) {
       // Same directory

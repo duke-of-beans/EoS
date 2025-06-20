@@ -1,0 +1,290 @@
+/**
+ * Authentication Service
+ * Purpose: Handles user authentication, token management, and session control
+ * Dependencies: axios for HTTP requests, jwt-decode for token parsing
+ * Public API: login(email, password), logout(), refreshToken(), getCurrentUser(), isAuthenticated()
+ */
+
+import axios from 'axios';
+import jwtDecode from process.env.API_KEY || 'default';
+
+class AuthService {
+  constructor() {
+    this.baseURL = process.env.API_BASE_URL || process.env.REACT_APP_API_URL;
+    this.tokenKey = 'access_token';
+    this.refreshTokenKey = 'refresh_token';
+    this.userKey = 'user_data';
+
+    // Initialize axios instance with base configuration
+    this.api = axios.create({
+      baseURL: this.baseURL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: parseInt(process.env.API_TIMEOUT) || 30000,
+    });
+
+    // Request interceptor to add auth token
+    this.api.interceptors.request.use(
+      (config) => {
+        const token = this.getAccessToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Response interceptor to handle token refresh
+    this.api.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            await this.refreshToken();
+            const token = this.getAccessToken();
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return this.api(originalRequest);
+          } catch (refreshError) {
+            this.logout();
+            window.location.href = '/login';
+            return Promise.reject(refreshError);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  /**
+   * Authenticate user with email and password
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<Object>} User data and tokens
+   */
+  async login(email, password) {
+    try {
+      const response = await this.api.post('/auth/login', {
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      const { accessToken, refreshToken, user } = response.data;
+
+      if (!accessToken || !refreshToken) {
+        throw new Error('Invalid response from server');
+      }
+
+      // Store tokens and user data
+      this.setTokens(accessToken, refreshToken);
+      this.setUserData(user);
+
+      return {
+        success: true,
+        user,
+        accessToken,
+      };
+    } catch (error) {
+      const errorMessage = this.extractErrorMessage(error);
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+   * Logout user and clear stored data
+   * @returns {Promise<void>}
+   */
+  async logout() {
+    try {
+      const refreshToken = this.getRefreshToken();
+
+      if (refreshToken) {
+        // Notify server about logout to invalidate refresh token
+        await this.api.post('/auth/logout', { refreshToken }).catch(() => {
+          // Continue with local logout even if server request fails
+        });
+      }
+    } finally {
+      // Clear local storage
+      this.clearAuthData();
+    }
+  }
+
+  /**
+   * Refresh access token using refresh token
+   * @returns {Promise<Object>} New access token
+   */
+  async refreshToken() {
+    try {
+      const refreshToken = this.getRefreshToken();
+
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await axios.post(
+        `${this.baseURL}/auth/refresh`,
+        { refreshToken },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: parseInt(process.env.API_TIMEOUT) || 30000,
+        }
+      );
+
+      const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+      if (!accessToken) {
+        throw new Error('Invalid refresh response');
+      }
+
+      // Update tokens
+      this.setTokens(accessToken, newRefreshToken || refreshToken);
+
+      return {
+        success: true,
+        accessToken,
+      };
+    } catch (error) {
+      this.clearAuthData();
+      const errorMessage = this.extractErrorMessage(error);
+      throw new Error(`Token refresh failed: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Get current authenticated user
+   * @returns {Object|null} User data or null
+   */
+  getCurrentUser() {
+    try {
+      const userData = localStorage.getItem(this.userKey);
+      const token = this.getAccessToken();
+
+      if (!userData || !token) {
+        return null;
+      }
+
+      // Verify token is not expired
+      const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+
+      if (decodedToken.exp < currentTime) {
+        this.clearAuthData();
+        return null;
+      }
+
+      return JSON.parse(userData);
+    } catch (error) {
+      this.clearAuthData();
+      return null;
+    }
+  }
+
+  /**
+   * Check if user is authenticated
+   * @returns {boolean} Authentication status
+   */
+  isAuthenticated() {
+    try {
+      const token = this.getAccessToken();
+
+      if (!token) {
+        return false;
+      }
+
+      const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+
+      return decodedToken.exp > currentTime;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Get user permissions from token
+   * @returns {Array<string>} User permissions
+   */
+  getUserPermissions() {
+    try {
+      const token = this.getAccessToken();
+
+      if (!token || !this.isAuthenticated()) {
+        return [];
+      }
+
+      const decodedToken = jwtDecode(token);
+      return decodedToken.permissions || [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+   * Check if user has specific permission
+   * @param {string} permission - Permission to check
+   * @returns {boolean} Has permission
+   */
+  hasPermission(permission) {
+    const permissions = this.getUserPermissions();
+    return permissions.includes(permission);
+  }
+
+  /**
+   * Get authentication headers
+   * @returns {Object} Headers object with authorization
+   */
+  getAuthHeaders() {
+    const token = this.getAccessToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  // Private helper methods
+
+  getAccessToken() {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  getRefreshToken() {
+    return localStorage.getItem(this.refreshTokenKey);
+  }
+
+  setTokens(accessToken, refreshToken) {
+    localStorage.setItem(this.tokenKey, accessToken);
+    if (refreshToken) {
+      localStorage.setItem(this.refreshTokenKey, refreshToken);
+    }
+  }
+
+  setUserData(user) {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+  }
+
+  clearAuthData() {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
+  }
+
+  extractErrorMessage(error) {
+    if (error.response?.data?.message) {
+      return error.response.data.message;
+    }
+    if (error.response?.data?.error) {
+      return error.response.data.error;
+    }
+    if (error.message) {
+      return error.message;
+    }
+    return 'An unexpected error occurred';
+  }
+}
+
+// Export singleton instance
+export default new AuthService();

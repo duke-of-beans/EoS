@@ -1,0 +1,186 @@
+import { useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
+
+/**
+ * Header Component for Eye of Sauron
+ * Purpose: Main navigation header with scan controls and status display
+ * Dependencies: React, PropTypes
+ * Public API: Header component with props for navigation, status, and actions
+ */
+
+const Header = ({
+  currentView,
+  onViewChange,
+  scanStatus,
+  lastScanTime,
+  onScanClick,
+  onSettingsClick,
+  userName,
+  notificationCount,
+  onNotificationClick,
+  isScanning,
+  scanProgress
+}) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen((prev) => !prev);
+  }, []);
+
+  const handleViewChange = useCallback((view) => {
+    onViewChange(view);
+    setIsMobileMenuOpen(false);
+  }, [onViewChange]);
+
+  const navigationItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+  { id: 'scan', label: 'Scan', icon: '🔍' },
+  { id: 'reports', label: 'Reports', icon: '📋' },
+  { id: 'history', label: 'History', icon: '📜' },
+  { id: 'compliance', label: 'Compliance', icon: '✅' }];
+
+  const getScanStatusClass = () => {
+    if (isScanning) return 'status-scanning';
+    switch (scanStatus) {
+      case 'success':return 'status-success';
+      case 'warning':return 'status-warning';
+      case 'error':return 'status-error';
+      default:return 'status-idle';
+    }
+  };
+
+  const formatLastScanTime = () => {
+    if (!lastScanTime) return 'Never';
+    const now = new Date();
+    const scanTime = new Date(lastScanTime);
+    const diffMs = now - scanTime;
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
+  };
+
+  return (
+    <header className="eos-header">
+      <div className="header-container">
+        <div className="header-left">
+          <div className="logo-container">
+            <span className="logo-icon">👁️</span>
+            <h1 className="logo-text">Eye of Sauron</h1>
+          </div>
+
+          <nav className={`main-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+            {navigationItems.map((item) =>
+            <button
+              key={item.id}
+              className={`nav-item ${currentView === item.id ? 'active' : ''}`}
+              onClick={() => handleViewChange(item.id)}
+              type="button">
+
+                <span className="nav-icon">{item.icon}</span>
+                <span className="nav-label">{item.label}</span>
+              </button>
+            )}
+          </nav>
+        </div>
+
+        <div className="header-right">
+          <div className="scan-status">
+            <div className={`status-indicator ${getScanStatusClass()}`}>
+              {isScanning &&
+              <div className="scan-progress" style={{ width: `${scanProgress}%` }} />
+              }
+            </div>
+            <div className="status-text">
+              <span className="status-label">
+                {isScanning ? `Scanning... ${scanProgress}%` : 'Last scan:'}
+              </span>
+              {!isScanning &&
+              <span className="status-time">{formatLastScanTime()}</span>
+              }
+            </div>
+          </div>
+
+          <button
+            className="scan-button"
+            onClick={onScanClick}
+            disabled={isScanning}
+            type="button">
+
+            {isScanning ? 'Scanning...' : 'Run Scan'}
+          </button>
+
+          <button
+            className="icon-button notifications"
+            onClick={onNotificationClick}
+            type="button"
+            aria-label="Notifications">
+
+            🔔
+            {notificationCount > 0 &&
+            <span className="notification-badge">{notificationCount}</span>
+            }
+          </button>
+
+          <button
+            className="icon-button settings"
+            onClick={onSettingsClick}
+            type="button"
+            aria-label="Settings">
+
+            ⚙️
+          </button>
+
+          {userName &&
+          <div className="user-info">
+              <span className="user-avatar">👤</span>
+              <span className="user-name">{userName}</span>
+            </div>
+          }
+
+          <button
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+            type="button"
+            aria-label="Toggle menu">
+
+            <span className="menu-icon">{isMobileMenuOpen ? '✕' : '☰'}</span>
+          </button>
+        </div>
+      </div>
+    </header>);
+
+};
+
+Header.propTypes = {
+  currentView: PropTypes.oneOf(['dashboard', 'scan', 'reports', 'history', 'compliance']).isRequired,
+  onViewChange: PropTypes.func.isRequired,
+  scanStatus: PropTypes.oneOf(['idle', 'success', 'warning', 'error']),
+  lastScanTime: PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.instanceOf(Date),
+  PropTypes.number]
+  ),
+  onScanClick: PropTypes.func.isRequired,
+  onSettingsClick: PropTypes.func.isRequired,
+  userName: PropTypes.string,
+  notificationCount: PropTypes.number,
+  onNotificationClick: PropTypes.func.isRequired,
+  isScanning: PropTypes.bool,
+  scanProgress: PropTypes.number
+};
+
+Header.defaultProps = {
+  scanStatus: 'idle',
+  lastScanTime: null,
+  userName: '',
+  notificationCount: 0,
+  isScanning: false,
+  scanProgress: 0
+};
+
+export default Header;

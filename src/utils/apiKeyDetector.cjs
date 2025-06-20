@@ -1,0 +1,108 @@
+/**
+ * API Key Detector - Detects hardcoded API keys and secrets
+ * Dependencies: None
+ * Public API: detect(content, filePath, config)
+ */
+
+class APIKeyDetector {
+  constructor() {
+    this.name = 'APIKeyDetector';
+    this.patterns = {
+      // Common API key patterns
+      apiKey: /(?:api[_-]?key|apikey|api[_-]?secret|api[_-]?token)\s*[:=]\s*['"`]([^'"`\s]{20,})['"`]/gi,
+      awsKey: /(?:aws[_-]?access[_-]?key[_-]?id|aws[_-]?secret[_-]?access[_-]?key)\s*[:=]\s*['"`]([^'"`\s]{20,})['"`]/gi,
+      privateKey: /(?:private[_-]?key|secret[_-]?key|encryption[_-]?key)\s*[:=]\s*['"`]([^'"`\s]{20,})['"`]/gi,
+      bearer: /(?:bearer|authorization)\s*[:=]\s*['"`](Bearer\s+[^'"`\s]{20,})['"`]/gi,
+      // Environment variable patterns
+      envVar: /process\.env\.[A-Z_]+|import\.meta\.env\.[A-Z_]+/,
+      placeholder: /(?:xxx+|your[_-]?api[_-]?key[_-]?here|placeholder|example|demo|test[_-]?key|dummy|fake|sample|<[^>]+>|\$\{[^}]+\})/i,
+      // Common test/dev values
+      testValues: /^(?:12345|abcdef|0{5,}|test|demo|example|localhost|127\.0\.0\.1)$/i
+    };
+  }
+
+  detect(content, filePath, config = {}) {
+    const issues = [];
+    const lines = content.split('\n');
+
+    // Skip .env files and config templates
+    if (filePath.match(/\.(env|env\.(example|template|sample))|config\.(example|template|sample)\./i)) {
+      return [];
+    }
+
+    const allPatterns = [
+      this.patterns.apiKey,
+      this.patterns.awsKey,
+      this.patterns.privateKey,
+      this.patterns.bearer
+    ];
+
+    lines.forEach((line, index) => {
+      // Skip if line contains environment variable reference
+      if (this.patterns.envVar.test(line)) {
+        return;
+      }
+
+      // Skip comments
+      if (line.trim().startsWith('//') || line.trim().startsWith('*') || line.trim().startsWith('#')) {
+        return;
+      }
+
+      allPatterns.forEach(pattern => {
+        const matches = [...line.matchAll(new RegExp(pattern))];
+        matches.forEach(match => {
+          const key = match[1];
+
+          // Check if it's a placeholder or test value
+          if (this.patterns.placeholder.test(key) ||
+              this.patterns.testValues.test(key) ||
+              key.length < 10 || // Too short to be real
+              /^[A-Z_]+$/.test(key) || // All caps (likely a constant name)
+              /\s/.test(key)) { // Contains whitespace
+            return;
+          }
+
+          // Check against custom ignore patterns
+          if (config.ignorePatterns?.some(pattern => key.includes(pattern))) {
+            return;
+          }
+
+          // Check if the key has high entropy (likely real)
+          if (this.calculateEntropy(key) > 4.0) {
+            issues.push({
+              type: 'hardcoded-secret',
+              severity: 'critical',
+              message: `Potential hardcoded API key or secret detected`,
+              file: filePath,
+              line: index + 1,
+              column: match.index + 1,
+              snippet: line.trim().substring(0, 100),
+              suggestion: 'Move sensitive values to environment variables or secure configuration'
+            });
+          }
+        });
+      });
+    });
+
+    return issues;
+  }
+
+  calculateEntropy(str) {
+    const freq = {};
+    const len = str.length;
+
+    for (const char of str) {
+      freq[char] = (freq[char] || 0) + 1;
+    }
+
+    let entropy = 0;
+    for (const count of Object.values(freq)) {
+      const p = count / len;
+      entropy -= p * Math.log2(p);
+    }
+
+    return entropy;
+  }
+}
+
+module.exports = APIKeyDetector;

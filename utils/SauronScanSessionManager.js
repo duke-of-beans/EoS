@@ -2,7 +2,7 @@
  * Purpose: Manages scan session metadata + history
  * Dependencies: Node.js std lib
  * API: SauronScanSessionManager().startSession(), endSession(), listSessions(), getSession()
- * 
+ *
  * Design Notes:
  * - Duration stored as numeric milliseconds for consistency
  * - History file always serialized as JSON array (supports object format on load)
@@ -27,12 +27,12 @@ export class SauronScanSessionManager {
    */
   async startSession(meta = {}) {
     await this._ensureLoaded();
-    
+
     // Generate unique session ID: timestamp + random
     const timestamp = Date.now();
     const random = randomBytes(4).toString('hex');
     const sessionId = `sauron-${timestamp}-${random}`;
-    
+
     const session = {
       id: sessionId,
       startTime: new Date().toISOString(),
@@ -42,10 +42,10 @@ export class SauronScanSessionManager {
       result: null,
       duration: null
     };
-    
+
     this.sessions.set(sessionId, session);
     await this._persist();
-    
+
     return sessionId;
   }
 
@@ -56,16 +56,16 @@ export class SauronScanSessionManager {
    */
   async endSession(sessionId, result = {}) {
     await this._ensureLoaded();
-    
+
     const session = this.sessions.get(sessionId);
     if (!session) {
       throw new Error(`Session not found: ${sessionId}`);
     }
-    
+
     if (session.status !== 'active') {
       throw new Error(`Session already ended: ${sessionId}`);
     }
-    
+
     const endTime = new Date();
     session.endTime = endTime.toISOString();
     session.status = 'completed';
@@ -75,7 +75,7 @@ export class SauronScanSessionManager {
     };
     // Ensure consistent numeric (ms) duration
     session.duration = endTime.getTime() - new Date(session.startTime).getTime();
-    
+
     await this._persist();
   }
 
@@ -85,7 +85,7 @@ export class SauronScanSessionManager {
    */
   async listSessions() {
     await this._ensureLoaded();
-    
+
     return Array.from(this.sessions.values())
       .sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
   }
@@ -97,7 +97,7 @@ export class SauronScanSessionManager {
    */
   async getSession(sessionId) {
     await this._ensureLoaded();
-    
+
     return this.sessions.get(sessionId) || null;
   }
 
@@ -110,11 +110,11 @@ export class SauronScanSessionManager {
       this._loaded = true;
       return;
     }
-    
+
     try {
       const data = await fs.readFile(this.historyPath, 'utf8');
       const history = JSON.parse(data);
-      
+
       if (Array.isArray(history)) {
         // Convert array to Map
         for (const session of history) {
@@ -136,7 +136,7 @@ export class SauronScanSessionManager {
         console.warn(`Warning: Could not load session history from ${this.historyPath}:`, error.message);
       }
     }
-    
+
     this._loaded = true;
   }
 
@@ -151,17 +151,17 @@ export class SauronScanSessionManager {
     if (!this.historyPath) {
       return;
     }
-    
+
     try {
       // Ensure directory exists
       const dir = path.dirname(this.historyPath);
       await fs.mkdir(dir, { recursive: true });
-      
+
       // Convert Map to array for JSON serialization
       // NOTE: Always serializes as array for consistency. Could support
       // object format in future versions if needed for key-based lookups.
       const sessions = Array.from(this.sessions.values());
-      
+
       // Write atomically with temp file
       const tempPath = `${this.historyPath}.tmp`;
       await fs.writeFile(tempPath, JSON.stringify(sessions, null, 2), 'utf8');

@@ -1,0 +1,189 @@
+/**
+ * KaizenSettingsPanel.js
+ * 
+ * Purpose: Manages runtime settings for Eye of Sauron analysis system
+ * Dependencies: Node.js standard library only
+ * Public API:
+ *   - new KaizenSettingsPanel(defaultSettings) - Constructor
+ *   - setSetting(key, value) - Set a single setting
+ *   - getSetting(key) - Get a single setting value
+ *   - getAllSettings() - Get all settings as immutable object
+ *   - resetSettings() - Reset all settings to defaults
+ * 
+ * Performance Notes:
+ *   - Deep cloning protects against mutations but has performance cost
+ *   - Large objects (>1000 keys) or deep nesting (>100 levels) will trigger warnings
+ *   - Consider using smaller, flatter setting structures for optimal performance
+ */
+
+class KaizenSettingsPanel {
+  /**
+   * Initialize settings panel with optional defaults
+   * @param {Object} defaultSettings - Initial settings configuration
+   */
+  constructor(defaultSettings = {}) {
+    this.#defaultSettings = this.#deepClone(defaultSettings);
+    this.#settings = this.#deepClone(defaultSettings);
+  }
+
+  /**
+   * Set a single setting value
+   * @param {string} key - Setting key
+   * @param {*} value - Setting value (any type)
+   * @returns {void}
+   */
+  setSetting(key, value) {
+    if (typeof key !== 'string') {
+      console.warn(`[KaizenSettingsPanel] Invalid key type: ${typeof key}. Expected string.`);
+      throw new TypeError('Setting key must be a string');
+    }
+    
+    // Warn if key looks suspicious (e.g., prototype pollution attempts)
+    if (key.includes('__proto__') || key.includes('constructor') || key.includes('prototype')) {
+      console.warn(`[KaizenSettingsPanel] Suspicious key detected: "${key}". Setting blocked.`);
+      return;
+    }
+    
+    // Deep clone value to prevent external mutations
+    this.#settings[key] = this.#deepClone(value);
+  }
+
+  /**
+   * Get a single setting value
+   * @param {string} key - Setting key
+   * @returns {*} Setting value (deep cloned) or undefined if not found
+   */
+  getSetting(key) {
+    if (typeof key !== 'string') {
+      console.warn(`[KaizenSettingsPanel] Invalid key type: ${typeof key}. Expected string.`);
+      throw new TypeError('Setting key must be a string');
+    }
+    
+    // Return deep clone to prevent mutations
+    return this.#deepClone(this.#settings[key]);
+  }
+
+  /**
+   * Get all settings as an immutable object
+   * @returns {Object} Deep clone of all current settings
+   */
+  getAllSettings() {
+    // Return deep clone to prevent mutations
+    return this.#deepClone(this.#settings);
+  }
+
+  /**
+   * Reset all settings to initial defaults
+   * @returns {void}
+   */
+  resetSettings() {
+    this.#settings = this.#deepClone(this.#defaultSettings);
+  }
+
+  // Private fields
+  #defaultSettings;
+  #settings;
+
+  /**
+   * Deep clone utility to ensure immutability
+   * @private
+   * @param {*} obj - Object to clone
+   * @param {number} depth - Current recursion depth (for performance optimization)
+   * @param {WeakMap} seen - Track circular references
+   * @returns {*} Deep cloned object
+   */
+  #deepClone(obj, depth = 0, seen = new WeakMap()) {
+    // Performance optimization: limit recursion depth for very deep structures
+    const MAX_DEPTH = 100;
+    if (depth > MAX_DEPTH) {
+      console.warn(`[KaizenSettingsPanel] Max clone depth (${MAX_DEPTH}) reached. Returning shallow copy.`);
+      return obj;
+    }
+
+    // Handle null/undefined
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+
+    // Handle primitives
+    if (typeof obj !== 'object') {
+      return obj;
+    }
+
+    // Handle circular references
+    if (seen.has(obj)) {
+      return seen.get(obj);
+    }
+
+    // Handle dates
+    if (obj instanceof Date) {
+      return new Date(obj.getTime());
+    }
+
+    // Handle arrays
+    if (Array.isArray(obj)) {
+      const cloned = [];
+      seen.set(obj, cloned);
+      // Performance: use for loop for large arrays
+      for (let i = 0; i < obj.length; i++) {
+        cloned[i] = this.#deepClone(obj[i], depth + 1, seen);
+      }
+      return cloned;
+    }
+
+    // Handle regular expressions
+    if (obj instanceof RegExp) {
+      return new RegExp(obj.source, obj.flags);
+    }
+
+    // Handle Maps
+    if (obj instanceof Map) {
+      const cloned = new Map();
+      seen.set(obj, cloned);
+      // Performance: warn on very large Maps
+      if (obj.size > 10000) {
+        console.warn(`[KaizenSettingsPanel] Cloning large Map (${obj.size} entries). Consider performance impact.`);
+      }
+      obj.forEach((value, key) => {
+        cloned.set(this.#deepClone(key, depth + 1, seen), this.#deepClone(value, depth + 1, seen));
+      });
+      return cloned;
+    }
+
+    // Handle Sets
+    if (obj instanceof Set) {
+      const cloned = new Set();
+      seen.set(obj, cloned);
+      // Performance: warn on very large Sets
+      if (obj.size > 10000) {
+        console.warn(`[KaizenSettingsPanel] Cloning large Set (${obj.size} entries). Consider performance impact.`);
+      }
+      obj.forEach(value => {
+        cloned.add(this.#deepClone(value, depth + 1, seen));
+      });
+      return cloned;
+    }
+
+    // Handle plain objects
+    const cloned = {};
+    seen.set(obj, cloned);
+    const keys = Object.keys(obj);
+    
+    // Performance: warn on objects with many keys
+    if (keys.length > 1000) {
+      console.warn(`[KaizenSettingsPanel] Cloning object with ${keys.length} keys. Consider performance impact.`);
+    }
+    
+    // Performance: use for loop for better performance
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = this.#deepClone(obj[key], depth + 1, seen);
+      }
+    }
+    return cloned;
+  }
+}
+
+// Export as ES module
+export default KaizenSettingsPanel;

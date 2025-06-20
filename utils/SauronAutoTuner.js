@@ -15,7 +15,7 @@ export class SauronAutoTuner {
       maxComplexity: 100,
       ...config.thresholds
     };
-    
+
     // Profile levels from least to most aggressive
     // Can be overridden via config.profileLevels
     this.profileLevels = config.profileLevels || [
@@ -25,7 +25,7 @@ export class SauronAutoTuner {
       'thorough',   // Comprehensive analysis
       'maximum'     // All analyzers, deep inspection
     ];
-    
+
     // Analyzer cost rankings (lower = cheaper)
     this.analyzerCosts = {
       'CharacterForensics': 1,
@@ -37,10 +37,10 @@ export class SauronAutoTuner {
       'PerformanceAnalyzer': 2,
       ...config.analyzerCosts // Allow override/extension
     };
-    
+
     // Default cost for unknown analyzers
     this.defaultAnalyzerCost = config.defaultAnalyzerCost || 2;
-    
+
     // Performance headroom calculation weights
     this.headroomWeights = {
       duration: 0.4,
@@ -49,7 +49,7 @@ export class SauronAutoTuner {
       complexity: 0.1,
       ...config.headroomWeights
     };
-    
+
     // Critical analyzers that should be enabled for complex code
     this.criticalAnalyzers = config.criticalAnalyzers || [
       'SecurityScanner',
@@ -72,10 +72,10 @@ export class SauronAutoTuner {
     // Reset warning state
     this._unknownAnalyzersWarning = null;
     this._profileWarning = null;
-    
+
     // Validate current profile
     const currentProfile = this._validateProfile(metrics.currentProfile);
-    
+
     const adjustments = {
       profile: currentProfile,
       enabledAnalyzers: metrics.enabledAnalyzers || [],
@@ -83,7 +83,7 @@ export class SauronAutoTuner {
       reasoning: [],
       warnings: []
     };
-    
+
     // Add profile warning if any
     if (this._profileWarning) {
       adjustments.warnings.push(this._profileWarning);
@@ -99,7 +99,7 @@ export class SauronAutoTuner {
           `Scan duration (${metrics.durationMs}ms) exceeded threshold (${this.thresholds.maxDurationMs}ms)`
         );
       }
-      
+
       // Also consider disabling expensive analyzers
       const expensiveAnalyzers = this._getExpensiveAnalyzers(metrics.enabledAnalyzers);
       if (expensiveAnalyzers.length > 0) {
@@ -109,7 +109,7 @@ export class SauronAutoTuner {
         adjustments.changes.push(`Disabled expensive analyzers: ${expensiveAnalyzers.join(', ')}`);
         adjustments.reasoning.push('Removing high-cost analyzers to improve performance');
       }
-      
+
       // Add unknown analyzer warning if any
       if (this._unknownAnalyzersWarning) {
         adjustments.warnings.push(this._unknownAnalyzersWarning);
@@ -146,7 +146,7 @@ export class SauronAutoTuner {
       const missingCritical = this.criticalAnalyzers.filter(
         a => !adjustments.enabledAnalyzers.includes(a)
       );
-      
+
       if (missingCritical.length > 0 && metrics.durationMs < this.thresholds.maxDurationMs * 0.8) {
         adjustments.enabledAnalyzers = [...adjustments.enabledAnalyzers, ...missingCritical];
         adjustments.changes.push(`Enabled critical analyzers for complex code: ${missingCritical.join(', ')}`);
@@ -199,14 +199,14 @@ export class SauronAutoTuner {
     if (!profile) {
       return this.profileLevels[2]; // Default to 'standard' (middle level)
     }
-    
+
     if (!this.profileLevels.includes(profile)) {
       // Unknown profile - default to middle level and warn
       const defaultProfile = this.profileLevels[Math.floor(this.profileLevels.length / 2)];
       this._profileWarning = `Unknown profile '${profile}' - using '${defaultProfile}'`;
       return defaultProfile;
     }
-    
+
     return profile;
   }
 
@@ -240,7 +240,7 @@ export class SauronAutoTuner {
    */
   _getExpensiveAnalyzers(enabledAnalyzers) {
     const unknownAnalyzers = [];
-    
+
     const analyzersWithCosts = enabledAnalyzers.map(analyzer => {
       let cost = this.analyzerCosts[analyzer];
       if (cost === undefined) {
@@ -249,13 +249,13 @@ export class SauronAutoTuner {
       }
       return { analyzer, cost };
     });
-    
+
     // Log warning for unknown analyzers (pure function - returns info instead of logging)
     if (unknownAnalyzers.length > 0) {
       // Include unknown analyzer info in return for caller to handle
       this._unknownAnalyzersWarning = `Unknown analyzers encountered (using default cost ${this.defaultAnalyzerCost}): ${unknownAnalyzers.join(', ')}`;
     }
-    
+
     return analyzersWithCosts
       .filter(({ cost }) => cost >= 3)
       .sort((a, b) => b.cost - a.cost)
@@ -274,25 +274,25 @@ export class SauronAutoTuner {
       fileSize: metrics.fileSize / this.thresholds.maxFileSize,
       complexity: metrics.complexity / this.thresholds.maxComplexity
     };
-    
+
     // Calculate weighted average usage
     let totalWeight = 0;
     let weightedUsage = 0;
-    
+
     for (const [metric, ratio] of Object.entries(usageRatios)) {
       const weight = this.headroomWeights[metric] || 0;
       totalWeight += weight;
       weightedUsage += ratio * weight;
     }
-    
+
     // Normalize and calculate headroom
     const averageUsage = totalWeight > 0 ? weightedUsage / totalWeight : 0;
     const headroom = Math.max(0, 1 - averageUsage);
-    
+
     // Also consider the maximum usage to prevent any single metric from being ignored
     const maxUsage = Math.max(...Object.values(usageRatios));
     const conservativeHeadroom = Math.max(0, 1 - maxUsage);
-    
+
     // Return the more conservative estimate
     return Math.min(headroom, conservativeHeadroom);
   }

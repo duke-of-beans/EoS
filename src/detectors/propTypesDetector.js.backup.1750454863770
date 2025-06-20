@@ -1,0 +1,110 @@
+/**
+ * PropTypes Detector - Detects missing PropTypes in React components
+ * Dependencies: None
+ * Public API: detect(content, filePath, config)
+ */
+
+class PropTypesDetector {
+  constructor() {
+    this.name = 'PropTypesDetector';
+    this.patterns = {
+      typescript: /\.(ts|tsx)$/,
+      flow: /@flow|\/\*\s*@flow\s*\*\//,
+      reactComponent: /(?:class\s+\w+\s+extends\s+(?:React\.)?(?:Component|PureComponent)|function\s+\w+\s*\([^)]*\)\s*{[\s\S]*?return\s*(?:<|\()|const\s+\w+\s*=\s*(?:\([^)]*\)|[^=]+)\s*=>\s*[^{]*?(?:<|\()|React\.(?:FC|FunctionComponent|VFC|VoidFunctionComponent)|export\s+default\s+function)/,
+      propTypes: /\.propTypes\s*=|PropTypes\./,
+      typescript: /interface\s+\w+Props|type\s+\w+Props\s*=|:\s*(?:React\.)?FC<|:\s*(?:React\.)?FunctionComponent</,
+      jsDoc: /@param\s*{[^}]+}\s*props/,
+      skipComponents: /\.(stories|test|spec|mock)\.(js|jsx|ts|tsx)$/
+    };
+  }
+
+  detect(content, filePath, config = {}) {
+    if (config.skipPropTypesCheck === true) {
+      return [];
+    }
+
+    const issues = [];
+    
+    // Skip TypeScript files
+    if (this.patterns.typescript.test(filePath)) {
+      return [];
+    }
+    
+    // Skip if Flow is detected
+    if (this.patterns.flow.test(content)) {
+      return [];
+    }
+    
+    // Skip test/story files
+    if (this.patterns.skipComponents.test(filePath)) {
+      return [];
+    }
+    
+    // Check if this is a React component
+    const componentMatches = content.match(this.patterns.reactComponent);
+    if (!componentMatches) {
+      return [];
+    }
+    
+    // Check if TypeScript types are defined (even in .js files)
+    if (this.patterns.typescript.test(content)) {
+      return [];
+    }
+    
+    // Check if JSDoc types are defined
+    if (this.patterns.jsDoc.test(content)) {
+      return [];
+    }
+    
+    // Check if PropTypes are defined
+    if (this.patterns.propTypes.test(content)) {
+      return [];
+    }
+    
+    // Extract component names
+    const componentNames = this.extractComponentNames(content);
+    
+    componentNames.forEach(name => {
+      // Check if component accepts props
+      const propsPattern = new RegExp(`${name}\\s*(?:=|\\()\\s*(?:\\(|function\\s*\\()\\s*(?:{[^}]*}|\\w+)`);
+      if (propsPattern.test(content)) {
+        issues.push({
+          type: 'missing-proptypes',
+          severity: 'info',
+          message: `React component '${name}' is missing PropTypes definition`,
+          file: filePath,
+          line: 1,
+          column: 1,
+          snippet: name,
+          suggestion: 'Add PropTypes validation or use TypeScript for type safety'
+        });
+      }
+    });
+
+    return issues;
+  }
+
+  extractComponentNames(content) {
+    const names = [];
+    
+    // Class components
+    const classMatches = content.matchAll(/class\s+(\w+)\s+extends\s+(?:React\.)?(?:Component|PureComponent)/g);
+    for (const match of classMatches) {
+      names.push(match[1]);
+    }
+    
+    // Function components
+    const funcMatches = content.matchAll(/(?:function|const)\s+(\w+)\s*(?:=\s*(?:\([^)]*\)|[^=]+)\s*=>|(?:\([^)]*\))?\s*{)/g);
+    for (const match of funcMatches) {
+      // Check if it returns JSX
+      const funcName = match[1];
+      if (/return\s*[(<]/.test(content) && /^[A-Z]/.test(funcName)) {
+        names.push(funcName);
+      }
+    }
+    
+    return [...new Set(names)];
+  }
+}
+
+module.exports = PropTypesDetector;

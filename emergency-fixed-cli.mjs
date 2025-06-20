@@ -1,0 +1,441 @@
+#!/usr/bin/env node
+
+/**
+ * EMERGENCY FIXED CLI - Handles Object Files Structure + Massive Corruption
+ * Fixes: scan() method, object-based files, homoglyph emergency
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { EyeOfSauronOmniscient } from './core/EyeOfSauronOmniscient.js';
+
+class EmergencyFixedCLI {
+  constructor() {
+    this.scanner = null;
+  }
+
+  async run() {
+    try {
+      console.log('🚨 EMERGENCY EYE OF SAURON - CORRUPTION CRISIS MODE');
+      console.log('═══════════════════════════════════════════════════');
+
+      const inputPath = process.argv[2] || '.';
+      const outputFile = this.getOutputFile();
+
+      console.log(`📁 Emergency scanning: ${inputPath}`);
+
+      const config = {
+        mode: 'emergency',
+        maxConcurrentScans: 2, // Reduced for stability
+        enableTelemetry: false,
+        patterns: {
+          ignoreDirectories: ['node_modules', '.git', 'dist', 'build'],
+          supportedExtensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']
+        }
+      };
+
+      this.scanner = new EyeOfSauronOmniscient(config);
+
+      console.log('⚡ EMERGENCY SCAN STARTING...');
+
+      // FIXED: Use scan() method (not scanPath)
+      const results = await this.scanner.scan(inputPath);
+
+      console.log('✅ Emergency scan completed!');
+
+      // Save results
+      if (outputFile) {
+        await this.saveResults(results, outputFile);
+        console.log(`💾 Results saved to: ${outputFile}`);
+      }
+
+      // FIXED: Handle object-based file structure
+      this.printEmergencySummary(results);
+
+      // CRITICAL: Investigate corruption crisis
+      await this.investigateCorruptionCrisis(results);
+
+    } catch (error) {
+      console.error('❌ EMERGENCY SCAN FAILED:', error.message);
+      console.error('🔥 STACK:', error.stack);
+      process.exit(1);
+    }
+  }
+
+  getOutputFile() {
+    const args = process.argv;
+    const outputIndex = args.indexOf('--output');
+    if (outputIndex !== -1 && args[outputIndex + 1]) {
+      return args[outputIndex + 1];
+    }
+    return `emergency-scan-${Date.now()}.json`;
+  }
+
+  async saveResults(results, outputFile) {
+    const jsonOutput = JSON.stringify(results, null, 2);
+    await fs.writeFile(outputFile, jsonOutput, 'utf8');
+  }
+
+  // FIXED: Handle object-based file structure properly
+  printEmergencySummary(results) {
+    console.log('\n🚨 EMERGENCY CORRUPTION ANALYSIS:');
+    console.log('═══════════════════════════════════════════════════');
+
+    // Handle results structure safely
+    if (!results || typeof results !== 'object') {
+      console.log('❌ Invalid results structure');
+      return;
+    }
+
+    if (results.summary) {
+      console.log(`📁 Files scanned: ${results.summary.filesScanned || 'N/A'}`);
+      console.log(`🔥 TOTAL ISSUES: ${results.summary.totalIssues || 0}`);
+
+      if (results.summary.issuesBySeverity) {
+        const severities = results.summary.issuesBySeverity;
+        if (severities.APOCALYPSE) console.log(`💀 APOCALYPSE: ${severities.APOCALYPSE}`);
+        if (severities.DANGER) console.log(`🚨 DANGER: ${severities.DANGER}`);
+        if (severities.WARNING) console.log(`⚠️  WARNING: ${severities.WARNING}`);
+        if (severities.INFO) console.log(`ℹ️  INFO: ${severities.INFO}`);
+      }
+    }
+
+    // FIXED: Handle files as object, not array
+    if (results.files && typeof results.files === 'object') {
+      const fileEntries = Object.entries(results.files);
+      console.log(`📋 Total files processed: ${fileEntries.length}`);
+
+      const filesWithIssues = fileEntries.filter(([_, fileData]) =>
+        fileData.issues && Array.isArray(fileData.issues) && fileData.issues.length > 0
+      );
+
+      console.log(`💀 Files with corruption: ${filesWithIssues.length}`);
+
+      // Show most corrupted files
+      const sortedFiles = filesWithIssues
+        .sort(([_, a], [__, b]) => (b.issues?.length || 0) - (a.issues?.length || 0))
+        .slice(0, 10);
+
+      if (sortedFiles.length > 0) {
+        console.log('\n💀 MOST CORRUPTED FILES:');
+        sortedFiles.forEach(([filePath, fileData], index) => {
+          const issueCount = fileData.issues?.length || 0;
+          console.log(`   ${index + 1}. ${filePath}: ${issueCount} issues`);
+        });
+      }
+    } else {
+      console.log('❌ No file data found in results');
+    }
+  }
+
+  async investigateCorruptionCrisis(results) {
+    console.log('\n🔍 CORRUPTION CRISIS INVESTIGATION:');
+    console.log('═══════════════════════════════════════════════════');
+
+    if (!results.files || typeof results.files !== 'object') {
+      console.log('❌ No file data to investigate');
+      return;
+    }
+
+    const fileEntries = Object.entries(results.files);
+    let totalHomoglyphs = 0;
+    let totalInvisibleChars = 0;
+    let homoglyphFiles = [];
+    let corruptionStats = {
+      HOMOGLYPH: 0,
+      INVISIBLE_CHAR: 0,
+      TRAILING_SPACE: 0,
+      MIXED_QUOTES: 0,
+      OTHER: 0
+    };
+
+    // Analyze corruption patterns
+    fileEntries.forEach(([filePath, fileData]) => {
+      if (fileData.issues && Array.isArray(fileData.issues)) {
+        let fileHomoglyphs = 0;
+        let fileInvisible = 0;
+
+        fileData.issues.forEach(issue => {
+          // Count by type
+          if (issue.type === 'HOMOGLYPH') {
+            totalHomoglyphs++;
+            fileHomoglyphs++;
+            corruptionStats.HOMOGLYPH++;
+          } else if (issue.type === 'INVISIBLE_CHAR') {
+            totalInvisibleChars++;
+            fileInvisible++;
+            corruptionStats.INVISIBLE_CHAR++;
+          } else if (issue.type === 'TRAILING_SPACE') {
+            corruptionStats.TRAILING_SPACE++;
+          } else if (issue.type === 'MIXED_QUOTES') {
+            corruptionStats.MIXED_QUOTES++;
+          } else {
+            corruptionStats.OTHER++;
+          }
+        });
+
+        if (fileHomoglyphs > 0 || fileInvisible > 0) {
+          homoglyphFiles.push({
+            file: filePath,
+            homoglyphs: fileHomoglyphs,
+            invisible: fileInvisible,
+            totalIssues: fileData.issues.length
+          });
+        }
+      }
+    });
+
+    console.log(`🔥 CORRUPTION STATISTICS:`);
+    console.log(`  📊 Total files scanned: ${fileEntries.length}`);
+    console.log(`  💀 Corrupted files: ${homoglyphFiles.length}`);
+    console.log(`  🧬 Total homoglyphs: ${totalHomoglyphs}`);
+    console.log(`  👻 Total invisible chars: ${totalInvisibleChars}`);
+    console.log(`  📏 Trailing spaces: ${corruptionStats.TRAILING_SPACE}`);
+    console.log(`  🔤 Mixed quotes: ${corruptionStats.MIXED_QUOTES}`);
+    console.log(`  ❓ Other issues: ${corruptionStats.OTHER}`);
+
+    if (results.summary?.totalIssues) {
+      const homoglyphPercentage = ((totalHomoglyphs / results.summary.totalIssues) * 100).toFixed(1);
+      console.log(`  🔍 Homoglyph corruption: ${homoglyphPercentage}%`);
+    }
+
+    if (homoglyphFiles.length > 0) {
+      console.log('\n💀 TOP 15 MOST CORRUPTED FILES:');
+      homoglyphFiles
+        .sort((a, b) => (b.homoglyphs + b.invisible) - (a.homoglyphs + a.invisible))
+        .slice(0, 15)
+        .forEach((file, index) => {
+          console.log(`  ${(index + 1).toString().padStart(2)}. ${file.file}`);
+          console.log(`      🧬 ${file.homoglyphs} homoglyphs, 👻 ${file.invisible} invisible, 📊 ${file.totalIssues} total`);
+        });
+    }
+
+    // CRITICAL THREAT ASSESSMENT
+    if (totalHomoglyphs > 100000) {
+      console.log('\n🚨🚨🚨 APOCALYPTIC CORRUPTION DETECTED! 🚨🚨🚨');
+      console.log('Your entire codebase is under MASSIVE homoglyph attack!');
+      console.log('\n💣 IMMEDIATE EMERGENCY ACTIONS REQUIRED:');
+      console.log('1. 🛑 STOP all deployments immediately');
+      console.log('2. 🚫 Do NOT commit current state to version control');
+      console.log('3. 🔙 Restore from clean backup if available');
+      console.log('4. 🧹 Run emergency cleanup script (being generated...)');
+      console.log('5. 🔍 Investigate source of corruption');
+    } else if (totalHomoglyphs > 10000) {
+      console.log('\n⚠️  CRITICAL CORRUPTION WARNING');
+      console.log('Significant homoglyph contamination detected');
+    } else if (totalHomoglyphs > 1000) {
+      console.log('\n⚠️  MODERATE CORRUPTION');
+      console.log('Multiple files contain homoglyph issues');
+    } else {
+      console.log('\n✅ Corruption levels manageable');
+    }
+
+    // Generate emergency cleanup tools
+    await this.createEmergencyCleanupTools(homoglyphFiles, corruptionStats);
+  }
+
+  async createEmergencyCleanupTools(homoglyphFiles, stats) {
+    console.log('\n🛠️  GENERATING EMERGENCY CLEANUP TOOLS...');
+
+    // 1. Aggressive cleanup script
+    const cleanupScript = `#!/usr/bin/env node
+/**
+ * EMERGENCY HOMOGLYPH CLEANUP SCRIPT
+ * Generated: ${new Date().toISOString()}
+ * Corruption Level: APOCALYPTIC (${stats.HOMOGLYPH} homoglyphs detected)
+ */
+
+import { promises as fs } from 'fs';
+import path from 'path';
+
+// Comprehensive Cyrillic to ASCII mapping
+const CYRILLIC_TO_ASCII = {
+  // Basic Cyrillic homoglyphs
+  'a': 'a', 'e': 'e', 'o': 'o', 'p': 'p', 'c': 'c', 'x': 'x', 'y': 'y',
+  'A': 'A', 'B': 'B', 'E': 'E', 'K': 'K', 'M': 'M', 'H': 'H', 'O': 'O',
+  'P': 'P', 'C': 'C', 'T': 'T', 'X': 'X',
+
+  // Additional Cyrillic characters that can cause issues
+  'i': 'i', 'j': 'j', 's': 's', 'l': 'l', 'h': 'h', 'p': 'p',
+  'o': 'o', 'u': 'u', 'a': 'a', 'n': 'v', 'k': 'k', 't': 't',
+
+  // Greek letters that look like ASCII
+  'A': 'A', 'B': 'B', 'E': 'E', 'Z': 'Z', 'H': 'H', 'I': 'I',
+  'K': 'K', 'M': 'M', 'N': 'N', 'O': 'O', 'P': 'P', 'T': 'T',
+  'Y': 'Y', 'X': 'X'
+};
+
+// Invisible characters to remove
+const INVISIBLE_CHARS = [
+  '\\u200B', // Zero Width Space
+  '\\u200C', // Zero Width Non-Joiner
+  '\\u200D', // Zero Width Joiner
+  '\\uFEFF', // Byte Order Mark
+  '\\u2060', // Word Joiner
+  '\\u180E'  // Mongolian Vowel Separator
+];
+
+let totalFilesProcessed = 0;
+let totalReplacements = 0;
+let totalBackups = 0;
+
+async function cleanFile(filePath) {
+  try {
+    console.log(\`🔧 Cleaning: \${filePath}\`);
+
+    const content = await fs.readFile(filePath, 'utf8');
+    let cleanContent = content;
+    let fileReplacements = 0;
+
+    // Replace Cyrillic with ASCII
+    for (const [cyrillic, ascii] of Object.entries(CYRILLIC_TO_ASCII)) {
+      const regex = new RegExp(cyrillic, 'g');
+      const matches = cleanContent.match(regex);
+      if (matches) {
+        cleanContent = cleanContent.replace(regex, ascii);
+        fileReplacements += matches.length;
+      }
+    }
+
+    // Remove invisible characters
+    for (const invisibleChar of INVISIBLE_CHARS) {
+      const regex = new RegExp(invisibleChar, 'g');
+      const matches = cleanContent.match(regex);
+      if (matches) {
+        cleanContent = cleanContent.replace(regex, '');
+        fileReplacements += matches.length;
+      }
+    }
+
+    // Clean trailing spaces
+    const lines = cleanContent.split('\\n');
+    const cleanedLines = lines.map(line => line.trimEnd());
+    cleanContent = cleanedLines.join('\\n');
+
+    if (fileReplacements > 0 || cleanContent !== content) {
+      // Create backup with timestamp
+      const backupPath = \`\${filePath}.backup.\${Date.now()}\`;
+      await fs.writeFile(backupPath, content);
+      totalBackups++;
+
+      // Write cleaned content
+      await fs.writeFile(filePath, cleanContent);
+      totalReplacements += fileReplacements;
+
+      console.log(\`  ✅ Fixed \${fileReplacements} corruption issues\`);
+    } else {
+      console.log(\`  ✅ No corruption found\`);
+    }
+
+    totalFilesProcessed++;
+
+  } catch (error) {
+    console.error(\`  ❌ Error cleaning \${filePath}: \${error.message}\`);
+  }
+}
+
+// Priority files (most corrupted)
+const priorityFiles = ${JSON.stringify(homoglyphFiles.slice(0, 50).map(f => f.file), null, 2)};
+
+console.log('🚀 EMERGENCY CLEANUP STARTING...');
+console.log(\`📊 Processing \${priorityFiles.length} priority corrupted files\`);
+console.log('⚠️  Creating backups with timestamp suffix');
+
+for (const file of priorityFiles) {
+  await cleanFile(file);
+}
+
+console.log('\\n✅ EMERGENCY CLEANUP COMPLETE!');
+console.log(\`📊 Files processed: \${totalFilesProcessed}\`);
+console.log(\`🔧 Total fixes applied: \${totalReplacements}\`);
+console.log(\`💾 Backups created: \${totalBackups}\`);
+console.log('\\n⚠️  Next steps:');
+console.log('1. Test your application thoroughly');
+console.log('2. Run the scanner again to verify cleanup');
+console.log('3. If satisfied, delete .backup.* files');
+console.log('4. Commit clean code to version control');
+`;
+
+    await fs.writeFile('EMERGENCY-CLEANUP.mjs', cleanupScript);
+    console.log('✅ Created: EMERGENCY-CLEANUP.mjs');
+
+    // 2. Analysis report
+    const reportContent = `# CORRUPTION CRISIS REPORT
+Generated: ${new Date().toISOString()}
+
+## THREAT ASSESSMENT: APOCALYPTIC
+
+### Statistics
+- **Total Files Scanned**: ${Object.keys(homoglyphFiles).length}
+- **Corrupted Files**: ${homoglyphFiles.length}
+- **Homoglyph Attacks**: ${stats.HOMOGLYPH}
+- **Invisible Characters**: ${stats.INVISIBLE_CHAR}
+- **Other Issues**: ${stats.TRAILING_SPACE + stats.MIXED_QUOTES + stats.OTHER}
+
+### Top 20 Most Corrupted Files
+${homoglyphFiles.slice(0, 20).map((file, i) =>
+  `${i+1}. \`${file.file}\` - ${file.homoglyphs} homoglyphs, ${file.invisible} invisible chars`
+).join('\n')}
+
+### Emergency Actions Taken
+1. Generated EMERGENCY-CLEANUP.mjs script
+2. Identified priority cleanup targets
+3. Created corruption analysis report
+
+### Next Steps
+1. 🛑 STOP all deployments
+2. 🧹 Run: \`node EMERGENCY-CLEANUP.mjs\`
+3. 🔍 Re-scan: \`node emergency-fixed-cli.mjs\`
+4. 🔙 Consider restoring from clean backup
+5. 🔐 Investigate source of corruption
+`;
+
+    await fs.writeFile('CORRUPTION-CRISIS-REPORT.md', reportContent);
+    console.log('✅ Created: CORRUPTION-CRISIS-REPORT.md');
+
+    // 3. Quick verification script
+    const verifyScript = `#!/usr/bin/env node
+/**
+ * Quick corruption verification after cleanup
+ */
+import { promises as fs } from 'fs';
+
+const testFiles = ${JSON.stringify(homoglyphFiles.slice(0, 10).map(f => f.file), null, 2)};
+
+console.log('🔍 Quick verification of cleanup...');
+
+for (const file of testFiles) {
+  try {
+    const content = await fs.readFile(file, 'utf8');
+    const cyrillicCount = (content.match(/[a-я]/gi) || []).length;
+    const invisibleCount = (content.match(/[\\u200B\\u200C\\u200D\\uFEFF]/g) || []).length;
+
+    if (cyrillicCount === 0 && invisibleCount === 0) {
+      console.log(\`✅ \${file} - Clean\`);
+    } else {
+      console.log(\`❌ \${file} - Still corrupted (\${cyrillicCount} Cyrillic, \${invisibleCount} invisible)\`);
+    }
+  } catch (error) {
+    console.log(\`❌ \${file} - Error: \${error.message}\`);
+  }
+}
+`;
+
+    await fs.writeFile('verify-cleanup.mjs', verifyScript);
+    console.log('✅ Created: verify-cleanup.mjs');
+
+    console.log('\n🚨 EMERGENCY TOOLS READY:');
+    console.log('1. node EMERGENCY-CLEANUP.mjs    # Fix corruption');
+    console.log('2. node verify-cleanup.mjs       # Verify fixes');
+    console.log('3. Read CORRUPTION-CRISIS-REPORT.md for details');
+  }
+}
+
+// Export for programmatic use
+export { EmergencyFixedCLI };
+
+// Run directly if called as script
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const cli = new EmergencyFixedCLI();
+  await cli.run();
+}

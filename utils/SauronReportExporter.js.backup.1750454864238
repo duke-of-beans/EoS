@@ -1,0 +1,344 @@
+/**
+ * Purpose: Exports reports in JSON, CSV, HTML formats
+ * Dependencies: Node.js std lib
+ * API: SauronReportExporter().toJson(), toCsv(), toHtml()
+ */
+
+export class SauronReportExporter {
+  constructor(config = {}) {
+    this.config = {
+      prettyJson: config.prettyJson || false,
+      csvDelimiter: config.csvDelimiter || ',',
+      csvMaxFieldLength: config.csvMaxFieldLength || 500,
+      toolVersion: config.toolVersion || '1.0.0'
+    };
+  }
+
+  /**
+   * Export report as JSON string with circular reference safety
+   */
+  toJson(report) {
+    try {
+      const safeReport = this._prepareReportWithMetadata(report);
+      const seen = new WeakSet();
+      
+      const circularReplacer = (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+          if (seen.has(value)) {
+            return '[Circular Reference]';
+          }
+          seen.add(value);
+        }
+        return value;
+      };
+
+      return JSON.stringify(
+        safeReport, 
+        circularReplacer, 
+        this.config.prettyJson ? 2 : null
+      );
+    } catch (error) {
+      return JSON.stringify({
+        error: 'Export failed',
+        message: error.message,
+        timestamp: new Date().toISOString(),
+        toolVersion: this.config.toolVersion
+      });
+    }
+  }
+
+  /**
+   * Export report as CSV with flattened issues
+   */
+  toCsv(report) {
+    try {
+      const safeReport = this._prepareReportWithMetadata(report);
+      const issues = this._extractIssues(safeReport);
+      
+      if (!issues.length) {
+        return this._generateEmptyCsv();
+      }
+
+      // Extract all unique field names
+      const fieldSet = new Set();
+      issues.forEach(issue => {
+        Object.keys(this._flattenObject(issue)).forEach(key => fieldSet.add(key));
+      });
+      const fields = Array.from(fieldSet).sort();
+
+      // Build CSV header
+      const header = fields.map(f => this._escapeCsvField(f)).join(this.config.csvDelimiter);
+      
+      // Build CSV rows
+      const rows = issues.map(issue => {
+        const flattened = this._flattenObject(issue);
+        return fields.map(field => {
+          const value = flattened[field] || '';
+          return this._escapeCsvField(String(value));
+        }).join(this.config.csvDelimiter);
+      });
+
+      return [header, ...rows].join('\n');
+    } catch (error) {
+      return this._generateEmptyCsv(error.message);
+    }
+  }
+
+  /**
+   * Export report as minimal HTML with inline styles
+   */
+  toHtml(report) {
+    try {
+      const safeReport = this._prepareReportWithMetadata(report);
+      const issues = this._extractIssues(safeReport);
+      const metadata = this._extractMetadata(safeReport);
+
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eye of Sauron Report</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; margin: 20px; background: #f5f5f5; }
+    .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #333; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
+    h2 { color: #555; margin-top: 30px; }
+    .metadata { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    .metadata p { margin: 5px 0; color: #666; }
+    .summary { background: #e8f4f8; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    .issue { background: #fff; border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+    .issue-header { font-weight: bold; color: #d32f2f; margin-bottom: 5px; }
+    .issue-file { color: #1976d2; font-family: monospace; font-size: 0.9em; }
+    .issue-details { margin-top: 10px; }
+    .issue-details dt { font-weight: bold; color: #555; margin-top: 5px; }
+    .issue-details dd { margin-left: 20px; color: #777; }
+    .empty { color: #999; font-style: italic; }
+    pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    code { font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>👁️ Eye of Sauron Report</h1>
+    
+    <div class="metadata">
+      <p><strong>Generated:</strong> ${this._escapeHtml(metadata.timestamp)}</p>
+      <p><strong>Tool Version:</strong> ${this._escapeHtml(metadata.toolVersion)}</p>
+      <p><strong>Total Issues:</strong> ${issues.length}</p>
+    </div>
+
+    ${this._generateHtmlSummary(safeReport)}
+    
+    <h2>Issues</h2>
+    ${issues.length > 0 ? issues.map(issue => this._generateHtmlIssue(issue)).join('\n') : '<p class="empty">No issues found</p>'}
+  </div>
+</body>
+</html>`;
+    } catch (error) {
+      return this._generateMinimalHtml(error.message);
+    }
+  }
+
+  // Private helper methods
+
+  _prepareReportWithMetadata(report) {
+    const timestamp = new Date().toISOString();
+    
+    if (!report || typeof report !== 'object') {
+      return {
+        timestamp,
+        toolVersion: this.config.toolVersion,
+        error: 'Invalid or empty report',
+        issues: []
+      };
+    }
+
+    return {
+      ...report,
+      metadata: {
+        ...(report.metadata || {}),
+        timestamp,
+        toolVersion: this.config.toolVersion
+      }
+    };
+  }
+
+  _extractIssues(report) {
+    const issues = [];
+    
+    // Direct issues array
+    if (Array.isArray(report.issues)) {
+      issues.push(...report.issues);
+    }
+    
+    // Vision files structure
+    if (report.vision?.files) {
+      Object.entries(report.vision.files).forEach(([filepath, fileData]) => {
+        if (Array.isArray(fileData.issues)) {
+          fileData.issues.forEach(issue => {
+            issues.push({
+              ...issue,
+              filepath: issue.filepath || filepath
+            });
+          });
+        }
+      });
+    }
+    
+    // Results array
+    if (Array.isArray(report.results)) {
+      report.results.forEach(result => {
+        if (Array.isArray(result.issues)) {
+          issues.push(...result.issues);
+        }
+      });
+    }
+
+    return issues;
+  }
+
+  _extractMetadata(report) {
+    return {
+      timestamp: report.metadata?.timestamp || report.timestamp || new Date().toISOString(),
+      toolVersion: report.metadata?.toolVersion || report.toolVersion || this.config.toolVersion,
+      scanProfile: report.metadata?.scanProfile || report.scanProfile || 'default',
+      duration: report.metadata?.duration || report.duration || 'unknown'
+    };
+  }
+
+  _flattenObject(obj, prefix = '') {
+    const flattened = {};
+    
+    Object.entries(obj).forEach(([key, value]) => {
+      const newKey = prefix ? `${prefix}.${key}` : key;
+      
+      if (value === null || value === undefined) {
+        flattened[newKey] = '';
+      } else if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+        Object.assign(flattened, this._flattenObject(value, newKey));
+      } else if (Array.isArray(value)) {
+        flattened[newKey] = value.map(v => String(v)).join('; ');
+      } else {
+        flattened[newKey] = value;
+      }
+    });
+    
+    return flattened;
+  }
+
+  _escapeCsvField(field) {
+    let escaped = String(field);
+    
+    // Truncate if too long
+    if (escaped.length > this.config.csvMaxFieldLength) {
+      escaped = escaped.substring(0, this.config.csvMaxFieldLength - 3) + '...';
+    }
+    
+    // Escape quotes
+    escaped = escaped.replace(/"/g, '""');
+    
+    // Quote field if it contains delimiter, quotes, or newlines
+    if (escaped.includes(this.config.csvDelimiter) || 
+        escaped.includes('"') || 
+        escaped.includes('\n') || 
+        escaped.includes('\r')) {
+      escaped = `"${escaped}"`;
+    }
+    
+    return escaped;
+  }
+
+  _escapeHtml(str) {
+    const div = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return String(str).replace(/[&<>"']/g, char => div[char]);
+  }
+
+  _generateEmptyCsv(error = null) {
+    const header = ['timestamp', 'toolVersion', 'status', 'message'];
+    const row = [
+      new Date().toISOString(),
+      this.config.toolVersion,
+      error ? 'error' : 'empty',
+      error || 'No issues found'
+    ];
+    
+    return [
+      header.map(h => this._escapeCsvField(h)).join(this.config.csvDelimiter),
+      row.map(v => this._escapeCsvField(v)).join(this.config.csvDelimiter)
+    ].join('\n');
+  }
+
+  _generateMinimalHtml(error) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Eye of Sauron Report - Error</title>
+  <style>
+    body { font-family: sans-serif; margin: 40px; }
+    .error { color: #d32f2f; background: #ffebee; padding: 20px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Eye of Sauron Report</h1>
+  <div class="error">
+    <h2>Export Error</h2>
+    <p>${this._escapeHtml(error)}</p>
+    <p>Generated: ${this._escapeHtml(new Date().toISOString())}</p>
+  </div>
+<div id="results"></div>
+</body>
+</html>`;
+  }
+
+  _generateHtmlSummary(report) {
+    const summary = report.summary || {};
+    const hasContent = Object.keys(summary).length > 0;
+    
+    if (!hasContent) {
+      return '';
+    }
+
+    return `
+    <div class="summary">
+      <h2>Summary</h2>
+      ${Object.entries(summary).map(([key, value]) => 
+        `<p><strong>${this._escapeHtml(key)}:</strong> ${this._escapeHtml(String(value))}</p>`
+      ).join('\n')}
+    </div>`;
+  }
+
+  _generateHtmlIssue(issue) {
+    const type = issue.type || 'unknown';
+    const severity = issue.severity || 'info';
+    const filepath = issue.filepath || issue.file || 'unknown';
+    const message = issue.message || issue.description || 'No description';
+    
+    return `
+    <div class="issue">
+      <div class="issue-header">${this._escapeHtml(type)} (${this._escapeHtml(severity)})</div>
+      <div class="issue-file">${this._escapeHtml(filepath)}</div>
+      <p>${this._escapeHtml(message)}</p>
+      ${this._generateIssueDetails(issue)}
+    </div>`;
+  }
+
+  _generateIssueDetails(issue) {
+    const detailKeys = ['line', 'column', 'rule', 'suggestion', 'impact', 'effort'];
+    const details = detailKeys
+      .filter(key => issue[key] !== undefined && issue[key] !== null)
+      .map(key => `<dt>${this._escapeHtml(key)}:</dt><dd>${this._escapeHtml(String(issue[key]))}</dd>`)
+      .join('\n');
+    
+    return details ? `<dl class="issue-details">${details}</dl>` : '';
+  }
+}
+export default SauronReportExporter;
+

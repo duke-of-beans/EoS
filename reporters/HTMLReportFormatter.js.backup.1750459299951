@@ -1,0 +1,509 @@
+/**
+ * Purpose: Generates complete HTML report for Eye of Sauron analysis results
+ * Dependencies: Node.js standard library (no external dependencies)
+ * Public API:
+ *   - new HTMLReportFormatter(config) - Creates formatter instance
+ *   - format(report) - Generates HTML string from report object
+ * 
+ * Config options:
+ *   - maxIssuesShown: number (default: 100)
+ *   - theme: string (default: 'dark', future: 'light')
+ *   - title: string (default: 'Eye of Sauron Report')
+ */
+
+export class HTMLReportFormatter {
+  constructor(config = {}) {
+    this.config = {
+      maxIssuesShown: 100,
+      theme: 'dark', // Future: could support 'light' theme
+      title: 'Eye of Sauron Report',
+      ...config
+    };
+  }
+
+  /**
+   * Formats a report object into a complete HTML string
+   * @param {Object} report - Report object containing analysis results
+   * @returns {string} Complete HTML document as string
+   */
+  format(report) {
+    const {
+      timestamp = new Date().toISOString(),
+      duration = 0,
+      filesScanned = 0,
+      totalIssues = 0,
+      issues = [],
+      prophecies = [],
+      vision = {}
+    } = report;
+
+    const issuesBySeverity = this._countBySeverity(issues);
+    const limitedIssues = issues.slice(0, this.config.maxIssuesShown);
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${this._escape(this.config.title)}</title>
+    <style>
+        ${this._getStyles()}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👁️ Eye of Sauron Analysis Report</h1>
+            <div class="timestamp">Generated: ${this._escape(new Date(timestamp).toLocaleString())}</div>
+        </header>
+
+        ${this._renderSummary(filesScanned, totalIssues, duration, issuesBySeverity)}
+        
+        ${this._renderIssuesList(limitedIssues, totalIssues)}
+        
+        ${prophecies.length > 0 ? this._renderProphecies(prophecies) : ''}
+        
+        ${this._renderFooter()}
+    </div>
+</body>
+</html>`;
+  }
+
+  _renderSummary(filesScanned, totalIssues, duration, severityCounts) {
+    return `
+        <section class="summary">
+            <h2>Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">${filesScanned}</div>
+                    <div class="stat-label">Files Scanned</div>
+                </div>
+                <div class="stat-card ${totalIssues > 0 ? 'has-issues' : 'no-issues'}">
+                    <div class="stat-value">${totalIssues}</div>
+                    <div class="stat-label">Total Issues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${(duration / 1000).toFixed(2)}s</div>
+                    <div class="stat-label">Scan Duration</div>
+                </div>
+            </div>
+            <div class="severity-breakdown">
+                <h3>Issues by Severity</h3>
+                <div class="severity-bars">
+                    ${this._renderSeverityBar('critical', severityCounts.critical || 0)}
+                    ${this._renderSeverityBar('major', severityCounts.major || 0)}
+                    ${this._renderSeverityBar('minor', severityCounts.minor || 0)}
+                    ${this._renderSeverityBar('trivial', severityCounts.trivial || 0)}
+                </div>
+            </div>
+        </section>`;
+  }
+
+  _renderSeverityBar(severity, count) {
+    if (count === 0) return '';
+    return `
+        <div class="severity-bar">
+            <span class="severity-label severity-${severity}">${severity}</span>
+            <span class="severity-count">${count}</span>
+        </div>`;
+  }
+
+  _renderIssuesList(issues, totalIssues) {
+    if (issues.length === 0) {
+      return `
+        <section class="issues">
+            <h2>Issues</h2>
+            <div class="no-issues-message">✨ No issues found! The code is clean.</div>
+        </section>`;
+    }
+
+    const issuesHtml = issues.map(issue => this._renderIssue(issue)).join('');
+    const truncatedMessage = totalIssues > this.config.maxIssuesShown 
+      ? `<div class="truncated-message">Showing ${this.config.maxIssuesShown} of ${totalIssues} issues</div>`
+      : '';
+
+    return `
+        <section class="issues">
+            <h2>Issues</h2>
+            ${truncatedMessage}
+            <div class="issues-list">
+                ${issuesHtml}
+            </div>
+        </section>`;
+  }
+
+  _renderIssue(issue) {
+    const {
+      file = 'unknown',
+      line = 0,
+      column = 0,
+      severity = 'minor',
+      category = 'general',
+      message = 'No message provided',
+      evidence = ''
+    } = issue;
+
+    const normalizedSeverity = this._normalizeSeverity(severity);
+
+    return `
+        <div class="issue severity-${this._escape(normalizedSeverity)}">
+            <div class="issue-header">
+                <span class="issue-location">${this._escape(file)}:${line}:${column}</span>
+                <span class="issue-severity">${this._escape(normalizedSeverity)}</span>
+                <span class="issue-category">${this._escape(category)}</span>
+            </div>
+            <div class="issue-message">${this._escape(message)}</div>
+            ${evidence ? `<pre class="issue-evidence">${this._escape(evidence)}</pre>` : ''}
+        </div>`;
+  }
+
+  _renderProphecies(prophecies) {
+    const propheciesHtml = prophecies.map(prophecy => `
+        <div class="prophecy">
+            <div class="prophecy-vision">🔮 ${this._escape(prophecy.vision || prophecy)}</div>
+            ${prophecy.probability ? `<div class="prophecy-probability">Probability: ${(prophecy.probability * 100).toFixed(0)}%</div>` : ''}
+        </div>
+    `).join('');
+
+    return `
+        <section class="prophecies">
+            <h2>Prophecies</h2>
+            <p class="prophecies-intro">The Eye sees potential futures in your code...</p>
+            ${propheciesHtml}
+        </section>`;
+  }
+
+  _renderFooter() {
+    return `
+        <footer>
+            <p>Generated by Eye of Sauron • One analyzer to rule them all</p>
+        </footer>`;
+  }
+
+  _normalizeSeverity(severity) {
+    // Normalize various severity formats to our standard levels
+    const severityMap = {
+      // Standard levels
+      'critical': 'critical',
+      'major': 'major',
+      'minor': 'minor',
+      'trivial': 'trivial',
+      
+      // Common aliases
+      'error': 'major',
+      'warning': 'minor',
+      'info': 'trivial',
+      'note': 'trivial',
+      
+      // Numeric levels
+      '1': 'critical',
+      '2': 'major',
+      '3': 'minor',
+      '4': 'trivial',
+      
+      // High/medium/low
+      'high': 'critical',
+      'medium': 'major',
+      'low': 'minor'
+    };
+    
+    const normalized = String(severity).toLowerCase();
+    return severityMap[normalized] || 'minor'; // Default to minor if unknown
+  }
+
+  _countBySeverity(issues) {
+    const counts = {};
+    issues.forEach(issue => {
+      const severity = this._normalizeSeverity(issue.severity || 'minor');
+      counts[severity] = (counts[severity] || 0) + 1;
+    });
+    return counts;
+  }
+
+  _escape(str) {
+    if (typeof str !== 'string') {
+      return String(str);
+    }
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  _getStyles() {
+    return `
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: #0a0a0a;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #333;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #ffd93d;
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #ff6b6b;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd93d;
+        }
+        
+        .stat-card.has-issues .stat-value {
+            color: #ff6b6b;
+        }
+        
+        .stat-card.no-issues .stat-value {
+            color: #4ecdc4;
+        }
+        
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .severity-breakdown {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .severity-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .severity-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: #222;
+            border-radius: 4px;
+        }
+        
+        .severity-label {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        
+        .severity-critical { color: #ff4444; }
+        .severity-major { color: #ff8844; }
+        .severity-minor { color: #ffbb44; }
+        .severity-trivial { color: #88cc88; }
+        
+        .no-issues-message {
+            text-align: center;
+            padding: 3rem;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #4ecdc4;
+            font-size: 1.2rem;
+        }
+        
+        .truncated-message {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            color: #ffd93d;
+            text-align: center;
+        }
+        
+        .issues-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .issue {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid;
+        }
+        
+        .issue.severity-critical { border-left-color: #ff4444; }
+        .issue.severity-major { border-left-color: #ff8844; }
+        .issue.severity-minor { border-left-color: #ffbb44; }
+        .issue.severity-trivial { border-left-color: #88cc88; }
+        
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .issue-location {
+            font-family: 'Courier New', monospace;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .issue-severity, .issue-category {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: #2a2a2a;
+            text-transform: uppercase;
+        }
+        
+        .issue-message {
+            color: #e0e0e0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .issue-evidence {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .prophecies {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        
+        .prophecies-intro {
+            color: #888;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        
+        .prophecy {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prophecy-vision {
+            font-size: 1.1rem;
+            color: #ffd93d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prophecy-probability {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .issue-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    `;
+  }
+}
+
+// Update EoS-manifest.md
+/*
+## HTMLReportFormatter.js
+**Purpose:** Generates complete HTML report for Eye of Sauron analysis results
+**Location:** `eye-of-sauron/reporters/HTMLReportFormatter.js`
+**Public API:**
+- `new HTMLReportFormatter(config)` - Creates formatter with optional config
+- `format(report)` - Generates complete HTML string from report object
+**Features:**
+- Normalizes various severity formats (error/warning/info, numeric, high/medium/low) to standard levels
+- HTML escaping for security
+- Responsive dark theme design
+**Integration:** Called by CLI for HTML report output
+*/

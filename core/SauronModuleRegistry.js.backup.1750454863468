@@ -1,0 +1,167 @@
+/**
+ * Purpose: Central registry of loaded Sauron core modules
+ * Dependencies: Node.js std lib
+ * API: SauronModuleRegistry().register(), get(), list(), getHealthStatus(), updateStatus(), unregister(), getDetailsHistory()
+ */
+
+export class SauronModuleRegistry {
+  constructor() {
+    this.modules = new Map();
+    this.validStatuses = new Set(['ok', 'warning', 'error']);
+  }
+
+  /**
+   * Register a module with metadata
+   * @param {string} name - Module name
+   * @param {object} metadata - Module metadata including status
+   * @throws {Error} If module already registered
+   */
+  register(name, metadata) {
+    if (this.modules.has(name)) {
+      throw new Error(`Module '${name}' is already registered`);
+    }
+
+    // Normalize status
+    const status = metadata.status && this.validStatuses.has(metadata.status) 
+      ? metadata.status 
+      : 'ok';
+
+    const moduleEntry = {
+      name,
+      status,
+      registeredAt: new Date().toISOString(),
+      detailsHistory: [],
+      ...metadata,
+      status // Ensure normalized status overwrites any invalid input
+    };
+
+    // If initial details provided, add to history
+    if (metadata.details || metadata.error || metadata.message) {
+      moduleEntry.detailsHistory.push({
+        timestamp: moduleEntry.registeredAt,
+        details: metadata.details || metadata.error || metadata.message,
+        status
+      });
+    }
+
+    this.modules.set(name, moduleEntry);
+  }
+
+  /**
+   * Get module metadata by name
+   * @param {string} name - Module name
+   * @returns {object|null} Module metadata or null if not found
+   */
+  get(name) {
+    const module = this.modules.get(name);
+    return module ? { ...module } : null;
+  }
+
+  /**
+   * List all registered module names
+   * @returns {string[]} Array of module names
+   */
+  list() {
+    return Array.from(this.modules.keys());
+  }
+
+  /**
+   * Get health status of all modules
+   * @returns {Array<{name: string, status: string, details?: string}>} Health status array
+   */
+  getHealthStatus() {
+    return Array.from(this.modules.values()).map(module => {
+      const healthInfo = {
+        name: module.name,
+        status: module.status || 'unknown'
+      };
+
+      if (module.details || module.error || module.message) {
+        healthInfo.details = module.details || module.error || module.message;
+      }
+
+      return healthInfo;
+    });
+  }
+
+  /**
+   * Update module status (internal helper for maintaining registry state)
+   * @param {string} name - Module name
+   * @param {string} status - New status ('ok', 'warning', 'error')
+   * @param {string} [details] - Optional status details
+   * @throws {Error} If status is invalid
+   */
+  updateStatus(name, status, details) {
+    if (!this.validStatuses.has(status)) {
+      throw new Error(`Invalid status '${status}'. Must be one of: ${Array.from(this.validStatuses).join(', ')}`);
+    }
+
+    const module = this.modules.get(name);
+    if (module) {
+      module.status = status;
+      module.lastUpdated = new Date().toISOString();
+      
+      // Add to details history
+      if (details) {
+        module.details = details;
+        module.detailsHistory.push({
+          timestamp: module.lastUpdated,
+          details,
+          status
+        });
+      }
+    }
+  }
+
+  /**
+   * Check if a module is registered
+   * @param {string} name - Module name
+   * @returns {boolean} True if module is registered
+   */
+  has(name) {
+    return this.modules.has(name);
+  }
+
+  /**
+   * Unregister a module
+   * @param {string} name - Module name
+   * @returns {boolean} True if module was unregistered, false if not found
+   */
+  unregister(name) {
+    return this.modules.delete(name);
+  }
+
+  /**
+   * Get details history for a module
+   * @param {string} name - Module name
+   * @returns {Array|null} Details history array or null if module not found
+   */
+  getDetailsHistory(name) {
+    const module = this.modules.get(name);
+    return module ? [...module.detailsHistory] : null;
+  }
+
+  /**
+   * Get registry summary for debugging
+   * @returns {object} Registry summary
+   */
+  getSummary() {
+    const modules = Array.from(this.modules.values());
+    return {
+      totalModules: modules.length,
+      statusCounts: modules.reduce((acc, mod) => {
+        const status = mod.status || 'unknown';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {}),
+      modules: modules.map(m => ({
+        name: m.name,
+        status: m.status,
+        registeredAt: m.registeredAt,
+        detailsCount: m.detailsHistory ? m.detailsHistory.length : 0
+      }))
+    };
+  }
+}
+export default SauronModuleRegistry;
+

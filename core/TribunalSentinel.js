@@ -29,26 +29,26 @@ class TribunalSentinel {
       minNodeVersion: '14.0.0',
       ...config
     };
-    
+
     this.currentDir = dirname(fileURLToPath(import.meta.url));
     this.issues = [];
   }
 
   async runChecks() {
     this.issues = [];
-    
+
     // Check Node.js version
     this._checkNodeVersion();
-    
+
     // Check required modules presence
     await this._checkRequiredModules();
-    
+
     // Check config sanity
     this._checkConfigSanity();
-    
+
     // Check environment
     this._checkEnvironment();
-    
+
     return {
       passed: this.issues.length === 0,
       issues: this.issues
@@ -58,7 +58,7 @@ class TribunalSentinel {
   _checkNodeVersion() {
     const currentVersion = process.version.substring(1); // Remove 'v' prefix
     const required = this.config.minNodeVersion;
-    
+
     if (!this._isVersionGreaterOrEqual(currentVersion, required)) {
       this.issues.push(
         `Node.js version ${currentVersion} is below minimum required ${required}`
@@ -70,7 +70,7 @@ class TribunalSentinel {
     try {
       const files = await readdir(this.currentDir);
       const missingModules = [];
-      
+
       for (const module of this.config.requiredModules) {
         if (!files.includes(module)) {
           // Also check if module exists as import meta
@@ -80,7 +80,7 @@ class TribunalSentinel {
           }
         }
       }
-      
+
       if (missingModules.length > 0) {
         this.issues.push(
           `Missing required modules: ${missingModules.join(', ')}`
@@ -95,17 +95,17 @@ class TribunalSentinel {
 
   _checkConfigSanity() {
     const { config } = this;
-    
+
     // Check scan mode validity
     if (config.scanMode && !config.validScanModes.includes(config.scanMode)) {
       this.issues.push(
         `Invalid scan mode '${config.scanMode}'. Valid modes: ${config.validScanModes.join(', ')}`
       );
     }
-    
+
     // Check threshold validity
     if (config.confidence !== undefined) {
-      if (typeof config.confidence !== 'number' || 
+      if (typeof config.confidence !== 'number' ||
           config.confidence < config.thresholds.minConfidence ||
           config.confidence > config.thresholds.maxConfidence) {
         this.issues.push(
@@ -113,7 +113,7 @@ class TribunalSentinel {
         );
       }
     }
-    
+
     if (config.severity !== undefined) {
       if (typeof config.severity !== 'number' ||
           config.severity < config.thresholds.minSeverity ||
@@ -123,7 +123,7 @@ class TribunalSentinel {
         );
       }
     }
-    
+
     // Check paths configuration
     if (config.paths) {
       if (!Array.isArray(config.paths)) {
@@ -136,19 +136,19 @@ class TribunalSentinel {
         }
       }
     }
-    
+
     // Check exclude patterns
     if (config.exclude && !Array.isArray(config.exclude)) {
       this.issues.push('Config exclude must be an array');
     }
-    
+
     // Check for required config properties
     if (config.requireAnalyzers && config.analyzers) {
       const requiredAnalyzers = ['CharacterForensics', 'PatternPrecognition'];
       const missingAnalyzers = requiredAnalyzers.filter(
         analyzer => !config.analyzers.includes(analyzer)
       );
-      
+
       if (missingAnalyzers.length > 0) {
         this.issues.push(
           `Missing required analyzers: ${missingAnalyzers.join(', ')}`
@@ -164,33 +164,33 @@ class TribunalSentinel {
       if (!existsSync(this.currentDir)) {
         this.issues.push('Cannot access current directory');
       }
-      
+
       // Check memory availability
       const memoryUsage = process.memoryUsage();
       const heapUsed = memoryUsage.heapUsed / 1024 / 1024; // Convert to MB
       const heapTotal = memoryUsage.heapTotal / 1024 / 1024;
       const memoryRatio = heapUsed / heapTotal;
       const warningThreshold = this.config.thresholds.memoryWarningRatio || 0.9;
-      
+
       if (memoryRatio > warningThreshold) {
         this.issues.push(
           `High memory usage detected: ${Math.round(heapUsed)}MB of ${Math.round(heapTotal)}MB (${Math.round(memoryRatio * 100)}%) exceeds ${Math.round(warningThreshold * 100)}% threshold`
         );
       }
-      
+
       // Check for required environment variables if specified
       if (this.config.requiredEnvVars) {
         const missingEnvVars = this.config.requiredEnvVars.filter(
           varName => !process.env[varName]
         );
-        
+
         if (missingEnvVars.length > 0) {
           this.issues.push(
             `Missing required environment variables: ${missingEnvVars.join(', ')}`
           );
         }
       }
-      
+
     } catch (error) {
       this.issues.push(
         `Environment check failed: ${error.message}`
@@ -202,21 +202,21 @@ class TribunalSentinel {
     // Normalize versions to ensure equal segment length
     const currentParts = current.split('.');
     const requiredParts = required.split('.');
-    
+
     // Pad shorter version with zeros
     const maxLength = Math.max(currentParts.length, requiredParts.length);
     while (currentParts.length < maxLength) currentParts.push('0');
     while (requiredParts.length < maxLength) requiredParts.push('0');
-    
+
     // Convert to numbers and compare
     for (let i = 0; i < maxLength; i++) {
       const currentNum = parseInt(currentParts[i], 10) || 0;
       const requiredNum = parseInt(requiredParts[i], 10) || 0;
-      
+
       if (currentNum > requiredNum) return true;
       if (currentNum < requiredNum) return false;
     }
-    
+
     return true;
   }
 }

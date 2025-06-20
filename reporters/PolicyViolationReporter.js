@@ -14,7 +14,7 @@ export class PolicyViolationReporter {
       includeTimestamp: true,
       ...config
     };
-    
+
     // Define standard severity levels and their display order
     this.severityLevels = ['critical', 'high', 'medium', 'low'];
     this.severityAliases = {
@@ -41,7 +41,7 @@ export class PolicyViolationReporter {
       rule: Math.max(10, ...violations.map(v => (v.rule || '').length)),
       severity: Math.max(8, ...violations.map(v => (v.severity || '').length)),
       file: Math.max(20, ...violations.map(v => this._truncatePath(v.file || '').length)),
-      details: Math.max(30, Math.min(this.config.maxDetailLength, 
+      details: Math.max(30, Math.min(this.config.maxDetailLength,
         ...violations.map(v => (v.details || '').length)))
     };
 
@@ -55,7 +55,7 @@ export class PolicyViolationReporter {
     // Summary
     const severityCounts = this._countBySeverity(violations);
     output += `Total Violations: ${violations.length}\n`;
-    
+
     // Display all severity levels, even if count is 0
     const severityLine = this.severityLevels
       .map(sev => `${this._capitalize(sev)}: ${severityCounts[sev] || 0}`)
@@ -67,7 +67,7 @@ export class PolicyViolationReporter {
     output += this._padRight('Severity', columns.severity) + ' │ ';
     output += this._padRight('File', columns.file) + ' │ ';
     output += 'Details\n';
-    
+
     output += '─'.repeat(columns.rule) + '─┼─';
     output += '─'.repeat(columns.severity) + '─┼─';
     output += '─'.repeat(columns.file) + '─┼─';
@@ -79,9 +79,9 @@ export class PolicyViolationReporter {
       const severity = this._padRight(violation.severity || 'medium', columns.severity);
       const file = this._padRight(this._truncatePath(violation.file || 'N/A'), columns.file);
       const details = this._truncateDetails(violation.details || 'No details', columns.details);
-      
+
       output += `${rule} │ ${severity} │ ${file} │ ${details}\n`;
-      
+
       // Add line number if available
       if (violation.line) {
         output += ' '.repeat(columns.rule + columns.severity + columns.file + 9);
@@ -123,7 +123,7 @@ export class PolicyViolationReporter {
     // Remove undefined fields
     if (!report.timestamp) delete report.timestamp;
 
-    return this.config.pretty 
+    return this.config.pretty
       ? JSON.stringify(report, null, 2)
       : JSON.stringify(report);
   }
@@ -138,22 +138,22 @@ export class PolicyViolationReporter {
   }
 
   _padRight(str, length) {
-    return str.length > length 
+    return str.length > length
       ? str.substring(0, length - 3) + '...'
       : str.padEnd(length);
   }
 
   _truncatePath(path, maxLength = 30) {
     if (!path || path.length <= maxLength) return path;
-    
+
     const parts = path.split('/');
     if (parts.length <= 2) return '...' + path.substring(path.length - maxLength + 3);
-    
+
     const fileName = parts[parts.length - 1];
     const parentDir = parts[parts.length - 2];
     const truncated = `.../${parentDir}/${fileName}`;
-    
-    return truncated.length > maxLength 
+
+    return truncated.length > maxLength
       ? '...' + path.substring(path.length - maxLength + 3)
       : truncated;
   }

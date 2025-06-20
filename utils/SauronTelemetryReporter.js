@@ -33,7 +33,7 @@ export function createTelemetryReporter() {
     enabled: process.env.ENABLE_TELEMETRY === 'true',
     timeout: parseInt(process.env.TELEMETRY_TIMEOUT) || 10000,
     version: getAppVersion(), // Will use auto-detection if this returns null
-    
+
     // Production-ready anonymizer extensions with error handling
     anonymizerExtensions: {
       // Safe Node.js version extraction
@@ -44,7 +44,7 @@ export function createTelemetryReporter() {
           return 'unknown';
         }
       },
-      
+
       // Safe platform extraction
       platform: (summary) => {
         try {
@@ -53,7 +53,7 @@ export function createTelemetryReporter() {
           return 'unknown';
         }
       },
-      
+
       // Safe architecture extraction
       arch: (summary) => {
         try {
@@ -62,12 +62,12 @@ export function createTelemetryReporter() {
           return 'unknown';
         }
       },
-      
+
       // Safe environment indicator
       environment: (summary) => {
         return process.env.NODE_ENV || 'production';
       },
-      
+
       // Scan performance category
       performanceCategory: (summary) => {
         const duration = summary.scanDuration || 0;
@@ -76,45 +76,45 @@ export function createTelemetryReporter() {
         if (duration < 30000) return 'slow';
         return 'very-slow';
       },
-      
+
       // Issue density metric
       issueDensity: (summary) => {
         const files = summary.filesScanned || 1;
         const issues = summary.totalIssues || 0;
         return Math.round((issues / files) * 100) / 100;
       },
-      
+
       // Most common issue type
       topIssueType: (summary) => {
         if (!summary.issuesByType || typeof summary.issuesByType !== 'object') {
           return 'none';
         }
-        
+
         let maxType = 'none';
         let maxCount = 0;
-        
+
         for (const [type, count] of Object.entries(summary.issuesByType)) {
           if (count > maxCount) {
             maxCount = count;
             maxType = type;
           }
         }
-        
+
         return maxType;
       }
     }
   };
-  
+
   // Validate required configuration
   if (!config.endpoint) {
     console.error('[Telemetry] TELEMETRY_ENDPOINT environment variable is required');
     // Return a disabled reporter that won't send data
-    return new SauronTelemetryReporter({ 
-      endpoint: 'https://localhost', 
-      enabled: false 
+    return new SauronTelemetryReporter({
+      endpoint: 'https://localhost',
+      enabled: false
     });
   }
-  
+
   return new SauronTelemetryReporter(config);
 }
 
@@ -141,9 +141,9 @@ export async function reportScanTelemetry(scanResults) {
       complexityMetrics: scanResults.complexity,
       filesByType: scanResults.fileTypes
     };
-    
+
     await telemetryReporter.send(summary);
-    
+
     // Check for anonymizer errors in development/debug mode
     if (process.env.NODE_ENV === 'development' || process.env.DEBUG_TELEMETRY) {
       const errors = telemetryReporter.getAnonymizerErrors();

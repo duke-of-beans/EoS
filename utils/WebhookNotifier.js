@@ -64,7 +64,7 @@ export class WebhookNotifier {
         // Create request
         const req = transport.request(options, (res) => {
           let responseBody = '';
-          
+
           // Capture or consume response data
           res.on('data', (chunk) => {
             if (this.captureResponse) {
@@ -72,7 +72,7 @@ export class WebhookNotifier {
             }
             // Data is consumed either way to free up memory
           });
-          
+
           res.on('end', () => {
             // Consider 2xx status codes as success
             if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -113,12 +113,12 @@ export class WebhookNotifier {
 }
 
 // Example usage:
-// const notifier = new WebhookNotifier({ 
+// const notifier = new WebhookNotifier({
 //   timeout: 10000,
 //   headers: { 'X-Custom-Header': 'EyeOfSauron' },
-//   captureResponse: true 
+//   captureResponse: true
 // });
-// 
+//
 // const response = await notifier.send('https://hooks.slack.com/services/...', {
 //   text: 'Eye of Sauron scan complete',
 //   blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'Found 42 issues' }}]

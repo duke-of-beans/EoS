@@ -1,0 +1,75 @@
+/**
+ * Purpose: Applies safe auto-fixes to code content
+ * Dependencies: Node.js std lib
+ * API: OneClickHealing().applyFixes(content)
+ */
+
+export default class OneClickHealing {
+  constructor() {
+    this.invisibleChars = /[\u0000-\u001F\u007F-\u009F\u00AD\u061C\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF\uFFF9-\uFFFB]/g;
+    this.trailingSpaces = /[ \t]+$/gm;
+    this.doubleSemicolons = /;;+/g;
+
+    this.smartQuotes = {
+      '‘': "'",
+      '’': "'",
+      '“': '"',
+      '”': '"',
+      '„': '"',
+      '‚': "'",
+      '«': '"',
+      '»': '"',
+      '‹': "'",
+      '›': "'"
+    };
+
+    const chars = Object.keys(this.smartQuotes)
+      .map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+
+    this.smartQuoteRegex = new RegExp(`(${chars})`, 'g');
+  }
+
+  applyFixes(content) {
+    if (typeof content !== 'string') {
+      throw new TypeError('Content must be a string');
+    }
+
+    let fixedContent = content;
+    const appliedFixes = [];
+
+    // Remove invisible characters
+    const invis = fixedContent.match(this.invisibleChars);
+    if (invis) {
+      fixedContent = fixedContent.replace(this.invisibleChars, '');
+      appliedFixes.push({ type: 'invisible_characters', count: invis.length });
+    }
+
+    // Replace smart quotes
+    let smartCount = 0;
+    fixedContent = fixedContent.replace(this.smartQuoteRegex, m => {
+      smartCount++;
+      return this.smartQuotes[m] || m;
+    });
+    if (smartCount > 0) {
+      appliedFixes.push({ type: 'smart_quotes', count: smartCount });
+    }
+
+    // Remove trailing spaces
+    const trailing = fixedContent.match(this.trailingSpaces);
+    if (trailing) {
+      fixedContent = fixedContent.replace(this.trailingSpaces, '');
+      appliedFixes.push({ type: 'trailing_spaces', count: trailing.length });
+    }
+
+    // Fix double semicolons
+    const semis = fixedContent.match(this.doubleSemicolons);
+    if (semis) {
+      fixedContent = fixedContent.replace(this.doubleSemicolons, ';');
+      appliedFixes.push({ type: 'double_semicolons', count: semis.length });
+    }
+
+    return { fixedContent, appliedFixes };
+  }
+}
+

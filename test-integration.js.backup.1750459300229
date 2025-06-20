@@ -1,0 +1,186 @@
+/**
+ * Integration test to verify Eye of Sauron is working correctly
+ * Save this as: test-integration.js
+ * Run: node test-integration.js
+ */
+
+import EyeOfSauronOmniscient from './core/EyeOfSauronOmniscient.js';
+import { promises as fs } from 'fs';
+import path from 'path';
+
+async function runIntegrationTest() {
+  console.log('🔍 Eye of Sauron Integration Test\n');
+
+  try {
+    // 1. Create test files with known issues
+    const testDir = './test-scan-target';
+    await fs.mkdir(testDir, { recursive: true });
+
+    // File with character issues
+    await fs.writeFile(path.join(testDir, 'char-issues.js'), `
+// File with invisible characters and issues
+const data = "testdata"; // Contains zero-width space
+const mixed	= "tabs	and spaces"; // Mixed tabs/spaces
+const quote = "smart quotes"; // Smart quotes
+
+
+
+// Too many newlines above
+function test() {
+  console.log("trailing spaces");
+}
+`);
+
+    // File with pattern issues
+    await fs.writeFile(path.join(testDir, 'pattern-issues.js'), `
+// File with pattern violations
+class MyComponent {
+  constructor() {
+    this.timer = setInterval(() => {
+      console.log('tick');
+    }, 1000);
+    // Missing clearInterval!
+
+    document.addEventListener('click', this.handleClick);
+    // Missing removeEventListener!
+  }
+
+  handleClick() {
+    console.log('clicked');
+  }
+
+  // Missing required Tribunal methods: render, destroy, attachTo, toJSON
+}
+`);
+
+    // File with no issues
+    await fs.writeFile(path.join(testDir, 'clean-utils.js'), `
+// Simple constants file - no functions, no classes, no exports
+// This should not trigger any analyzer checks
+
+const INTERNAL_PI = 3.14159;
+const INTERNAL_E = 2.71828;
+
+// Just some internal calculations
+const sum = 1 + 1;
+const product = 2 * 3;
+
+// No exports, no functions, no classes
+// This is just a simple script file
+`);
+
+    // 2. Initialize scanner
+    const scanner = new EyeOfSauronOmniscient({
+      maxWorkers: 2,
+      skipTests: false
+    });
+
+    // 3. Add event listeners to track progress
+    scanner.on('scan-started', (data) => {
+      console.log(`✅ Scan started: ${data.path}`);
+      console.log(`   Mode: ${data.mode}\n`);
+    });
+
+    scanner.on('progress', (data) => {
+      console.log(`   Processing: ${data.percentage}% (${data.processed}/${data.total} files)`);
+    });
+
+    scanner.on('scan-completed', (vision) => {
+      console.log('\n✅ Scan completed!');
+    });
+
+    scanner.on('scan-error', (error) => {
+      console.error('❌ Scan error:', error);
+    });
+
+    // 4. Run scan
+    console.log('Starting scan...\n');
+    const results = await scanner.scan(testDir, 'deep');
+
+    // 5. Verify results
+    console.log('\n📊 Results Summary:');
+    console.log(`   Files scanned: ${results.summary.filesScanned}`);
+    console.log(`   Total issues: ${results.summary.totalIssues}`);
+    console.log(`   Duration: ${results.stats.duration}ms`);
+
+    console.log('\n📈 Issues by Severity:');
+    Object.entries(results.summary.issuesBySeverity).forEach(([severity, count]) => {
+      console.log(`   ${severity}: ${count}`);
+    });
+
+    console.log('\n📑 Issues by Type:');
+    Object.entries(results.summary.issuesByType).forEach(([type, count]) => {
+      console.log(`   ${type}: ${count}`);
+    });
+
+    // 6. Show detailed issues for each file
+    console.log('\n📁 Files with Issues:');
+    Object.entries(results.files).forEach(([filePath, fileData]) => {
+      console.log(`\n   ${filePath} (${fileData.issues.length} issues):`);
+      fileData.issues.forEach((issue, index) => {
+        console.log(`     ${index + 1}. [${issue.severity}] ${issue.type}`);
+        console.log(`        Line ${issue.line}: ${issue.message}`);
+        if (issue.fix) {
+          console.log(`        Fix: ${issue.fix}`);
+        }
+      });
+    });
+
+    // 7. Verify expected issues were found
+    console.log('\n🧪 Verification:');
+    const charFile = Object.entries(results.files).find(([path]) => path.includes('char-issues.js'));
+    const patternFile = Object.entries(results.files).find(([path]) => path.includes('pattern-issues.js'));
+    const cleanFile = Object.entries(results.files).find(([path]) => path.includes('clean-utils.js'));
+
+    const checks = [
+      {
+        name: 'Character issues detected',
+        pass: charFile && charFile[1].issues.length > 0
+      },
+      {
+        name: 'Pattern issues detected',
+        pass: patternFile && patternFile[1].issues.length > 0
+      },
+      {
+        name: 'Clean file has no issues',
+        pass: !cleanFile
+      },
+      {
+        name: 'Invisible character detected',
+        pass: charFile && charFile[1].issues.some(i => i.type.includes('INVISIBLE'))
+      },
+      {
+        name: 'Memory leak detected',
+        pass: patternFile && patternFile[1].issues.some(i => i.type === 'MEMORY_LEAK')
+      },
+      {
+        name: 'Missing methods detected',
+        pass: patternFile && patternFile[1].issues.some(i => i.type === 'MISSING_METHOD')
+      }
+    ];
+
+    checks.forEach(check => {
+      console.log(`   ${check.pass ? '✅' : '❌'} ${check.name}`);
+    });
+
+    const allPassed = checks.every(c => c.pass);
+
+    // 8. Cleanup test files
+    await fs.rm(testDir, { recursive: true, force: true });
+
+    console.log(`\n${allPassed ? '✅ All tests passed!' : '❌ Some tests failed!'}`);
+    console.log('\n🎉 Integration test complete!\n');
+
+    return allPassed;
+
+  } catch (error) {
+    console.error('\n❌ Integration test failed:', error);
+    console.error('\nStack trace:', error.stack);
+    return false;
+  }
+}
+
+// Run the test
+runIntegrationTest().then(success => {
+  process.exit(success ? 0 : 1);
+});

@@ -31,7 +31,7 @@ export class Config {
    */
   static async load(customConfigPath = null, overrides = {}) {
     let config = this.#deepClone(this.#defaults);
-    
+
     // Load custom config if path provided
     if (customConfigPath) {
       const customConfig = await this.#loadCustomConfig(customConfigPath);
@@ -39,12 +39,12 @@ export class Config {
         config = this.#deepMerge(config, customConfig);
       }
     }
-    
+
     // Apply overrides
     if (overrides && typeof overrides === 'object') {
       config = this.#deepMerge(config, overrides);
     }
-    
+
     // Validate and sanitize final config
     return this.#validateConfig(config);
   }
@@ -56,16 +56,16 @@ export class Config {
   static async #loadCustomConfig(configPath) {
     try {
       // Resolve path safely
-      const resolvedPath = isAbsolute(configPath) 
-        ? configPath 
+      const resolvedPath = isAbsolute(configPath)
+        ? configPath
         : resolve(process.cwd(), configPath);
-      
+
       // Check if file exists
       if (!existsSync(resolvedPath)) {
         console.warn(`Config file not found: ${configPath}`);
         return null;
       }
-      
+
       // Determine file type and load accordingly
       if (resolvedPath.endsWith('.json')) {
         const content = readFileSync(resolvedPath, 'utf8');
@@ -109,7 +109,7 @@ export class Config {
     if (obj instanceof Date) return new Date(obj.getTime());
     if (obj instanceof Array) return obj.map(item => this.#deepClone(item));
     if (obj instanceof RegExp) return new RegExp(obj.source, obj.flags);
-    
+
     const cloned = {};
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
@@ -125,12 +125,12 @@ export class Config {
    */
   static #deepMerge(target, source) {
     const output = this.#deepClone(target);
-    
+
     if (!source || typeof source !== 'object') return output;
-    
+
     Object.keys(source).forEach(key => {
       if (source[key] === undefined) return;
-      
+
       if (source[key] === null) {
         output[key] = null;
       } else if (Array.isArray(source[key])) {
@@ -145,7 +145,7 @@ export class Config {
         output[key] = source[key];
       }
     });
-    
+
     return output;
   }
 
@@ -158,34 +158,34 @@ export class Config {
     if (!['deep', 'shallow'].includes(config.mode)) {
       config.mode = 'deep';
     }
-    
+
     // Ensure parallel is positive integer
     config.parallel = Math.max(1, parseInt(config.parallel) || 4);
-    
+
     // Ensure maxFileSize is positive
     config.maxFileSize = Math.max(1024, parseInt(config.maxFileSize) || 10485760);
-    
+
     // Ensure arrays are arrays
     if (!Array.isArray(config.ignorePaths)) {
       config.ignorePaths = this.#defaults.ignorePaths;
     }
-    
+
     if (!Array.isArray(config.fileExtensions)) {
       config.fileExtensions = this.#defaults.fileExtensions;
     }
-    
+
     if (!Array.isArray(config.reportFormats)) {
       config.reportFormats = this.#defaults.reportFormats;
     }
-    
+
     // Ensure boolean values
     config.enableCache = Boolean(config.enableCache);
-    
+
     // Ensure cacheDir is string
     if (typeof config.cacheDir !== 'string') {
       config.cacheDir = this.#defaults.cacheDir;
     }
-    
+
     return config;
   }
 }

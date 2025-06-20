@@ -2,7 +2,7 @@
  * Purpose: Normalizes scan reports for storage/export
  * Dependencies: Node.js std lib
  * API: SauronReportNormalizer().normalize(report)
- * 
+ *
  * Updates:
  * - Warns when key trimming changes key names
  * - Optionally excludes unchanged values in diffs (memory optimization)
@@ -30,19 +30,19 @@ export class SauronReportNormalizer {
   normalize(report) {
     this._seenObjects = new WeakSet();
     this._keyTrimWarnings = [];
-    
+
     const normalized = this._normalizeValue(report);
-    
+
     const result = {
       data: normalized
     };
-    
+
     if (this._keyTrimWarnings.length > 0) {
       result.warnings = {
         keyTrimChanges: this._keyTrimWarnings
       };
     }
-    
+
     return result;
   }
 
@@ -64,34 +64,34 @@ export class SauronReportNormalizer {
     if (value === undefined) {
       return null;
     }
-    
+
     if (value === null) {
       return null;
     }
-    
+
     if (typeof value === 'string') {
       return this.config.trimWhitespace ? value.trim() : value;
     }
-    
+
     if (typeof value === 'number' || typeof value === 'boolean') {
       return value;
     }
-    
+
     if (value instanceof Date) {
       return value.toISOString();
     }
-    
+
     if (value instanceof RegExp) {
       return value.toString();
     }
-    
+
     // Handle arrays
     if (Array.isArray(value)) {
-      return value.map((item, index) => 
+      return value.map((item, index) =>
         this._normalizeValue(item, `${path}[${index}]`)
       );
     }
-    
+
     // Handle objects
     if (typeof value === 'object') {
       // Check for circular references
@@ -99,24 +99,24 @@ export class SauronReportNormalizer {
         return '[Circular Reference]';
       }
       this._seenObjects.add(value);
-      
+
       const normalized = {};
       const keys = Object.keys(value);
-      
+
       // Sort keys if enabled
-      const orderedKeys = this.config.sortKeys 
+      const orderedKeys = this.config.sortKeys
         ? keys.sort((a, b) => a.localeCompare(b))
         : keys;
-      
+
       for (const key of orderedKeys) {
-        const normalizedKey = this.config.trimWhitespace && typeof key === 'string' 
-          ? key.trim() 
+        const normalizedKey = this.config.trimWhitespace && typeof key === 'string'
+          ? key.trim()
           : key;
-        
+
         // Warn if trimming changed the key
-        if (this.config.warnOnKeyTrimChanges && 
-            this.config.trimWhitespace && 
-            typeof key === 'string' && 
+        if (this.config.warnOnKeyTrimChanges &&
+            this.config.trimWhitespace &&
+            typeof key === 'string' &&
             key !== normalizedKey) {
           this._keyTrimWarnings.push({
             path: path || 'root',
@@ -125,25 +125,25 @@ export class SauronReportNormalizer {
             message: `Key "${key}" was trimmed to "${normalizedKey}"`
           });
         }
-        
+
         normalized[normalizedKey] = this._normalizeValue(
-          value[key], 
+          value[key],
           path ? `${path}.${key}` : key
         );
       }
-      
+
       return normalized;
     }
-    
+
     // Handle functions and other types
     if (typeof value === 'function') {
       return '[Function]';
     }
-    
+
     if (typeof value === 'symbol') {
       return value.toString();
     }
-    
+
     // Fallback for unknown types
     return String(value);
   }
@@ -157,11 +157,11 @@ export class SauronReportNormalizer {
   diff(reportA, reportB) {
     const normalizedA = this.normalize(reportA);
     const normalizedB = this.normalize(reportB);
-    
+
     const diff = this._createDiff(normalizedA.data, normalizedB.data);
-    
+
     const result = { diff };
-    
+
     // Include any warnings from normalization
     const warnings = {};
     if (normalizedA.warnings) {
@@ -173,7 +173,7 @@ export class SauronReportNormalizer {
     if (Object.keys(warnings).length > 0) {
       result.warnings = warnings;
     }
-    
+
     return result;
   }
 
@@ -184,11 +184,11 @@ export class SauronReportNormalizer {
   _createDiff(a, b, path = '') {
     // Same reference or both null/undefined
     if (a === b) {
-      return this.config.includeUnchangedValues 
+      return this.config.includeUnchangedValues
         ? { type: 'unchanged', value: a }
         : { type: 'unchanged' };
     }
-    
+
     // Type mismatch
     if (typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
       return {
@@ -198,7 +198,7 @@ export class SauronReportNormalizer {
         to: b
       };
     }
-    
+
     // Arrays
     if (Array.isArray(a)) {
       const diff = {
@@ -206,7 +206,7 @@ export class SauronReportNormalizer {
         path,
         changes: []
       };
-      
+
       const maxLength = Math.max(a.length, b.length);
       for (let i = 0; i < maxLength; i++) {
         if (i >= a.length) {
@@ -232,14 +232,14 @@ export class SauronReportNormalizer {
           }
         }
       }
-      
-      return diff.changes.length > 0 
-        ? diff 
-        : (this.config.includeUnchangedValues 
+
+      return diff.changes.length > 0
+        ? diff
+        : (this.config.includeUnchangedValues
             ? { type: 'unchanged', value: a }
             : { type: 'unchanged' });
     }
-    
+
     // Objects
     if (typeof a === 'object' && a !== null && b !== null) {
       const diff = {
@@ -247,9 +247,9 @@ export class SauronReportNormalizer {
         path,
         changes: {}
       };
-      
+
       const allKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
-      
+
       for (const key of allKeys) {
         if (!(key in a)) {
           diff.changes[key] = {
@@ -263,8 +263,8 @@ export class SauronReportNormalizer {
           };
         } else {
           const propDiff = this._createDiff(
-            a[key], 
-            b[key], 
+            a[key],
+            b[key],
             path ? `${path}.${key}` : key
           );
           if (propDiff.type !== 'unchanged') {
@@ -272,14 +272,14 @@ export class SauronReportNormalizer {
           }
         }
       }
-      
-      return Object.keys(diff.changes).length > 0 
-        ? diff 
-        : (this.config.includeUnchangedValues 
+
+      return Object.keys(diff.changes).length > 0
+        ? diff
+        : (this.config.includeUnchangedValues
             ? { type: 'unchanged', value: a }
             : { type: 'unchanged' });
     }
-    
+
     // Primitives that differ
     return {
       type: 'changed',
@@ -299,20 +299,20 @@ export class SauronReportNormalizer {
     const errors = [];
     const normalizeResult = this.normalize(report);
     const normalized = normalizeResult.data;
-    
+
     this._validateAgainstSchema(normalized, schema, '', errors);
-    
+
     const result = {
       isValid: errors.length === 0,
       errors,
       normalizedReport: normalized
     };
-    
+
     // Include normalization warnings if any
     if (normalizeResult.warnings) {
       result.normalizationWarnings = normalizeResult.warnings;
     }
-    
+
     return result;
   }
 
@@ -322,7 +322,7 @@ export class SauronReportNormalizer {
    */
   _validateAgainstSchema(value, schema, path, errors) {
     if (!schema) return;
-    
+
     // Check required
     if (schema.required && (value === null || value === undefined)) {
       errors.push({
@@ -332,7 +332,7 @@ export class SauronReportNormalizer {
       });
       // Continue validation to find all errors
     }
-    
+
     // Check type
     if (schema.type && value !== null && value !== undefined) {
       const actualType = Array.isArray(value) ? 'array' : typeof value;
@@ -349,7 +349,7 @@ export class SauronReportNormalizer {
         if (schema.type === 'array' && !Array.isArray(value)) return;
       }
     }
-    
+
     // Validate object properties
     if (schema.type === 'object' && schema.properties && typeof value === 'object' && value !== null) {
       for (const [key, propSchema] of Object.entries(schema.properties)) {
@@ -360,7 +360,7 @@ export class SauronReportNormalizer {
           errors
         );
       }
-      
+
       // Check for unexpected properties if strict mode
       if (schema.additionalProperties === false) {
         for (const key of Object.keys(value)) {
@@ -374,7 +374,7 @@ export class SauronReportNormalizer {
         }
       }
     }
-    
+
     // Validate array items
     if (schema.type === 'array' && schema.items && Array.isArray(value)) {
       value.forEach((item, index) => {
@@ -385,7 +385,7 @@ export class SauronReportNormalizer {
           errors
         );
       });
-      
+
       // Check array length constraints
       if (schema.minItems !== undefined && value.length < schema.minItems) {
         errors.push({

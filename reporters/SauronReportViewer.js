@@ -29,7 +29,7 @@ export class SauronReportViewer {
       theme: config.theme || {},
       externalStylesheet: config.externalStylesheet || null
     };
-    
+
     // Try to load chalk if available and color is enabled
     this.chalk = null;
     if (this.config.useColor) {
@@ -47,7 +47,7 @@ export class SauronReportViewer {
    */
   renderToConsole(report) {
     const c = this.chalk || this._noColorFallback();
-    
+
     console.log('\n' + c.bold(c.yellow('═'.repeat(60))));
     console.log(c.bold(c.yellow('║')) + c.bold(c.white('  EYE OF SAURON SCAN REPORT'.padEnd(58))) + c.bold(c.yellow('║')));
     console.log(c.bold(c.yellow('═'.repeat(60))) + '\n');
@@ -57,7 +57,7 @@ export class SauronReportViewer {
     console.log(c.gray('─'.repeat(40)));
     console.log(`${c.bold('Files Scanned:')} ${report.totalFiles || 0}`);
     console.log(`${c.bold('Total Issues:')} ${this._getTotalIssues(report)}`);
-    
+
     // Dynamic severity counts
     const severityCounts = this._getSeverityCounts(report);
     Object.entries(severityCounts).forEach(([severity, count]) => {
@@ -65,7 +65,7 @@ export class SauronReportViewer {
       const color = this._getLevelColor(normalizedSeverity, c);
       console.log(`${c.bold(`${severity} Issues:`)} ${color(count)}`);
     });
-    
+
     console.log(`${c.bold('Duration:')} ${report.duration || 'N/A'}ms`);
     console.log();
 
@@ -74,7 +74,7 @@ export class SauronReportViewer {
     if (topIssues.length > 0) {
       console.log(c.bold(c.cyan(`🔍 TOP ${Math.min(topIssues.length, this.config.topIssuesLimit)} ISSUES`)));
       console.log(c.gray('─'.repeat(40)));
-      
+
       topIssues.slice(0, this.config.topIssuesLimit).forEach((issue, idx) => {
         const normalizedLevel = this._normalizeSeverity(issue.level);
         const levelColor = this._getLevelColor(normalizedLevel, c);
@@ -94,7 +94,7 @@ export class SauronReportViewer {
     if (this.config.showFileDetails && report.vision?.files) {
       console.log('\n' + c.bold(c.cyan('📁 FILE DETAILS')));
       console.log(c.gray('─'.repeat(40)));
-      
+
       Object.entries(report.vision.files).forEach(([file, data]) => {
         const issueCount = data.issues?.length || 0;
         const statusIcon = issueCount === 0 ? c.green('✓') : c.red('✗');
@@ -231,7 +231,7 @@ export class SauronReportViewer {
         }
     </style>`;
 
-    const stylesheetLink = this.config.externalStylesheet ? 
+    const stylesheetLink = this.config.externalStylesheet ?
       `<link rel="stylesheet" href="${this._escapeHtml(this.config.externalStylesheet)}">` : '';
 
     return `<!DOCTYPE html>
@@ -272,7 +272,7 @@ export class SauronReportViewer {
 
     <div class="issues-section">
         <h2>🔍 Issues Found</h2>
-        ${topIssues.length === 0 ? 
+        ${topIssues.length === 0 ?
             '<div class="no-issues">✨ No issues found! Your code is clean.</div>' :
             topIssues.slice(0, this.config.topIssuesLimit).map((issue, idx) => `
                 <div class="issue ${issue.level}">
@@ -283,8 +283,8 @@ export class SauronReportViewer {
                     <div class="issue-description">
                         <strong>${this._escapeHtml(issue.category)}</strong>: ${this._escapeHtml(issue.description)}
                     </div>
-                    ${issue.suggestion ? 
-                        `<div class="issue-suggestion">💡 ${this._escapeHtml(issue.suggestion)}</div>` : 
+                    ${issue.suggestion ?
+                        `<div class="issue-suggestion">💡 ${this._escapeHtml(issue.suggestion)}</div>` :
                         ''}
                 </div>
             `).join('')
@@ -334,32 +334,32 @@ export class SauronReportViewer {
 
   _getSeverityCounts(report) {
     if (!report.vision?.files) return {};
-    
+
     const counts = {};
     Object.values(report.vision.files).forEach(file => {
       (file.issues || []).forEach(issue => {
         counts[issue.level] = (counts[issue.level] || 0) + 1;
       });
     });
-    
+
     // Order by severity (using normalized values for ordering)
     const severityOrder = ['APOCALYPSE', 'critical', 'DANGER', 'major', 'WARNING', 'minor', 'NOTICE', 'info'];
     const orderedCounts = {};
     severityOrder.forEach(sev => {
       if (counts[sev]) orderedCounts[sev] = counts[sev];
     });
-    
+
     // Add any unmapped severities at the end
     Object.keys(counts).forEach(sev => {
       if (!orderedCounts[sev]) orderedCounts[sev] = counts[sev];
     });
-    
+
     return orderedCounts;
   }
 
   _getTopIssues(report) {
     if (!report.vision?.files) return [];
-    
+
     const allIssues = [];
     Object.entries(report.vision.files).forEach(([file, data]) => {
       (data.issues || []).forEach(issue => {
@@ -368,13 +368,13 @@ export class SauronReportViewer {
     });
 
     // Sort by level priority using normalized severities
-    const levelPriority = { 
+    const levelPriority = {
       critical: 4,
       major: 3,
       minor: 2,
       info: 1
     };
-    
+
     return allIssues.sort((a, b) => {
       const aNorm = this._normalizeSeverity(a.level);
       const bNorm = this._normalizeSeverity(b.level);

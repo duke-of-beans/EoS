@@ -20,7 +20,7 @@ export class SauronReportCompressor {
   constructor(config = {}) {
     this.level = config.level ?? 6;
     this.format = config.format ?? 'gzip';
-    
+
     // Validate compression level
     if (this.format === 'gzip' && (this.level < 0 || this.level > 9)) {
       throw new Error('Gzip compression level must be between 0 and 9');
@@ -28,7 +28,7 @@ export class SauronReportCompressor {
     if (this.format === 'brotli' && (this.level < 0 || this.level > 11)) {
       throw new Error('Brotli compression level must be between 0 and 11');
     }
-    
+
     // Validate format
     if (!['gzip', 'brotli'].includes(this.format)) {
       throw new Error('Compression format must be either "gzip" or "brotli"');
@@ -100,36 +100,36 @@ export class SauronReportCompressor {
     } catch (error) {
       // If decompression fails, try the other format as fallback
       // Check for various decompression error codes that indicate wrong format
-      const isDecompressionError = 
-        error.code === 'Z_DATA_ERROR' || 
+      const isDecompressionError =
+        error.code === 'Z_DATA_ERROR' ||
         error.code === 'ERR_PADDING_1' ||
         error.code === 'Z_BUF_ERROR' ||
         error.message?.includes('incorrect header check') ||
         error.message?.includes('invalid block type') ||
         error.message?.includes('invalid distance');
-        
+
       if (isDecompressionError) {
         try {
           // Try alternate format
           const altFormat = this.format === 'gzip' ? 'brotli' : 'gzip';
           let decompressed;
-          
+
           if (altFormat === 'gzip') {
             decompressed = await gunzip(buffer);
           } else {
             decompressed = await brotliDecompress(buffer);
           }
-          
+
           const jsonString = decompressed.toString('utf-8');
           const report = JSON.parse(jsonString);
-          
+
           if (!report || typeof report !== 'object') {
             throw new Error('Decompressed data is not a valid report object');
           }
-          
+
           // Log successful fallback for debugging
           console.log(`Successfully decompressed using fallback format: ${altFormat}`);
-          
+
           return report;
         } catch (altError) {
           // Both formats failed - provide comprehensive error message
@@ -140,7 +140,7 @@ export class SauronReportCompressor {
           );
         }
       }
-      
+
       throw new Error(`Decompression failed: ${error.message}`);
     }
   }

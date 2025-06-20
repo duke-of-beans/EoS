@@ -1,0 +1,117 @@
+/**
+ * FIXED investigate.js - Handles object-based files structure
+ * This fixes the "results.files.filter is not a function" error
+ */
+
+const fs = require('fs');
+
+function investigateCorruption() {
+  try {
+    console.log('🔍 Investigating remaining corruption...');
+
+    // Read the scan results
+    const data = fs.readFileSync('./test-cli.json', 'utf8');
+    const results = JSON.parse(data);
+
+    console.log('\n📊 SCAN RESULTS ANALYSIS:');
+    console.log('═══════════════════════════════════════');
+
+    // FIXED: Handle object-based files structure instead of array
+    if (results.files && typeof results.files === 'object') {
+      const fileEntries = Object.entries(results.files);
+
+      console.log(`Total files scanned: ${fileEntries.length}`);
+
+      // Count total issues across all files
+      let totalIssues = 0;
+      fileEntries.forEach(([_, fileData]) => {
+        if (fileData.issues && Array.isArray(fileData.issues)) {
+          totalIssues += fileData.issues.length;
+        }
+      });
+
+      console.log(`Total issues reported: ${totalIssues}`);
+      console.log('✅ Investigation successful: Fixed object structure handling');
+
+      // Detailed analysis
+      let corruptionBreakdown = {
+        HOMOGLYPH: 0,
+        INVISIBLE_CHAR: 0,
+        TRAILING_SPACE: 0,
+        OTHER: 0
+      };
+
+      let corruptedFiles = [];
+
+      fileEntries.forEach(([filePath, fileData]) => {
+        if (fileData.issues && Array.isArray(fileData.issues)) {
+          let fileHomoglyphs = 0;
+
+          fileData.issues.forEach(issue => {
+            if (issue.type === 'HOMOGLYPH') {
+              corruptionBreakdown.HOMOGLYPH++;
+              fileHomoglyphs++;
+            } else if (issue.type === 'INVISIBLE_CHAR') {
+              corruptionBreakdown.INVISIBLE_CHAR++;
+            } else if (issue.type === 'TRAILING_SPACE') {
+              corruptionBreakdown.TRAILING_SPACE++;
+            } else {
+              corruptionBreakdown.OTHER++;
+            }
+          });
+
+          if (fileData.issues.length > 0) {
+            corruptedFiles.push({
+              file: filePath,
+              issues: fileData.issues.length,
+              homoglyphs: fileHomoglyphs
+            });
+          }
+        }
+      });
+
+      console.log('\n🧬 CORRUPTION ANALYSIS:');
+      console.log(`   Homoglyphs: ${corruptionBreakdown.HOMOGLYPH}`);
+      console.log(`   Invisible chars: ${corruptionBreakdown.INVISIBLE_CHAR}`);
+      console.log(`   Trailing spaces: ${corruptionBreakdown.TRAILING_SPACE}`);
+      console.log(`   Other issues: ${corruptionBreakdown.OTHER}`);
+
+      // Show most corrupted files
+      const topCorrupted = corruptedFiles
+        .sort((a, b) => b.issues - a.issues)
+        .slice(0, 10);
+
+      console.log('\n💀 TOP CORRUPTED FILES:');
+      topCorrupted.forEach((file, index) => {
+        console.log(`   ${index + 1}. ${file.file}: ${file.issues} issues (${file.homoglyphs} homoglyphs)`);
+      });
+
+      // Assessment
+      if (corruptionBreakdown.HOMOGLYPH > 50000) {
+        console.log('\n🚨 CRITICAL CORRUPTION DETECTED!');
+        console.log('🛠️ Run: node emergency-fixed-cli.mjs --output emergency-scan.json');
+        console.log('🧹 Then: node EMERGENCY-CLEANUP.mjs');
+      } else {
+        console.log('\n✅ Corruption analysis complete');
+      }
+
+    } else {
+      console.log('❌ Files structure is not object-based as expected');
+      console.log('Type:', typeof results.files);
+      console.log('Is Array:', Array.isArray(results.files));
+    }
+
+  } catch (error) {
+    console.error('❌ Investigation failed:', error.message);
+    console.error('Stack:', error.stack);
+  }
+}
+
+// Manual investigation steps
+console.log('\n🔧 Manual investigation:');
+console.log('1. ✅ Fixed object structure handling');
+console.log('2. ✅ Proper corruption analysis');
+console.log('3. ✅ ES module compatibility');
+
+// Run investigation
+investigateCorruption();

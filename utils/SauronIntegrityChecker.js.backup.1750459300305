@@ -1,0 +1,195 @@
+/**
+ * Purpose: Verifies installation + dependency integrity
+ * Dependencies: Node.js std lib
+ * API: SauronIntegrityChecker().runChecks()
+ * 
+ * Note: This checker assumes it's located at /eye-of-sauron/utils/SauronIntegrityChecker.js
+ * If running from a different location, provide basePath to constructor
+ */
+
+import { existsSync } from 'fs';
+import { join, dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export class SauronIntegrityChecker {
+  constructor(basePath = null) {
+    // Allow custom base path or default to relative from utils directory
+    this.basePath = basePath || resolve(__dirname, '..');
+    
+    this.requiredFiles = [
+      'analyzers/CharacterForensics.js',
+      'analyzers/PatternPrecognition.js',
+      'EyeOfSauronOmniscient.js',
+      'docs/EoS-manifest.md'
+    ];
+    
+    this.essentialDependencies = [
+      'fs',
+      'path',
+      'url',
+      'util',
+      'crypto'
+    ];
+    
+    this.expectedDirs = [
+      'analyzers',
+      'utils',
+      'docs'
+    ];
+  }
+
+  /**
+   * Run all integrity checks
+   * @returns {Object} { passed: boolean, issues: string[] }
+   */
+  runChecks() {
+    const issues = [];
+    
+    // Check Node.js version
+    const nodeVersionCheck = this._checkNodeVersion();
+    if (!nodeVersionCheck.passed) {
+      issues.push(nodeVersionCheck.issue);
+    }
+    
+    // Check required files
+    const fileChecks = this._checkRequiredFiles();
+    issues.push(...fileChecks.issues);
+    
+    // Check essential dependencies
+    const depChecks = this._checkDependencies();
+    issues.push(...depChecks.issues);
+    
+    // Check project structure
+    const structureChecks = this._checkProjectStructure();
+    issues.push(...structureChecks.issues);
+    
+    return {
+      passed: issues.length === 0,
+      issues
+    };
+  }
+
+  /**
+   * Verify Node.js version >= 14.x
+   * @private
+   * @returns {Object} { passed: boolean, issue?: string }
+   */
+  _checkNodeVersion() {
+    const nodeVersion = process.version;
+    const majorVersion = parseInt(nodeVersion.split('.')[0].substring(1));
+    
+    if (majorVersion < 14) {
+      return {
+        passed: false,
+        issue: `Node.js version ${nodeVersion} is below required v14.x`
+      };
+    }
+    
+    return { passed: true };
+  }
+
+  /**
+   * Verify required files exist
+   * @private
+   * @returns {Object} { passed: boolean, issues: string[] }
+   */
+  _checkRequiredFiles() {
+    const issues = [];
+    
+    for (const file of this.requiredFiles) {
+      const filePath = join(this.basePath, file);
+      if (!existsSync(filePath)) {
+        issues.push(`Missing required file: ${file} (checked at ${filePath})`);
+      }
+    }
+    
+    return {
+      passed: issues.length === 0,
+      issues
+    };
+  }
+
+  /**
+   * Verify essential Node.js dependencies are importable
+   * @private
+   * @returns {Object} { passed: boolean, issues: string[] }
+   */
+  _checkDependencies() {
+    const issues = [];
+    
+    for (const dep of this.essentialDependencies) {
+      try {
+        // Use dynamic import to check module availability in ES module context
+        const moduleCheck = this._isBuiltinModuleAvailable(dep);
+        if (!moduleCheck) {
+          issues.push(`Cannot access essential dependency: ${dep}`);
+        }
+      } catch (error) {
+        issues.push(`Error checking dependency ${dep}: ${error.message}`);
+      }
+    }
+    
+    return {
+      passed: issues.length === 0,
+      issues
+    };
+  }
+
+  /**
+   * Check if a Node.js built-in module is available
+   * @private
+   * @param {string} moduleName - Name of the module to check
+   * @returns {boolean} True if module is available
+   */
+  _isBuiltinModuleAvailable(moduleName) {
+    try {
+      // For Node.js built-in modules, we can check using createRequire
+      // This creates a require function that works in ES module context
+      const require = createRequire(import.meta.url);
+      const resolved = require.resolve(moduleName);
+      return resolved !== undefined;
+    } catch {
+      // Alternative: check if it's in the list of built-in modules
+      try {
+        const { builtinModules } = require('module');
+        return builtinModules.includes(moduleName);
+      } catch {
+        // If all else fails, assume it's not available
+        return false;
+      }
+    }
+  }
+
+  /**
+   * Verify project structure integrity - checks all directories
+   * @private
+   * @returns {Object} { passed: boolean, issues: string[] }
+   */
+  _checkProjectStructure() {
+    const issues = [];
+    
+    // Check all expected directories and accumulate issues
+    for (const dir of this.expectedDirs) {
+      const dirPath = join(this.basePath, dir);
+      if (!existsSync(dirPath)) {
+        issues.push(`Missing expected directory: ${dir} (checked at ${dirPath})`);
+      }
+    }
+    
+    // Also check that basePath itself exists
+    if (!existsSync(this.basePath)) {
+      issues.push(`Base path does not exist: ${this.basePath}`);
+    }
+    
+    return {
+      passed: issues.length === 0,
+      issues
+    };
+  }
+}
+
+// Export for ES module compatibility
+export default SauronIntegrityChecker;

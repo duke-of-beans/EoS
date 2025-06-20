@@ -1,0 +1,214 @@
+/**
+ * Purpose: Indexes scan reports for fast in-memory lookups and search
+ * Dependencies: Node.js standard library only
+ * Public API:
+ *   - index(report) - Indexes a scan report
+ *   - search(query) - Searches indexed data
+ *   - clear() - Clears all indexed data
+ */
+
+export class SauronReportIndexer {
+  constructor() {
+    this.fileIndex = new Map();        // path -> file data
+    this.issueTypeIndex = new Map();   // type -> Set of file paths
+    this.severityIndex = new Map();    // severity -> Set of file paths
+    this.fileIssuesMap = new Map();    // path -> issues array
+  }
+
+  /**
+   * Indexes a scan report for fast lookups
+   * @param {Object} report - Scan report with vision.files structure
+   * @returns {void}
+   */
+  index(report) {
+    if (!report || !report.vision || !report.vision.files) {
+      return;
+    }
+
+    // Index each file and its issues
+    for (const [filePath, fileData] of Object.entries(report.vision.files)) {
+      // Store file data
+      this.fileIndex.set(filePath, fileData);
+      
+      // Store issues for this file
+      if (fileData.issues && Array.isArray(fileData.issues)) {
+        this.fileIssuesMap.set(filePath, fileData.issues);
+        
+        // Index by issue type and severity
+        fileData.issues.forEach(issue => {
+          // Index by type
+          if (issue.type) {
+            if (!this.issueTypeIndex.has(issue.type)) {
+              this.issueTypeIndex.set(issue.type, new Set());
+            }
+            this.issueTypeIndex.get(issue.type).add(filePath);
+          }
+          
+          // Index by severity
+          if (issue.severity) {
+            if (!this.severityIndex.has(issue.severity)) {
+              this.severityIndex.set(issue.severity, new Set());
+            }
+            this.severityIndex.get(issue.severity).add(filePath);
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * Searches indexed data based on query criteria
+   * @param {Object} query - Search criteria
+   * @param {string} [query.filePath] - File path substring to match (case-insensitive)
+   * @param {string} [query.issueType] - Issue type to filter by
+   * @param {string} [query.severity] - Severity level to filter by
+   * @param {boolean} [query.lightMode=false] - Return only paths and counts (no full data)
+   * @returns {Array} Array of matching results with file info and issues
+   */
+  search(query) {
+    if (!query || typeof query !== 'object') {
+      return [];
+    }
+
+    let matchingFiles = new Set();
+    
+    // Start with all files if no specific criteria
+    if (!query.filePath && !query.issueType && !query.severity) {
+      matchingFiles = new Set(this.fileIndex.keys());
+    }
+    
+    // Filter by file path substring
+    if (query.filePath) {
+      const pathQuery = query.filePath.toLowerCase(); // Case-insensitive matching
+      for (const [path] of this.fileIndex) {
+        if (path.toLowerCase().includes(pathQuery)) {
+          matchingFiles.add(path);
+        }
+      }
+    }
+    
+    // Filter by issue type
+    if (query.issueType) {
+      const typeFiles = this.issueTypeIndex.get(query.issueType);
+      if (typeFiles) {
+        if (matchingFiles.size === 0 && !query.filePath) {
+          matchingFiles = new Set(typeFiles);
+        } else {
+          // Intersection with existing matches
+          // Note: For very large indexes, consider using Set.prototype.intersection() when available
+          matchingFiles = new Set([...matchingFiles].filter(f => typeFiles.has(f)));
+        }
+      } else {
+        // No files with this issue type
+        return [];
+      }
+    }
+    
+    // Filter by severity
+    if (query.severity) {
+      const severityFiles = this.severityIndex.get(query.severity);
+      if (severityFiles) {
+        if (matchingFiles.size === 0 && !query.filePath && !query.issueType) {
+          matchingFiles = new Set(severityFiles);
+        } else {
+          // Intersection with existing matches
+          matchingFiles = new Set([...matchingFiles].filter(f => severityFiles.has(f)));
+        }
+      } else {
+        // No files with this severity
+        return [];
+      }
+    }
+    
+    // Build results array
+    const results = [];
+    for (const filePath of matchingFiles) {
+      const issues = this.fileIssuesMap.get(filePath) || [];
+      
+      // Filter issues based on query criteria
+      let filteredIssues = issues;
+      if (query.issueType) {
+        filteredIssues = filteredIssues.filter(i => i.type === query.issueType);
+      }
+      if (query.severity) {
+        filteredIssues = filteredIssues.filter(i => i.severity === query.severity);
+      }
+      
+      // Only include files that have matching issues after filtering
+      if (filteredIssues.length > 0 || (!query.issueType && !query.severity)) {
+        if (query.lightMode) {
+          // Light mode: return only essential data for performance
+          results.push({
+            filePath,
+            issueCount: filteredIssues.length,
+            issueTypes: [...new Set(filteredIssues.map(i => i.type))],
+            severities: [...new Set(filteredIssues.map(i => i.severity))]
+          });
+        } else {
+          // Full mode: include all file data and filtered issues
+          const fileData = this.fileIndex.get(filePath);
+          results.push({
+            filePath,
+            fileData,
+            issues: filteredIssues,
+            issueCount: filteredIssues.length
+          });
+        }
+      }
+    }
+    
+    // Sort by issue count (descending) for relevance
+    results.sort((a, b) => b.issueCount - a.issueCount);
+    
+    return results;
+  }
+
+  /**
+   * Clears all indexed data
+   * @returns {void}
+   */
+  clear() {
+    this.fileIndex.clear();
+    this.issueTypeIndex.clear();
+    this.severityIndex.clear();
+    this.fileIssuesMap.clear();
+  }
+}
+
+// Example usage:
+/*
+const indexer = new SauronReportIndexer();
+
+// Index a report
+const report = {
+  vision: {
+    files: {
+      'src/auth.js': {
+        issues: [
+          { type: 'security', severity: 'critical', message: 'SQL injection' },
+          { type: 'performance', severity: 'warning', message: 'Inefficient loop' }
+        ]
+      },
+      'src/api/users.js': {
+        issues: [
+          { type: 'security', severity: 'high', message: 'XSS vulnerability' }
+        ]
+      }
+    }
+  }
+};
+
+indexer.index(report);
+
+// Search examples
+const criticalIssues = indexer.search({ severity: 'critical' });
+const securityIssues = indexer.search({ issueType: 'security' });
+const apiFiles = indexer.search({ filePath: 'api' }); // Case-insensitive
+const criticalSecurity = indexer.search({ issueType: 'security', severity: 'critical' });
+
+// Light mode for performance (returns only paths and counts)
+const lightResults = indexer.search({ severity: 'high', lightMode: true });
+// Returns: [{ filePath, issueCount, issueTypes, severities }]
+*/
+export default SauronReportIndexer;
+

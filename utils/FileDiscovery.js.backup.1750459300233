@@ -1,0 +1,136 @@
+/**
+ * Purpose: Utility for discovering scan-eligible files for Eye of Sauron
+ * Dependencies: Node.js std lib (fs/promises, path)
+ * API: FileDiscovery(config).discover(rootPath, maxDepth, skipTests) → Promise<string[]>
+ */
+
+import { readdir, stat } from 'fs/promises';
+import { join, extname, basename, dirname, sep } from 'path';
+
+export class FileDiscovery {
+  constructor(config = {}) {
+    // Default exclusion patterns for common non-source directories
+    this.excludePatterns = config.excludePatterns || [
+      /node_modules/,
+      /\.git/,
+      /\.svn/,
+      /\.hg/,
+      /dist/,
+      /build/,
+      /coverage/,
+      /\.next/,
+      /\.nuxt/,
+      /\.cache/,
+      /\.temp/,
+      /\.tmp/,
+      /vendor/,
+      /bower_components/,
+      /jspm_packages/,
+      /web_modules/,
+      /\.idea/,
+      /\.vscode/,
+      /\.DS_Store/,
+      /Thumbs\.db/,
+      /\.env/,
+      /\.log/
+    ];
+
+    // Default file extensions for JavaScript/TypeScript files
+    // Normalize to lowercase for consistent matching
+    const defaultExtensions = [
+      '.js',
+      '.ts', 
+      '.jsx',
+      '.tsx',
+      '.mjs',
+      '.cjs'
+    ];
+    
+    this.fileExtensions = (config.fileExtensions || defaultExtensions)
+      .map(ext => ext.toLowerCase());
+  }
+
+  /**
+   * Discovers all eligible files within a directory tree
+   * @param {string} rootPath - Starting directory path
+   * @param {number} maxDepth - Maximum directory depth to traverse (default: Infinity)
+   * @param {boolean} skipTests - Whether to skip test files (default: false)
+   * @returns {Promise<string[]>} Array of discovered file paths
+   */
+  async discover(rootPath, maxDepth = Infinity, skipTests = false) {
+    const discoveredFiles = [];
+    
+    const shouldExclude = (path) => {
+      return this.excludePatterns.some(pattern => pattern.test(path));
+    };
+
+    const isTestFile = (filePath) => {
+      if (!skipTests) return false;
+      
+      const base = basename(filePath);
+      const dir = dirname(filePath);
+      
+      // Check if file has test/spec suffix
+      const testSuffixes = [
+        '.test.', '.spec.', '_test.', '_spec.',
+        '.test', '.spec', '_test', '_spec'
+      ];
+      
+      const hasTestSuffix = testSuffixes.some(suffix => 
+        base.includes(suffix)
+      );
+      
+      // Check if file is in test directories
+      const testDirs = ['__tests__', '__mocks__', 'test', 'tests', 'spec', 'specs'];
+      const inTestDir = testDirs.some(testDir => {
+        // Cross-platform path checking
+        const pathParts = dir.split(sep);
+        return pathParts.includes(testDir);
+      });
+      
+      return hasTestSuffix || inTestDir;
+    };
+
+    const walk = async (currentPath, currentDepth = 0) => {
+      // Check depth limit
+      if (currentDepth > maxDepth) return;
+      
+      // Check exclusion patterns
+      if (shouldExclude(currentPath)) return;
+
+      try {
+        const stats = await stat(currentPath);
+        
+        if (stats.isDirectory()) {
+          // Read directory contents
+          const entries = await readdir(currentPath);
+          
+          // Process entries in parallel for performance
+          await Promise.all(
+            entries.map(entry => {
+              const entryPath = join(currentPath, entry);
+              return walk(entryPath, currentDepth + 1);
+            })
+          );
+        } else if (stats.isFile()) {
+          // Check if file extension matches
+          const ext = extname(currentPath).toLowerCase();
+          if (this.fileExtensions.includes(ext)) {
+            // Check if we should skip test files
+            if (!isTestFile(currentPath)) {
+              discoveredFiles.push(currentPath);
+            }
+          }
+        }
+      } catch (error) {
+        // Skip inaccessible files/directories silently
+        // This maintains pure function behavior without side effects
+      }
+    };
+
+    await walk(rootPath);
+    
+    // Return sorted array for consistent output
+    return discoveredFiles.sort();
+  }
+}

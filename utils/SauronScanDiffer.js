@@ -1,0 +1,300 @@
+/**
+ * Purpose: Produces diffs between scan reports
+ * Dependencies: Node.js std lib
+ * API: SauronScanDiffer().diff(reportA, reportB)
+ */
+
+import crypto from 'crypto';
+
+class SauronScanDiffer {
+  constructor(config = {}) {
+    this.maxDiffs = config.maxDiffs || 1000;
+  }
+
+  /**
+   * Generates diff between two scan reports
+   * @param {object} reportA - First scan report
+   * @param {object} reportB - Second scan report
+   * @returns {object} Diff result with added/removed/changed issues
+   */
+  diff(reportA, reportB) {
+    const startTime = Date.now();
+
+    try {
+      // Validate inputs
+      if (!this._isValidReport(reportA) || !this._isValidReport(reportB)) {
+        return this._createErrorDiff('Invalid report format');
+      }
+
+      // Extract and normalize issues
+      const issuesA = this._extractIssues(reportA);
+      const issuesB = this._extractIssues(reportB);
+
+      // Create issue maps by hash
+      const mapA = this._createIssueMap(issuesA);
+      const mapB = this._createIssueMap(issuesB);
+
+      // Find differences
+      const added = [];
+      const removed = [];
+      const changed = [];
+
+      // Find added and changed issues
+      for (const [hash, issueB] of mapB.entries()) {
+        if (!mapA.has(hash)) {
+          if (added.length < this.maxDiffs) {
+            added.push(this._createIssueSummary(issueB));
+          }
+        } else {
+          const issueA = mapA.get(hash);
+          if (this._hasChanged(issueA, issueB)) {
+            if (changed.length < this.maxDiffs) {
+              changed.push({
+                before: this._createIssueSummary(issueA),
+                after: this._createIssueSummary(issueB)
+              });
+            }
+          }
+        }
+      }
+
+      // Find removed issues
+      for (const [hash, issueA] of mapA.entries()) {
+        if (!mapB.has(hash)) {
+          if (removed.length < this.maxDiffs) {
+            removed.push(this._createIssueSummary(issueA));
+          }
+        }
+      }
+
+      // Generate report pair hash
+      const pairHash = this._generatePairHash(reportA, reportB);
+
+      return {
+        added,
+        removed,
+        changed,
+        summary: {
+          totalAdded: Math.min(added.length, this._countAddedTotal(mapA, mapB)),
+          totalRemoved: Math.min(removed.length, this._countRemovedTotal(mapA, mapB)),
+          totalChanged: Math.min(changed.length, this._countChangedTotal(mapA, mapB)),
+          truncated: {
+            added: added.length >= this.maxDiffs,
+            removed: removed.length >= this.maxDiffs,
+            changed: changed.length >= this.maxDiffs
+          },
+          reportPairHash: pairHash,
+          timestamp: new Date().toISOString(),
+          toolVersion: '1.0.0',
+          duration: Date.now() - startTime
+        }
+      };
+    } catch (error) {
+      return this._createErrorDiff(`Diff generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Validates report structure
+   * @private
+   */
+  _isValidReport(report) {
+    return report && typeof report === 'object' &&
+           (report.files || report.issues || Array.isArray(report));
+  }
+
+  /**
+   * Extracts all issues from a report
+   * @private
+   */
+  _extractIssues(report) {
+    const issues = [];
+
+    // Handle different report formats
+    if (Array.isArray(report)) {
+      return report;
+    }
+
+    if (report.issues && Array.isArray(report.issues)) {
+      return report.issues;
+    }
+
+    if (report.files && typeof report.files === 'object') {
+      for (const filePath of Object.keys(report.files)) {
+        const fileData = report.files[filePath];
+        if (fileData.issues && Array.isArray(fileData.issues)) {
+          issues.push(...fileData.issues);
+        }
+      }
+    }
+
+    return issues;
+  }
+
+  /**
+   * Creates issue map keyed by hash
+   * @private
+   */
+  _createIssueMap(issues) {
+    const map = new Map();
+
+    for (const issue of issues) {
+      const hash = this._generateIssueHash(issue);
+      map.set(hash, issue);
+    }
+
+    return map;
+  }
+
+  /**
+   * Generates deterministic hash for issue
+   * @private
+   */
+  _generateIssueHash(issue) {
+    // Normalize values for consistent hashing
+    const file = this._normalize(issue.file || issue.filePath || '');
+    const type = this._normalize(issue.type || issue.category || '');
+    const line = this._normalize(issue.line || issue.lineNumber || 0);
+    const message = this._normalize(issue.message || issue.description || '');
+
+    const hashInput = `${file}|${type}|${line}|${message}`;
+    return crypto.createHash('sha256').update(hashInput).digest('hex');
+  }
+
+  /**
+   * Normalizes values for comparison
+   * @private
+   */
+  _normalize(value) {
+    // Convert undefined to null for consistent comparison
+    if (value === undefined) return 'null';
+    if (value === null) return 'null';
+    return String(value).trim();
+  }
+
+  /**
+   * Checks if issue has changed (beyond key fields)
+   * @private
+   */
+  _hasChanged(issueA, issueB) {
+    // Compare non-key fields
+    const fieldsToCheck = ['severity', 'effort', 'impact', 'metadata', 'context'];
+
+    for (const field of fieldsToCheck) {
+      if (this._normalize(issueA[field]) !== this._normalize(issueB[field])) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Creates issue summary for diff output
+   * @private
+   */
+  _createIssueSummary(issue) {
+    return {
+      file: issue.file || issue.filePath,
+      type: issue.type || issue.category,
+      line: issue.line || issue.lineNumber,
+      message: issue.message || issue.description,
+      severity: issue.severity,
+      effort: issue.effort,
+      impact: issue.impact
+    };
+  }
+
+  /**
+   * Generates hash for report pair
+   * @private
+   */
+  _generatePairHash(reportA, reportB) {
+    const hashA = this._generateReportHash(reportA);
+    const hashB = this._generateReportHash(reportB);
+    return crypto.createHash('sha256')
+      .update(`${hashA}|${hashB}`)
+      .digest('hex')
+      .substring(0, 16);
+  }
+
+  /**
+   * Generates hash for single report
+   * @private
+   */
+  _generateReportHash(report) {
+    const issues = this._extractIssues(report);
+    const issueHashes = issues.map(issue => this._generateIssueHash(issue)).sort();
+    return crypto.createHash('sha256')
+      .update(issueHashes.join(''))
+      .digest('hex');
+  }
+
+  /**
+   * Counts total added issues
+   * @private
+   */
+  _countAddedTotal(mapA, mapB) {
+    let count = 0;
+    for (const hash of mapB.keys()) {
+      if (!mapA.has(hash)) count++;
+    }
+    return count;
+  }
+
+  /**
+   * Counts total removed issues
+   * @private
+   */
+  _countRemovedTotal(mapA, mapB) {
+    let count = 0;
+    for (const hash of mapA.keys()) {
+      if (!mapB.has(hash)) count++;
+    }
+    return count;
+  }
+
+  /**
+   * Counts total changed issues
+   * @private
+   */
+  _countChangedTotal(mapA, mapB) {
+    let count = 0;
+    for (const [hash, issueB] of mapB.entries()) {
+      if (mapA.has(hash)) {
+        const issueA = mapA.get(hash);
+        if (this._hasChanged(issueA, issueB)) count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Creates minimal valid diff on error
+   * @private
+   */
+  _createErrorDiff(reason) {
+    return {
+      added: [],
+      removed: [],
+      changed: [],
+      summary: {
+        totalAdded: 0,
+        totalRemoved: 0,
+        totalChanged: 0,
+        truncated: {
+          added: false,
+          removed: false,
+          changed: false
+        },
+        reportPairHash: 'error',
+        timestamp: new Date().toISOString(),
+        toolVersion: '1.0.0',
+        duration: 0,
+        error: reason
+      }
+    };
+  }
+}
+
+export default SauronScanDiffer;

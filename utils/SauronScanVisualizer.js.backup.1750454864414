@@ -1,0 +1,384 @@
+/**
+ * Purpose: Generates visual dashboard data + HTML from Eye of Sauron scan reports
+ * Dependencies: Node.js standard library only
+ * Public API:
+ *   - new SauronScanVisualizer(config)
+ *     - config.theme: 'dark' | 'light' (default: 'dark')
+ *     - config.includeChartLoader: boolean (default: false)
+ *     - config.maxFilenameLength: number (default: 20)
+ *     - config.bubbleOpacity: number 0-1 (default: 0.4)
+ *   - generateCharts(report) → object with chart-ready data
+ *   - generateHtml(report) → string with minimal HTML dashboard
+ */
+
+export class SauronScanVisualizer {
+  constructor(config = {}) {
+    this.theme = config.theme || 'dark';
+    this.includeChartLoader = config.includeChartLoader || false;
+    this.maxFilenameLength = config.maxFilenameLength || 20;
+    this.bubbleOpacity = config.bubbleOpacity || 0.4; // 0-1 range
+    
+    this.colors = {
+      dark: {
+        critical: '#dc2626',
+        high: '#ea580c',
+        medium: '#f59e0b',
+        low: '#84cc16',
+        info: '#06b6d4',
+        background: '#1f2937',
+        text: '#f3f4f6'
+      },
+      light: {
+        critical: '#dc2626',
+        high: '#ea580c',
+        medium: '#f59e0b',
+        low: '#65a30d',
+        info: '#0891b2',
+        background: '#ffffff',
+        text: '#111827'
+      }
+    };
+  }
+
+  /**
+   * Generates JSON-ready chart data from scan report
+   * @param {object} report - Eye of Sauron scan report
+   * @returns {object} Chart data structures
+   */
+  generateCharts(report) {
+    // Defensive validation
+    if (!report || typeof report !== 'object') {
+      return this._getEmptyChartData();
+    }
+
+    const files = report.vision?.files || {};
+    const summary = report.summary || {};
+    
+    // Collect all issues from all files
+    const allIssues = [];
+    const fileMetrics = [];
+    
+    Object.entries(files).forEach(([filepath, fileData]) => {
+      if (fileData?.issues && Array.isArray(fileData.issues)) {
+        allIssues.push(...fileData.issues);
+      }
+      
+      // Collect file metrics for scatter plot
+      if (fileData?.metrics) {
+        fileMetrics.push({
+          file: filepath,
+          size: fileData.metrics.size || 0,
+          complexity: fileData.metrics.complexity || 0,
+          issues: fileData.issues?.length || 0
+        });
+      }
+    });
+
+    return {
+      severityDistribution: this._generateSeverityChart(allIssues),
+      typeBreakdown: this._generateTypeChart(allIssues),
+      complexityScatter: this._generateComplexityScatter(fileMetrics),
+      summary: {
+        totalFiles: Object.keys(files).length,
+        totalIssues: allIssues.length,
+        criticalCount: allIssues.filter(i => i.severity === 'critical').length,
+        timestamp: report.metadata?.timestamp || new Date().toISOString()
+      }
+    };
+  }
+
+  /**
+   * Generates minimal HTML dashboard from scan report
+   * @param {object} report - Eye of Sauron scan report
+   * @returns {string} HTML string with embedded chart data
+   */
+  generateHtml(report) {
+    const chartData = this.generateCharts(report);
+    const colors = this.colors[this.theme];
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eye of Sauron - Scan Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: ${colors.background};
+      color: ${colors.text};
+      margin: 0;
+      padding: 20px;
+    }
+    .dashboard {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      color: ${colors.critical};
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .summary-card {
+      background: ${this.theme === 'dark' ? '#374151' : '#f9fafb'};
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .summary-card .value {
+      font-size: 2em;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+    }
+    .chart-container {
+      background: ${this.theme === 'dark' ? '#374151' : '#f9fafb'};
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .chart-container h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+    }
+    .chart {
+      width: 100%;
+      height: 300px;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <div class="header">
+      <h1>👁️ Eye of Sauron Scan Report</h1>
+      <p>Generated: ${new Date(chartData.summary.timestamp).toLocaleString()}</p>
+    </div>
+    
+    <div class="summary">
+      <div class="summary-card">
+        <div class="label">Total Files</div>
+        <div class="value">${chartData.summary.totalFiles}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Total Issues</div>
+        <div class="value">${chartData.summary.totalIssues}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Critical Issues</div>
+        <div class="value" style="color: ${colors.critical}">${chartData.summary.criticalCount}</div>
+      </div>
+    </div>
+    
+    <div class="charts">
+      <div class="chart-container">
+        <h2>Issue Severity Distribution</h2>
+        <div class="chart" 
+             data-chart-type="pie" 
+             data-chart-data='${JSON.stringify(chartData.severityDistribution)}'>
+          <canvas id="severity-chart"></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <h2>Issue Type Breakdown</h2>
+        <div class="chart" 
+             data-chart-type="bar" 
+             data-chart-data='${JSON.stringify(chartData.typeBreakdown)}'>
+          <canvas id="type-chart"></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <h2>File Complexity vs Size</h2>
+        <div class="chart" 
+             data-chart-type="scatter" 
+             data-chart-data='${JSON.stringify(chartData.complexityScatter)}'>
+          <canvas id="complexity-chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Chart data is embedded in data attributes
+    // External charting library can read and render these
+    
+    ${this._getChartLoaderScript()}
+  </script>
+<div id="results"></div>
+</body>
+</html>`;
+  }
+
+  // Private helper methods
+
+  _generateSeverityChart(issues) {
+    const severityCounts = {
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+      info: 0
+    };
+    
+    issues.forEach(issue => {
+      const severity = (issue.severity || 'info').toLowerCase();
+      if (severity in severityCounts) {
+        severityCounts[severity]++;
+      }
+    });
+    
+    const colors = this.colors[this.theme];
+    
+    return {
+      labels: Object.keys(severityCounts),
+      datasets: [{
+        data: Object.values(severityCounts),
+        backgroundColor: [
+          colors.critical,
+          colors.high,
+          colors.medium,
+          colors.low,
+          colors.info
+        ]
+      }]
+    };
+  }
+
+  _generateTypeChart(issues) {
+    const typeCounts = {};
+    
+    issues.forEach(issue => {
+      const type = issue.type || 'unknown';
+      typeCounts[type] = (typeCounts[type] || 0) + 1;
+    });
+    
+    // Sort by count descending, limit to top 10
+    const sortedTypes = Object.entries(typeCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+    
+    return {
+      labels: sortedTypes.map(([type]) => type),
+      datasets: [{
+        label: 'Issue Count',
+        data: sortedTypes.map(([, count]) => count),
+        backgroundColor: this.colors[this.theme].medium
+      }]
+    };
+  }
+
+  _generateComplexityScatter(fileMetrics) {
+    // Group by complexity ranges for better visualization
+    const points = fileMetrics.map(metric => ({
+      x: metric.size,
+      y: metric.complexity,
+      r: Math.min(metric.issues * 3 + 5, 30), // Bubble size based on issues
+      label: this._truncateFilename(metric.file)
+    }));
+    
+    // Convert opacity (0-1) to hex
+    const opacityHex = Math.round(this.bubbleOpacity * 255).toString(16).padStart(2, '0');
+    
+    return {
+      datasets: [{
+        label: 'Files',
+        data: points,
+        backgroundColor: this.colors[this.theme].info + opacityHex
+      }]
+    };
+  }
+
+  _getEmptyChartData() {
+    return {
+      severityDistribution: {
+        labels: ['critical', 'high', 'medium', 'low', 'info'],
+        datasets: [{ data: [0, 0, 0, 0, 0] }]
+      },
+      typeBreakdown: {
+        labels: [],
+        datasets: [{ data: [] }]
+      },
+      complexityScatter: {
+        datasets: [{ data: [] }]
+      },
+      summary: {
+        totalFiles: 0,
+        totalIssues: 0,
+        criticalCount: 0,
+        timestamp: new Date().toISOString()
+      }
+    };
+  }
+
+  _truncateFilename(filepath) {
+    const filename = filepath.split('/').pop();
+    if (filename.length <= this.maxFilenameLength) {
+      return filename;
+    }
+    
+    // Smart truncation: preserve extension
+    const ext = filename.lastIndexOf('.');
+    if (ext > 0 && ext > this.maxFilenameLength - 6) {
+      const name = filename.substring(0, this.maxFilenameLength - 6);
+      const extension = filename.substring(ext);
+      return name + '...' + extension;
+    }
+    
+    return filename.substring(0, this.maxFilenameLength - 3) + '...';
+  }
+
+  _getChartLoaderScript() {
+    if (!this.includeChartLoader) {
+      return '';
+    }
+    
+    return `
+    // Inline Chart.js loader
+    (function() {
+      // CDN fallback loader for Chart.js
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
+      script.onload = function() {
+        // Auto-render charts when Chart.js loads
+        document.querySelectorAll('[data-chart-type]').forEach(container => {
+          const canvas = container.querySelector('canvas');
+          const type = container.dataset.chartType;
+          const data = JSON.parse(container.dataset.chartData);
+          
+          new Chart(canvas.getContext('2d'), {
+            type: type,
+            data: data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: type === 'pie'
+                }
+              }
+            }
+          });
+        });
+      };
+      document.head.appendChild(script);
+    })();`;
+  }
+}
+
+// Export for ES module
+export default SauronScanVisualizer;

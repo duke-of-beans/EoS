@@ -1,0 +1,467 @@
+/**
+ * SauronDataSanitizer.js
+ * 
+ * Purpose: Validates and sanitizes Eye of Sauron scan report data before export,
+ *          storage, or external transmission. Ensures reports are safe, well-formed,
+ *          and free of sensitive or unsafe data.
+ * 
+ * Dependencies: Node.js standard library (path)
+ * 
+ * Public API:
+ *   - new SauronDataSanitizer(config) - Create sanitizer with configuration
+ *   - sanitize(report) - Clean and validate report data, returns sanitized copy
+ */
+
+import path from 'path';
+
+export class SauronDataSanitizer {
+  constructor(config = {}) {
+    this.config = {
+      stripSensitive: config.stripSensitive !== false, // default true
+      normalizePaths: config.normalizePaths !== false, // default true
+      logChanges: config.logChanges || false,
+      maxDepth: config.maxDepth || 20, // prevent infinite recursion
+      sensitivePatterns: this._buildSensitivePatterns(config.sensitivePatterns),
+      redactedValue: config.redactedValue || '[REDACTED]',
+      sensitivityThreshold: config.sensitivityThreshold || 0.5 // 0-1 score threshold
+    };
+    
+    this.changes = [];
+    this.seen = new WeakSet(); // for circular reference detection
+    this.circularRefs = []; // track all circular references found
+  }
+
+  /**
+   * Get report of circular references found in last sanitization
+   * @returns {Array} Array of circular reference details
+   */
+  getCircularReferences() {
+    return [...this.circularRefs]; // Return copy
+  }
+
+  /**
+   * Build sensitive patterns with priorities
+   * @private
+   */
+  _buildSensitivePatterns(customPatterns) {
+    const defaultPatterns = [
+      { pattern: /password/i, score: 1.0, context: 'field' },
+      { pattern: /secret/i, score: 0.9, context: 'field' },
+      { pattern: /token/i, score: 0.9, context: 'field' },
+      { pattern: /apikey/i, score: 1.0, context: 'field' },
+      { pattern: /api_key/i, score: 1.0, context: 'field' },
+      { pattern: /private/i, score: 0.7, context: 'field' },
+      { pattern: /credential/i, score: 0.9, context: 'field' },
+      { pattern: /auth/i, score: 0.8, context: 'field' },
+      { pattern: /bearer/i, score: 0.9, context: 'field' },
+      { pattern: /ssh/i, score: 0.8, context: 'field' },
+      { pattern: /env\./i, score: 0.6, context: 'value' },
+      { pattern: /\$\{.*\}/i, score: 0.8, context: 'value' },
+      { pattern: /process\.env\./i, score: 0.9, context: 'value' }
+    ];
+
+    if (!customPatterns) {
+      return defaultPatterns;
+    }
+
+    // Merge custom patterns with defaults
+    if (Array.isArray(customPatterns)) {
+      // Legacy support for simple regex array
+      return customPatterns.map(pattern => ({
+        pattern,
+        score: 0.8,
+        context: 'field'
+      })).concat(defaultPatterns);
+    }
+
+    return customPatterns.concat(defaultPatterns);
+  }
+
+  /**
+   * Sanitize a scan report object
+   * @param {object} report - The report to sanitize
+   * @returns {object} - Deep clone of sanitized report
+   */
+  sanitize(report) {
+    if (!report || typeof report !== 'object') {
+      throw new Error('Report must be a non-null object');
+    }
+
+    // Reset tracking for each sanitization
+    this.changes = [];
+    this.seen = new WeakSet();
+    this.circularRefs = [];
+
+    try {
+      // Deep clone with sanitization
+      const sanitized = this._sanitizeValue(report, 'root', 0);
+
+      // Log changes if configured
+      if (this.config.logChanges && this.changes.length > 0) {
+        console.log(`[SauronDataSanitizer] Applied ${this.changes.length} sanitization changes:`);
+        this.changes.slice(0, 10).forEach(change => {
+          console.log(`  - ${change}`);
+        });
+        if (this.changes.length > 10) {
+          console.log(`  ... and ${this.changes.length - 10} more changes`);
+        }
+        
+        // Report circular references if found
+        if (this.circularRefs.length > 0) {
+          console.log(`[SauronDataSanitizer] Found ${this.circularRefs.length} circular references:`);
+          this.circularRefs.forEach(ref => {
+            console.log(`  - ${ref.path} (${ref.isArray ? 'array' : ref.type})`);
+          });
+        }
+      }
+
+      return sanitized;
+    } catch (error) {
+      throw new Error(`Failed to sanitize report: ${error.message}`);
+    }
+  }
+
+  /**
+   * Recursively sanitize a value
+   * @private
+   */
+  _sanitizeValue(value, path, depth) {
+    // Check depth to prevent stack overflow
+    if (depth > this.config.maxDepth) {
+      this._recordChange(`${path}: exceeded max depth, truncating`);
+      return { _truncated: true, _reason: 'MAX_DEPTH_EXCEEDED', _depth: depth };
+    }
+
+    // Handle primitives
+    if (value === null || value === undefined) {
+      return value;
+    }
+
+    const type = typeof value;
+    
+    if (type === 'string') {
+      return this._sanitizeString(value, path);
+    }
+    
+    if (type !== 'object') {
+      return value; // numbers, booleans, etc. pass through
+    }
+
+    // Handle circular references
+    if (this.seen.has(value)) {
+      this._recordChange(`${path}: removed circular reference`);
+      this.circularRefs.push({ path, type: typeof value, isArray: Array.isArray(value) });
+      return { _circular: true, _path: path };
+    }
+    this.seen.add(value);
+
+    // Handle arrays
+    if (Array.isArray(value)) {
+      return value.map((item, index) => 
+        this._sanitizeValue(item, `${path}[${index}]`, depth + 1)
+      );
+    }
+
+    // Handle objects
+    const sanitized = {};
+    
+    for (const key in value) {
+      if (!value.hasOwnProperty(key)) continue;
+
+      const keyPath = `${path}.${key}`;
+      
+      // Check if key contains sensitive pattern
+      if (this.config.stripSensitive && this._isSensitiveKey(key)) {
+        this._recordChange(`${keyPath}: redacted sensitive field`);
+        sanitized[key] = this.config.redactedValue;
+        continue;
+      }
+
+      // Special handling for specific fields
+      if (key === 'filePath' && this.config.normalizePaths) {
+        sanitized[key] = this._normalizePath(value[key], keyPath);
+      } else if (key === 'fileContent') {
+        // Always redact file content for security
+        this._recordChange(`${keyPath}: removed file content`);
+        sanitized[key] = { _redacted: true, _reason: 'FILE_CONTENT' };
+      } else if (key === 'environment' || key === 'env') {
+        // Sanitize environment variables
+        sanitized[key] = this._sanitizeEnvironment(value[key], keyPath);
+      } else {
+        // Recursively sanitize
+        sanitized[key] = this._sanitizeValue(value[key], keyPath, depth + 1);
+      }
+    }
+
+    return sanitized;
+  }
+
+  /**
+   * Sanitize string values
+   * @private
+   */
+  _sanitizeString(value, path) {
+    if (!this.config.stripSensitive) {
+      return value;
+    }
+
+    // Calculate sensitivity score for the string
+    let totalScore = 0;
+    let matchCount = 0;
+
+    for (const patternConfig of this.config.sensitivePatterns) {
+      if (patternConfig.context !== 'value' && patternConfig.context !== 'both') {
+        continue;
+      }
+
+      if (patternConfig.pattern.test(value)) {
+        totalScore += patternConfig.score;
+        matchCount++;
+      }
+    }
+
+    // Additional heuristics for secret-like patterns
+    if (this._looksLikeSecret(value)) {
+      totalScore += 0.5;
+      matchCount++;
+    }
+
+    // Calculate average score
+    const avgScore = matchCount > 0 ? totalScore / matchCount : 0;
+
+    if (avgScore >= this.config.sensitivityThreshold) {
+      this._recordChange(`${path}: redacted sensitive string content (score: ${avgScore.toFixed(2)})`);
+      return this.config.redactedValue;
+    }
+
+    return value;
+  }
+
+  /**
+   * Check if a key name suggests sensitive data
+   * @private
+   */
+  _isSensitiveKey(key) {
+    const lowerKey = key.toLowerCase();
+    let totalScore = 0;
+    let matchCount = 0;
+
+    for (const patternConfig of this.config.sensitivePatterns) {
+      if (patternConfig.context !== 'field' && patternConfig.context !== 'both') {
+        continue;
+      }
+
+      if (patternConfig.pattern.test(lowerKey)) {
+        totalScore += patternConfig.score;
+        matchCount++;
+      }
+    }
+
+    const avgScore = matchCount > 0 ? totalScore / matchCount : 0;
+    return avgScore >= this.config.sensitivityThreshold;
+  }
+
+  /**
+   * Check if a string looks like an actual secret
+   * @private
+   */
+  _looksLikeSecret(value) {
+    // Long random-looking strings, base64, JWT patterns
+    if (value.length > 20 && /^[A-Za-z0-9+/=_-]+$/.test(value)) {
+      return true;
+    }
+    
+    // JWT pattern
+    if (/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)) {
+      return true;
+    }
+
+    // Environment variable reference
+    if (/\$\{.*\}/.test(value) || /process\.env\./.test(value)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Normalize file paths for cross-platform compatibility
+   * @private
+   * 
+   * Note: Handles common path formats across platforms. Exotic or encoded
+   * paths (e.g. URL-encoded network shares, non-standard encodings) may
+   * not be fully normalized but will be returned as-is without error.
+   */
+  _normalizePath(filePath, logPath) {
+    if (typeof filePath !== 'string') {
+      return filePath;
+    }
+
+    try {
+      let normalized = filePath;
+      
+      // Decode URL-encoded paths if present
+      if (normalized.includes('%')) {
+        try {
+          normalized = decodeURIComponent(normalized);
+        } catch (e) {
+          // Keep original if decode fails
+        }
+      }
+      
+      // Handle various path formats
+      // Windows absolute paths (C:\, D:\, etc.)
+      normalized = normalized.replace(/^[A-Z]:[\\\/]+/i, '');
+      
+      // Windows network shares with forward slashes
+      normalized = normalized.replace(/^\/\/[^\/]+\/[^\/]+\//, '');
+      
+      // UNC paths (\\server\share or //server/share)
+      normalized = normalized.replace(/^[\\\/]{2,}[^\\\/]+[\\\/]+[^\\\/]+[\\\/]*/, '');
+      
+      // Unix absolute paths
+      normalized = normalized.replace(/^\/+/, '');
+      
+      // Cygwin/MSYS paths (/c/Users/...)
+      normalized = normalized.replace(/^\/[a-z]\//i, '');
+      
+      // WSL paths (/mnt/c/...)
+      normalized = normalized.replace(/^\/mnt\/[a-z]\//i, '');
+      
+      // Git Bash paths (/c/Users or /d/Projects)
+      normalized = normalized.replace(/^\/[a-z]\//i, '');
+      
+      // Docker volume paths (/var/lib/docker/volumes/...)
+      normalized = normalized.replace(/^\/var\/lib\/docker\/volumes\/[^\/]+\//, '');
+      
+      // Escaped spaces and special chars
+      normalized = normalized.replace(/\\ /g, ' ');
+      normalized = normalized.replace(/\\\(/g, '(');
+      normalized = normalized.replace(/\\\)/g, ')');
+      
+      // Convert all separators to forward slashes
+      normalized = normalized.replace(/[\\\/]+/g, '/');
+      
+      // Remove duplicate slashes
+      normalized = normalized.replace(/\/+/g, '/');
+      
+      // Remove trailing slashes (unless it's just "/")
+      if (normalized.length > 1 && normalized.endsWith('/')) {
+        normalized = normalized.slice(0, -1);
+      }
+      
+      // Handle relative path prefixes
+      normalized = normalized.replace(/^\.\//, '');
+      
+      // Handle parent directory references at start
+      while (normalized.startsWith('../')) {
+        normalized = normalized.substring(3);
+      }
+
+      if (normalized !== filePath) {
+        this._recordChange(`${logPath}: normalized path`);
+      }
+
+      return normalized;
+    } catch (error) {
+      // Return original if normalization fails
+      // This handles truly exotic cases gracefully
+      this._recordChange(`${logPath}: path normalization failed, keeping original`);
+      return filePath;
+    }
+  }
+
+  /**
+   * Sanitize environment variables object
+   * @private
+   */
+  _sanitizeEnvironment(env, path) {
+    if (!env || typeof env !== 'object') {
+      return env;
+    }
+
+    const sanitized = {};
+    
+    for (const key in env) {
+      if (!env.hasOwnProperty(key)) continue;
+
+      // Always redact environment variable values
+      this._recordChange(`${path}.${key}: redacted environment variable`);
+      sanitized[key] = this.config.redactedValue;
+    }
+
+    return sanitized;
+  }
+
+  /**
+   * Record a sanitization change
+   * @private
+   */
+  _recordChange(description) {
+    this.changes.push(description);
+  }
+}
+
+// Example usage:
+/*
+const sanitizer = new SauronDataSanitizer({
+  stripSensitive: true,
+  normalizePaths: true,
+  logChanges: true,
+  sensitivityThreshold: 0.5,
+  sensitivePatterns: [
+    { pattern: /custom_secret/i, score: 1.0, context: 'field' },
+    { pattern: /internal_api/i, score: 0.9, context: 'both' }
+  ]
+});
+
+const report = {
+  projectName: "MyProject",
+  issues: [{
+    type: "security",
+    filePath: "C:\\Users\\dev\\project\\src\\auth.js",
+    message: "Hardcoded password detected",
+    details: {
+      password: "super_secret_123",
+      apiKey: "sk-1234567890abcdef",
+      fileContent: "const password = 'secret';",
+      customField: "This contains a custom_secret value"
+    }
+  }],
+  environment: {
+    NODE_ENV: "production",
+    DATABASE_URL: "postgres://user:pass@localhost"
+  },
+  deepNested: {
+    level1: {
+      level2: {
+        level3: {
+          // This would trigger max depth if deeply nested
+        }
+      }
+    }
+  }
+};
+
+// Create circular reference
+report.issues[0].parentReport = report;
+report.selfRef = report;
+
+const cleaned = sanitizer.sanitize(report);
+console.log(JSON.stringify(cleaned, null, 2));
+
+// Get circular reference report
+const circularRefs = sanitizer.getCircularReferences();
+console.log('Circular references found:', circularRefs);
+// Output: [
+//   { path: 'root.issues[0].parentReport', type: 'object', isArray: false },
+//   { path: 'root.selfRef', type: 'object', isArray: false }
+// ]
+
+// Output will show:
+// - Normalized paths (C:\Users\dev\project\src\auth.js -> project/src/auth.js)
+// - Redacted sensitive fields based on scoring
+// - Consistent object structure for special cases
+// - Circular references replaced with { _circular: true, _path: "..." }
+// - Preserved data types where possible
+*/

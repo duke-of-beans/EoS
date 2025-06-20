@@ -1,0 +1,229 @@
+/**
+ * Purpose: Provides incremental scan caching for Eye of Sauron
+ * Dependencies: Node.js std lib (fs/promises, path)
+ * API: IncrementalScanCache(cachePath).load(), save(), diff(), hasChanges(), getChangedPaths()
+ */
+
+import { readFile, writeFile, mkdir } from 'fs/promises';
+import { dirname } from 'path';
+
+export class IncrementalScanCache {
+  constructor(cachePath) {
+    this.cachePath = cachePath;
+  }
+
+  /**
+   * Convenience method to check if there are any changes
+   * @param {object} current - Current scan data
+   * @param {object} previous - Previous scan data
+   * @returns {boolean} True if there are any changes
+   */
+  hasChanges(current, previous) {
+    const changes = this.diff(current, previous);
+    return changes.added.length > 0 || 
+           changes.modified.length > 0 || 
+           changes.deleted.length > 0;
+  }
+
+  /**
+   * Gets all changed paths as a flat array (for backward compatibility)
+   * @param {object} current - Current scan data
+   * @param {object} previous - Previous scan data
+   * @returns {string[]} Array of all changed file paths
+   */
+  getChangedPaths(current, previous) {
+    const changes = this.diff(current, previous);
+    return [...changes.added, ...changes.modified, ...changes.deleted];
+  }
+
+  /**
+   * Loads previous scan data from cache file
+   * @returns {Promise<object|null>} Previous scan data or null if not found/error
+   */
+  async load() {
+    try {
+      const data = await readFile(this.cachePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      // Return null for any error (file not found, parse error, etc.)
+      return null;
+    }
+  }
+
+  /**
+   * Saves scan data to cache file
+   * @param {object} data - Scan data to cache
+   * @returns {Promise<void>}
+   */
+  async save(data) {
+    try {
+      // Ensure directory exists
+      const dir = dirname(this.cachePath);
+      await mkdir(dir, { recursive: true });
+      
+      // Write data as formatted JSON
+      await writeFile(
+        this.cachePath,
+        JSON.stringify(data, null, 2),
+        'utf8'
+      );
+    } catch (error) {
+      // Re-throw with original error as cause for better debugging
+      throw new Error(`Failed to save cache to ${this.cachePath}`, { cause: error });
+    }
+  }
+
+  /**
+   * Compares current and previous scan data to find changed files
+   * @param {object} current - Current scan data
+   * @param {object} previous - Previous scan data
+   * @returns {{added: string[], modified: string[], deleted: string[]}} Object with arrays of file paths by change type
+   */
+  diff(current, previous) {
+    const changes = {
+      added: [],
+      modified: [],
+      deleted: []
+    };
+    
+    // Handle null/undefined inputs
+    if (!current || !previous) {
+      return changes;
+    }
+    
+    // Extract file data from scan structures
+    const currentFiles = this._extractFileData(current);
+    const previousFiles = this._extractFileData(previous);
+    
+    // Find added or modified files
+    for (const [path, currentData] of Object.entries(currentFiles)) {
+      const previousData = previousFiles[path];
+      
+      if (!previousData) {
+        // New file
+        changes.added.push(path);
+      } else if (this._hasFileChanged(currentData, previousData)) {
+        // Modified file
+        changes.modified.push(path);
+      }
+    }
+    
+    // Find deleted files
+    for (const path of Object.keys(previousFiles)) {
+      if (!currentFiles[path]) {
+        changes.deleted.push(path);
+      }
+    }
+    
+    return changes;
+  }
+
+  /**
+   * Extracts file data from scan structure
+   * @private
+   * @param {object} scanData - Scan data object
+   * @returns {object} Map of file paths to file metadata
+   */
+  _extractFileData(scanData) {
+    const files = {};
+    
+    // Handle different scan data structures
+    if (scanData.files) {
+      // Flat structure: { files: { path: data } }
+      Object.assign(files, scanData.files);
+    } else if (scanData.vision && scanData.vision.files) {
+      // Nested structure: { vision: { files: { path: data } } }
+      Object.assign(files, scanData.vision.files);
+    } else {
+      // Try to find any files property recursively
+      this._findFilesRecursive(scanData, files);
+    }
+    
+    return files;
+  }
+
+  /**
+   * Recursively searches for file data in scan object
+   * @private
+   * @param {object} obj - Object to search
+   * @param {object} accumulator - Accumulator for found files
+   */
+  _findFilesRecursive(obj, accumulator) {
+    if (!obj || typeof obj !== 'object') return;
+    
+    for (const [key, value] of Object.entries(obj)) {
+      if (key === 'files' && typeof value === 'object' && !Array.isArray(value)) {
+        Object.assign(accumulator, value);
+      } else if (typeof value === 'object') {
+        this._findFilesRecursive(value, accumulator);
+      }
+    }
+  }
+
+  /**
+   * Determines if a file has changed between scans
+   * @private
+   * @param {object} currentData - Current file data
+   * @param {object} previousData - Previous file data
+   * @returns {boolean} True if file has changed
+   */
+  _hasFileChanged(currentData, previousData) {
+    // Priority order: checksum > hash > timestamp > size > issue count
+    
+    // Check checksum/hash first (most reliable)
+    if (currentData.checksum && previousData.checksum) {
+      return currentData.checksum !== previousData.checksum;
+    }
+    
+    if (currentData.hash && previousData.hash) {
+      return currentData.hash !== previousData.hash;
+    }
+    
+    // Check timestamp
+    if (currentData.timestamp && previousData.timestamp) {
+      return currentData.timestamp !== previousData.timestamp;
+    }
+    
+    if (currentData.modifiedTime && previousData.modifiedTime) {
+      return currentData.modifiedTime !== previousData.modifiedTime;
+    }
+    
+    // Check file size
+    if (currentData.size !== undefined && previousData.size !== undefined) {
+      return currentData.size !== previousData.size;
+    }
+    
+    // Check issue count as last resort
+    const currentIssueCount = this._countIssues(currentData);
+    const previousIssueCount = this._countIssues(previousData);
+    
+    return currentIssueCount !== previousIssueCount;
+  }
+
+  /**
+   * Counts total issues in file data
+   * @private
+   * @param {object} fileData - File data object
+   * @returns {number} Total issue count
+   */
+  _countIssues(fileData) {
+    let count = 0;
+    
+    if (fileData.issues) {
+      if (Array.isArray(fileData.issues)) {
+        count += fileData.issues.length;
+      } else if (typeof fileData.issues === 'object') {
+        // Handle nested issue structure
+        for (const value of Object.values(fileData.issues)) {
+          if (Array.isArray(value)) {
+            count += value.length;
+          }
+        }
+      }
+    }
+    
+    return count;
+  }
+}
+export default IncrementalScanCache;
+

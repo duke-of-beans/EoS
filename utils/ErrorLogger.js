@@ -2,7 +2,7 @@
  * Purpose: Internal error logger utility for Eye of Sauron
  * Dependencies: Node.js std lib
  * API: ErrorLogger().log(file, error), getSummary()
- * 
+ *
  * Thread Safety Note: This implementation uses an internal array that could face
  * race conditions in concurrent environments. Currently safe for single-threaded
  * use. Consider mutex/locking for future parallelization needs.

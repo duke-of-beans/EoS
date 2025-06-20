@@ -1,0 +1,344 @@
+/**
+ * Purpose: Handles safe upload/download of encrypted archives over secure HTTPS channels
+ * Dependencies: Node.js std lib (https, url)
+ * API: SauronSecureTransporter(config).upload(url, archiveBuffer, metadata), download(url)
+ */
+
+import { request } from 'https';
+import { URL } from 'url';
+
+export class SauronSecureTransporter {
+  constructor(config = {}) {
+    this.timeout = config.timeout || 10_000; // 10 seconds default
+    this.headers = config.headers || {};
+    this.maxSize = config.maxSize || 50 * 1024 * 1024; // 50MB default
+    this.toolVersion = '1.0.0';
+  }
+
+  /**
+   * Uploads an encrypted archive buffer with metadata to a secure endpoint
+   * @param {string} url - HTTPS URL to upload to
+   * @param {Buffer} archiveBuffer - Encrypted archive data
+   * @param {object} metadata - Archive metadata
+   * @returns {Promise<object>} Upload result with status and response data
+   */
+  async upload(url, archiveBuffer, metadata) {
+    const startTime = Date.now();
+
+    try {
+      // Validate inputs
+      this._validateUrl(url);
+      this._validateBuffer(archiveBuffer);
+      this._validateMetadata(metadata);
+
+      // Prepare payload
+      const payload = {
+        archive: archiveBuffer.toString('base64'),
+        metadata: {
+          ...metadata,
+          uploadTimestamp: new Date().toISOString(),
+          toolVersion: this.toolVersion,
+          size: archiveBuffer.length
+        }
+      };
+
+      const payloadBuffer = Buffer.from(JSON.stringify(payload));
+
+      if (payloadBuffer.length > this.maxSize) {
+        throw new Error(`Payload size ${payloadBuffer.length} exceeds maximum ${this.maxSize}`);
+      }
+
+      // Parse URL
+      const parsedUrl = new URL(url);
+
+      // Request options
+      const options = {
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || 443,
+        path: parsedUrl.pathname + parsedUrl.search,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': payloadBuffer.length,
+          'User-Agent': `EyeOfSauron/${this.toolVersion}`,
+          ...this.headers
+        },
+        timeout: this.timeout
+      };
+
+      // Execute request
+      const response = await this._executeRequest(options, payloadBuffer);
+
+      // Log metrics
+      const duration = Date.now() - startTime;
+      this._logMetrics('upload', {
+        duration,
+        size: archiveBuffer.length,
+        statusCode: response.statusCode,
+        url: parsedUrl.hostname
+      });
+
+      return {
+        success: response.statusCode >= 200 && response.statusCode < 300,
+        statusCode: response.statusCode,
+        data: response.data,
+        duration
+      };
+
+    } catch (error) {
+      // Log error metrics
+      const duration = Date.now() - startTime;
+      this._logMetrics('upload', {
+        duration,
+        size: archiveBuffer?.length || 0,
+        statusCode: 0,
+        error: error.message
+      });
+
+      // Return safe minimal object
+      return {
+        success: false,
+        error: error.message || 'Upload failed',
+        reason: this._sanitizeError(error)
+      };
+    }
+  }
+
+  /**
+   * Downloads an encrypted archive from a secure endpoint
+   * @param {string} url - HTTPS URL to download from
+   * @returns {Promise<{archiveBuffer: Buffer, metadata: object}>} Downloaded archive and metadata
+   */
+  async download(url) {
+    const startTime = Date.now();
+
+    try {
+      // Validate URL
+      this._validateUrl(url);
+
+      // Parse URL
+      const parsedUrl = new URL(url);
+
+      // Request options
+      const options = {
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || 443,
+        path: parsedUrl.pathname + parsedUrl.search,
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': `EyeOfSauron/${this.toolVersion}`,
+          ...this.headers
+        },
+        timeout: this.timeout
+      };
+
+      // Execute request
+      const response = await this._executeRequest(options);
+
+      if (response.statusCode !== 200) {
+        throw new Error(`Download failed with status ${response.statusCode}`);
+      }
+
+      // Parse response
+      const responseData = JSON.parse(response.data);
+
+      if (!responseData.archive || !responseData.metadata) {
+        throw new Error('Invalid response format: missing archive or metadata');
+      }
+
+      // Convert base64 archive back to buffer
+      const archiveBuffer = Buffer.from(responseData.archive, 'base64');
+
+      if (archiveBuffer.length > this.maxSize) {
+        throw new Error(`Downloaded archive size ${archiveBuffer.length} exceeds maximum ${this.maxSize}`);
+      }
+
+      // Validate download completeness
+      if (responseData.metadata.size && responseData.metadata.size !== archiveBuffer.length) {
+        throw new Error('Incomplete transfer detected: size mismatch');
+      }
+
+      // Log metrics
+      const duration = Date.now() - startTime;
+      this._logMetrics('download', {
+        duration,
+        size: archiveBuffer.length,
+        statusCode: response.statusCode,
+        url: parsedUrl.hostname
+      });
+
+      return {
+        archiveBuffer,
+        metadata: {
+          ...responseData.metadata,
+          downloadTimestamp: new Date().toISOString(),
+          downloadDuration: duration
+        }
+      };
+
+    } catch (error) {
+      // Log error metrics
+      const duration = Date.now() - startTime;
+      this._logMetrics('download', {
+        duration,
+        size: 0,
+        statusCode: 0,
+        error: error.message
+      });
+
+      // Return safe minimal object
+      return {
+        archiveBuffer: Buffer.alloc(0),
+        metadata: {
+          error: error.message || 'Download failed',
+          reason: this._sanitizeError(error)
+        }
+      };
+    }
+  }
+
+  /**
+   * Executes HTTPS request with proper error handling
+   * @private
+   */
+  _executeRequest(options, payload = null) {
+    return new Promise((resolve, reject) => {
+      const req = request(options, (res) => {
+        const chunks = [];
+
+        res.on('data', (chunk) => {
+          chunks.push(chunk);
+
+          // Check size limit during download
+          const totalSize = chunks.reduce((sum, c) => sum + c.length, 0);
+          if (totalSize > this.maxSize) {
+            req.destroy();
+            reject(new Error('Response size exceeds maximum allowed'));
+          }
+        });
+
+        res.on('end', () => {
+          const data = Buffer.concat(chunks).toString('utf8');
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            data
+          });
+        });
+      });
+
+      req.on('error', reject);
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Request timeout'));
+      });
+
+      if (payload) {
+        req.write(payload);
+      }
+
+      req.end();
+    });
+  }
+
+  /**
+   * Validates URL is HTTPS
+   * @private
+   */
+  _validateUrl(url) {
+    if (!url || typeof url !== 'string') {
+      throw new Error('Invalid URL: must be a string');
+    }
+
+    const parsedUrl = new URL(url);
+
+    if (parsedUrl.protocol !== 'https:') {
+      throw new Error('Invalid URL: only HTTPS protocol is allowed');
+    }
+  }
+
+  /**
+   * Validates buffer input
+   * @private
+   */
+  _validateBuffer(buffer) {
+    if (!Buffer.isBuffer(buffer)) {
+      throw new Error('Invalid archive: must be a Buffer');
+    }
+
+    if (buffer.length === 0) {
+      throw new Error('Invalid archive: buffer is empty');
+    }
+
+    if (buffer.length > this.maxSize) {
+      throw new Error(`Archive size ${buffer.length} exceeds maximum ${this.maxSize}`);
+    }
+  }
+
+  /**
+   * Validates metadata object
+   * @private
+   */
+  _validateMetadata(metadata) {
+    if (!metadata || typeof metadata !== 'object') {
+      throw new Error('Invalid metadata: must be an object');
+    }
+
+    // Ensure metadata is serializable
+    try {
+      JSON.stringify(metadata);
+    } catch (error) {
+      throw new Error('Invalid metadata: must be JSON serializable');
+    }
+  }
+
+  /**
+   * Logs transport metrics
+   * @private
+   */
+  _logMetrics(operation, metrics) {
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      operation,
+      ...metrics
+    };
+
+    // In production, this would send to monitoring service
+    if (process.env.NODE_ENV !== 'test') {
+      );
+    }
+  }
+
+  /**
+   * Sanitizes error messages for safe external exposure
+   * @private
+   */
+  _sanitizeError(error) {
+    const safeReasons = {
+      'ECONNREFUSED': 'Connection refused',
+      'ETIMEDOUT': 'Connection timeout',
+      'ENOTFOUND': 'Host not found',
+      'Request timeout': 'Request timeout',
+      'Invalid URL': 'Invalid URL format',
+      'Invalid archive': 'Invalid archive format',
+      'Invalid metadata': 'Invalid metadata format',
+      'Response size exceeds': 'Response too large',
+      'Archive size': 'Archive too large',
+      'Payload size': 'Payload too large',
+      'Download failed': 'Download failed',
+      'Invalid response': 'Invalid response format',
+      'Incomplete transfer': 'Incomplete transfer'
+    };
+
+    for (const [key, value] of Object.entries(safeReasons)) {
+      if (error.message?.includes(key) || error.code === key) {
+        return value;
+      }
+    }
+
+    return 'Transport error';
+  }
+}
+export default SauronSecureTransporter;
+

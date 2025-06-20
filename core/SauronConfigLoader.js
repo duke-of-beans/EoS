@@ -40,11 +40,11 @@ export class SauronConfigLoader {
    */
   async load(configPath) {
     let fileConfig = {};
-    
+
     try {
       const absolutePath = path.resolve(configPath);
       const ext = path.extname(absolutePath).toLowerCase();
-      
+
       // Check if file exists (async)
       try {
         await fs.access(absolutePath);
@@ -52,7 +52,7 @@ export class SauronConfigLoader {
         this._warn(`Config file not found: ${absolutePath}`);
         return this._deepClone(this.defaults);
       }
-      
+
       if (ext === '.json') {
         // Read JSON file asynchronously
         const content = await fs.readFile(absolutePath, 'utf8');
@@ -65,18 +65,18 @@ export class SauronConfigLoader {
         this._error(`Unsupported config file type: ${ext}`);
         return this._deepClone(this.defaults);
       }
-      
+
       // Validate loaded config
       this._validateConfig(fileConfig, 'file');
-      
+
     } catch (error) {
       this._error(`Error loading config file: ${error.message}`);
       return this._deepClone(this.defaults);
     }
-    
+
     // Merge defaults with file config
     const merged = this._deepMerge(this.defaults, fileConfig);
-    
+
     // Apply environment variables
     return this.mergeWithEnv(merged);
   }
@@ -88,10 +88,10 @@ export class SauronConfigLoader {
    */
   mergeWithEnv(config) {
     const envConfig = this._parseEnvVars();
-    
+
     // Validate env config
     this._validateConfig(envConfig, 'environment');
-    
+
     // Deep merge with env vars taking precedence
     return this._deepMerge(config, envConfig);
   }
@@ -104,20 +104,20 @@ export class SauronConfigLoader {
   _parseEnvVars() {
     const envConfig = {};
     const prefix = 'SAURON_';
-    
+
     Object.entries(process.env).forEach(([key, value]) => {
       if (key.startsWith(prefix)) {
         const configKey = key.substring(prefix.length);
         const path = configKey.toLowerCase().split('_');
-        
+
         // Convert value to appropriate type
         const parsedValue = this._parseEnvValue(value);
-        
+
         // Build nested object structure
         this._setNestedValue(envConfig, path, parsedValue);
       }
     });
-    
+
     return envConfig;
   }
 
@@ -131,16 +131,16 @@ export class SauronConfigLoader {
     // Boolean
     if (value.toLowerCase() === 'true') return true;
     if (value.toLowerCase() === 'false') return false;
-    
+
     // Number
     if (/^-?\d+$/.test(value)) return parseInt(value, 10);
     if (/^-?\d*\.\d+$/.test(value)) return parseFloat(value);
-    
+
     // Array (comma-separated)
     if (value.includes(',')) {
       return value.split(',').map(item => this._parseEnvValue(item.trim()));
     }
-    
+
     // JSON object
     if (value.startsWith('{') || value.startsWith('[')) {
       try {
@@ -149,7 +149,7 @@ export class SauronConfigLoader {
         // If JSON parse fails, return as string
       }
     }
-    
+
     // String (default)
     return value;
   }
@@ -163,7 +163,7 @@ export class SauronConfigLoader {
    */
   _setNestedValue(obj, path, value) {
     let current = obj;
-    
+
     for (let i = 0; i < path.length - 1; i++) {
       const key = path[i];
       if (!(key in current) || typeof current[key] !== 'object') {
@@ -171,7 +171,7 @@ export class SauronConfigLoader {
       }
       current = current[key];
     }
-    
+
     current[path[path.length - 1]] = value;
   }
 
@@ -183,7 +183,7 @@ export class SauronConfigLoader {
    */
   _validateConfig(config, source) {
     const unknownKeys = this._findUnknownKeys(config, this.knownKeys);
-    
+
     if (unknownKeys.length > 0 && !this.options.suppressWarnings) {
       this._warn(`Unknown configuration keys from ${source}: ${unknownKeys.join(', ')}`);
     }
@@ -198,17 +198,17 @@ export class SauronConfigLoader {
    */
   _extractKnownKeys(obj, prefix = '') {
     const keys = new Set();
-    
+
     Object.entries(obj).forEach(([key, value]) => {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       keys.add(fullKey);
-      
+
       if (value && typeof value === 'object' && !Array.isArray(value)) {
         const nestedKeys = this._extractKnownKeys(value, fullKey);
         nestedKeys.forEach(k => keys.add(k));
       }
     });
-    
+
     return keys;
   }
 
@@ -222,10 +222,10 @@ export class SauronConfigLoader {
    */
   _findUnknownKeys(config, knownKeys, prefix = '') {
     const unknownKeys = [];
-    
+
     Object.entries(config).forEach(([key, value]) => {
       const fullKey = prefix ? `${prefix}.${key}` : key;
-      
+
       // Check if this key or any parent key is known
       let isKnown = false;
       const pathParts = fullKey.split('.');
@@ -236,16 +236,16 @@ export class SauronConfigLoader {
           break;
         }
       }
-      
+
       if (!isKnown) {
         unknownKeys.push(fullKey);
       }
-      
+
       if (value && typeof value === 'object' && !Array.isArray(value)) {
         unknownKeys.push(...this._findUnknownKeys(value, knownKeys, fullKey));
       }
     });
-    
+
     return unknownKeys;
   }
 
@@ -255,14 +255,14 @@ export class SauronConfigLoader {
    * @param {object} target - Target object
    * @param {object} source - Source object
    * @returns {object} Merged object
-   * 
+   *
    * Note: Arrays are handled according to arrayMergeStrategy option:
    * - 'replace': source arrays replace target arrays (default)
    * - 'concat': source arrays are concatenated to target arrays
    */
   _deepMerge(target, source) {
     const result = this._deepClone(target);
-    
+
     Object.entries(source).forEach(([key, value]) => {
       if (value && typeof value === 'object') {
         if (Array.isArray(value)) {
@@ -285,7 +285,7 @@ export class SauronConfigLoader {
         result[key] = value;
       }
     });
-    
+
     return result;
   }
 
@@ -300,12 +300,12 @@ export class SauronConfigLoader {
     if (obj instanceof Date) return new Date(obj.getTime());
     if (obj instanceof Array) return obj.map(item => this._deepClone(item));
     if (obj instanceof RegExp) return new RegExp(obj.source, obj.flags);
-    
+
     const cloned = {};
     Object.entries(obj).forEach(([key, value]) => {
       cloned[key] = this._deepClone(value);
     });
-    
+
     return cloned;
   }
 

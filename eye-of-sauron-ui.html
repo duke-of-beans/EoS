@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Eye of Sauron - Advanced code scanner for character forensics, pattern recognition, and dependency analysis. Detect issues, enforce contracts, and maintain code quality.">
+    <meta name="author" content="Eye of Sauron Development Team">
+    <meta name="keywords" content="code scanner, static analysis, code quality, dependency analysis">
+    <meta name="theme-color" content="#0d1117">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- SEO & Social Media -->
+    <meta property="og:title" content="Eye of Sauron Scanner - Advanced Code Analysis Tool">
+    <meta property="og:description" content="Powerful code scanner with character forensics, pattern recognition, and dependency analysis. Detect issues, enforce contracts, and maintain code quality.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/eye-of-sauron">
+    <meta property="og:image" content="https://example.com/eye-of-sauron-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Eye of Sauron Scanner">
+    <meta name="twitter:description" content="Advanced code analysis tool for detecting issues and maintaining code quality">
+    <meta name="twitter:image" content="https://example.com/eye-of-sauron-preview.png">
+    
+    <title>Eye of Sauron Scanner - Code Analysis Tool</title>
+    <base href=".">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁️</text></svg>">
+    
+    <!-- PWA Manifest - Consider moving to external file for production -->
+    <link rel="manifest" href="data:application/json,{%22name%22:%22Eye%20of%20Sauron%20Scanner%22,%22short_name%22:%22Sauron%22,%22description%22:%22Advanced%20code%20analysis%20tool%22,%22theme_color%22:%22%230d1117%22,%22background_color%22:%22%230d1117%22,%22display%22:%22standalone%22,%22orientation%22:%22portrait%22,%22start_url%22:%22.%22,%22scope%22:%22/%22,%22icons%22:[{%22src%22:%22data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]}">
+    
+    <style>
+        /* ===== Configuration ===== */
+        :root {
+            /* App Configuration */
+            --app-version: "1.3.0";
+            --sound-volume: 0.3;
+            --animation-speed: 1;
+            --default-theme: "default";
+            --default-profile: "quick";
+            
+            /* Core colors */
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-hover: #30363d;
+            --border-color: #30363d;
+            
+            /* Text colors */
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            
+            /* Status colors */
+            --danger: #f85149;
+            --danger-bg: rgba(248, 81, 73, 0.1);
+            --warning: #d29922;
+            --warning-bg: rgba(210, 153, 34, 0.1);
+            --success: #2ea043;
+            --success-bg: rgba(46, 160, 67, 0.1);
+            --info: #58a6ff;
+            --info-bg: rgba(88, 166, 255, 0.1);
+            
+            /* UI elements */
+            --btn-primary: #238636;
+            --btn-primary-hover: #2ea043;
+            --btn-secondary: #21262d;
+            --btn-secondary-hover: #30363d;
+            
+            /* Effects */
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.3);
+            --radius: 6px;
+            --transition: all calc(0.2s * var(--animation-speed)) ease;
+            
+            /* Theme-specific */
+            --eye-glow: #ff6b6b;
+            --eye-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+            
+            /* Focus styles */
+            --focus-ring: 0 0 0 3px var(--info-bg);
+            --focus-border: var(--info);
+        }
+
+        /* Theme variations */
+        [data-theme="mordor"] {
+            --bg-primary: #1a0000;
+            --bg-secondary: #2d0000;
+            --bg-tertiary: #3d0a0a;
+            --border-color: #4a1010;
+            --eye-glow: #ff3333;
+            --info: #ff6666;
+        }
+
+        [data-theme="mirkwood"] {
+            --bg-primary: #0a1a0a;
+            --bg-secondary: #0d2d0d;
+            --bg-tertiary: #103d10;
+            --border-color: #1a4a1a;
+            --eye-glow: #33ff33;
+            --info: #66ff66;
+        }
+
+        /* ===== Base Styles ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        /* Animated background pattern with performance optimization */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, var(--eye-glow) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, var(--eye-glow) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, var(--eye-glow) 0%, transparent 50%);
+            opacity: 0.02;
+            pointer-events: none;
+            animation: pulse calc(4s * var(--animation-speed)) ease-in-out infinite;
+            will-change: opacity;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.02; }
+            50% { opacity: 0.05; }
+        }
+
+        /* ===== Enhanced Focus Styles ===== */
+        :focus {
+            outline: 2px solid var(--focus-border);
+            outline-offset: 2px;
+        }
+
+        :focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--focus-border);
+            outline-offset: 2px;
+            box-shadow: var(--focus-ring);
+        }
+
+        button:focus-visible,
+        .btn:focus-visible,
+        .toggle-btn:focus-visible,
+        .profile-btn:focus-visible {
+            outline-offset: 3px;
+            transform: translateY(-1px);
+        }
+
+        /* ===== Skip to Content Link ===== */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--btn-primary);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 0 0 var(--radius) 0;
+            z-index: 9999;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* ===== Progressive Enhancement ===== */
+        .no-js-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+            border-radius: var(--radius);
+            margin: 2rem;
+        }
+
+        .no-js .no-js-message {
+            display: block;
+        }
+
+        .no-js main {
+            display: none;
+        }
+
+        /* ===== Header Styles ===== */
+        header {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .version-badge {
+            font-size: 0.75rem;
+            background-color: var(--bg-tertiary);
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        header h1:hover {
+            text-shadow: var(--eye-shadow);
+            transition: text-shadow 0.3s ease;
+        }
+
+        /* ===== Common Component Styles ===== */
+        .btn, button, .toggle-btn, .profile-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 1rem;
+            transition: var(--transition);
+        }
+
+        /* Theme switcher */
+        .theme-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--eye-shadow);
+        }
+
+        .theme-btn.active {
+            border-color: var(--eye-glow);
+            box-shadow: 0 0 10px var(--eye-glow);
+        }
+
+        .theme-btn.active::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .theme-btn[data-theme="default"] { background: #161b22; }
+        .theme-btn[data-theme="mordor"] { background: #2d0000; }
+        .theme-btn[data-theme="mirkwood"] { background: #0d2d0d; }
+
+        /* ===== Main Content ===== */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Search/Filter bar */
+        .search-bar {
+            margin-bottom: 1rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            visibility: hidden;
+        }
+
+        .search-bar.visible {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* Input group */
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--info);
+            box-shadow: var(--focus-ring);
+        }
+
+        /* Button styles with improved ripple */
+        .btn::before, button::before, .toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+            pointer-events: none;
+        }
+
+        .btn:active::before, button:active::before, .toggle-btn:active::before {
+            width: 300%;
+            height: 300%;
+        }
+
+        .btn-primary {
+            background-color: var(--btn-primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--btn-primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--btn-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: var(--btn-secondary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background-color: #da3a31;
+            box-shadow: 0 4px 12px rgba(248, 81, 73, 0.3);
+        }
+
+        button:disabled, .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* Scan profiles with improved interactions */
+        .scan-profiles {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius);
+        }
+
+        .profile-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-size: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-btn.active {
+            background-color: var(--info);
+            color: white;
+            border-color: var(--info);
+        }
+
+        .profile-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shimmer 2s infinite;
+        }
+
+        .profile-btn:hover:not(.active) {
+            background-color: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-btn {
+            background-color: var(--btn-secondary);
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--info);
+            color: white;
+        }
+
+        /* Screen reader only content */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Progress container with enhanced visuals */
+        .progress-container {
+            margin-bottom: 1.5rem;
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .progress-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--info) 0%, var(--success) 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            will-change: width;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255,255,255,0.3) 50%,
+                transparent 100%
+            );
+            animation: shimmer calc(1.5s * var(--animation-speed)) infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Stats bar with subtle animations */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .stats-bar.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-item {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+            background-color: var(--bg-tertiary);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: block;
+            transition: all 0.3s ease;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-danger { color: var(--danger); }
+        .stat-warning { color: var(--warning); }
+        .stat-info { color: var(--info); }
+        .stat-success { color: var(--success); }
+
+        /* Results container with drag & drop support */
+        #resultsContainer {
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 1rem;
+            min-height: 200px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        #resultsContainer.drag-over {
+            border: 2px dashed var(--info);
+            background-color: var(--info-bg);
+        }
+
+        /* Compact mode styles */
+        #resultsContainer.compact details {
+            margin-bottom: 0.25rem;
+            padding: 0.25rem;
+        }
+
+        #resultsContainer.compact summary {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        #resultsContainer.compact details ul {
+            margin-top: 0.25rem;
+            padding-left: 1.5rem;
+        }
+
+        #resultsContainer.compact details li {
+            padding: 0.125rem 0;
+            font-size: 0.75rem;
+        }
+
+        /* File details with smooth animations */
+        details {
+            margin-bottom: 0.5rem;
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            animation: fadeInUp 0.3s ease forwards;
+            opacity: 0;
+        }
+
+        details:nth-child(1) { animation-delay: 0.05s; }
+        details:nth-child(2) { animation-delay: 0.1s; }
+        details:nth-child(3) { animation-delay: 0.15s; }
+        details:nth-child(4) { animation-delay: 0.2s; }
+        details:nth-child(5) { animation-delay: 0.25s; }
+        details:nth-child(n+6) { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        details:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--border-color);
+        }
+
+        details.danger {
+            border-left: 3px solid var(--danger);
+            background-color: var(--danger-bg);
+        }
+
+        details.warning {
+            border-left: 3px solid var(--warning);
+            background-color: var(--warning-bg);
+        }
+
+        details.has-match {
+            border-color: var(--info);
+            box-shadow: 0 0 0 1px var(--info);
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 0.5rem;
+            font-weight: 500;
+            user-select: none;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::before {
+            content: '▶';
+            display: inline-block;
+            margin-right: 0.5rem;
+            transition: transform 0.2s;
+            color: var(--text-muted);
+        }
+
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .issue-count {
+            background-color: var(--bg-hover);
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 2rem;
+            list-style: none;
+        }
+
+        details li {
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        details li:hover {
+            color: var(--text-primary);
+            padding-left: 0.25rem;
+        }
+
+        details li::before {
+            content: '•';
+            color: var(--warning);
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        details.danger li::before {
+            content: '⚠';
+            color: var(--danger);
+        }
+
+        .issue-type {
+            font-weight: 500;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .issue-type.danger {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .issue-type.warning {
+            background-color: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        /* Context menu */
+        .context-menu {
+            position: fixed;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.5rem 0;
+            min-width: 150px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: none;
+        }
+
+        .context-menu.visible {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .menu-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .menu-item:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* Help modal with improved styling */
+        .help-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 2000;
+            display: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .help-modal.visible {
+            display: block;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .help-modal h2 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .help-modal .shortcut-list {
+            list-style: none;
+        }
+
+        .help-modal .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .help-modal .shortcut-key {
+            background-color: var(--bg-tertiary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
+        /* Loading overlay with blur effect */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(13, 17, 23, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-overlay.visible {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--bg-tertiary);
+            border-top-color: var(--info);
+            border-radius: 50%;
+            animation: spin calc(1s * var(--animation-speed)) linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .help-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 2rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .help-text:hover {
+            color: var(--text-secondary);
+        }
+
+        /* Recent paths dropdown */
+        .recent-paths {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-top: 0.25rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .recent-paths.show {
+            display: block;
+            animation: slideDown 0.2s ease;
+        }
+
+        .recent-path-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .recent-path-item:hover {
+            background-color: var(--btn-secondary-hover);
+        }
+
+        .recent-path-remove {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .recent-path-remove:hover {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state.hidden {
+            display: none;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            animation: eyePulse calc(2s * var(--animation-speed)) ease-in-out infinite;
+        }
+
+        @keyframes eyePulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        /* Success banner */
+        .success-banner {
+            padding: 1rem;
+            margin: 1rem 0;
+            background-color: var(--success-bg);
+            color: var(--success);
+            text-align: center;
+            border-radius: var(--radius);
+            border: 1px solid var(--success);
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Toast notifications with improved animations */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 3000;
+            animation: toastIn 0.3s ease;
+            max-width: 400px;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        .toast.info { border-color: var(--info); }
+
+        /* Sound toggle with animation */
+        .sound-toggle {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .sound-toggle:hover {
+            background-color: var(--bg-hover);
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .sound-toggle.muted {
+            opacity: 0.5;
+        }
+
+        /* Scan history timeline */
+        .history-timeline {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            padding: 1rem 0.5rem;
+            background-color: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            border-radius: var(--radius) 0 0 var(--radius);
+            display: none;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 50;
+        }
+
+        .history-timeline.visible {
+            display: flex;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translate(100%, -50%); }
+            to { transform: translate(0, -50%); }
+        }
+
+        .history-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .history-dot:hover {
+            transform: scale(1.5);
+            background-color: var(--info);
+        }
+
+        .history-dot.danger { background-color: var(--danger); }
+        .history-dot.warning { background-color: var(--warning); }
+        .history-dot.success { background-color: var(--success); }
+
+        /* ===== Accessibility & Responsive ===== */
+        @media (prefers-reduced-motion: reduce) {
+            :root {
+                --animation-speed: 0;
+            }
+            
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            .history-timeline.visible {
+                animation: none !important;
+                transform: translate(0, -50%);
+            }
+            
+            .toast {
+                animation: none !important;
+            }
+            
+            .progress-fill::after {
+                animation: none !important;
+            }
+            
+            details {
+                animation: none !important;
+                opacity: 1 !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 1rem;
+            }
+            
+            .button-group, .toggle-group {
+                flex-direction: column;
+            }
+            
+            .btn, button, .toggle-btn {
+                width: 100%;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .theme-switcher {
+                position: static;
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            .history-timeline {
+                display: none !important;
+            }
+            
+            .scan-profiles {
+                flex-direction: column;
+            }
+            
+            .profile-btn {
+                width: 100%;
+            }
+            
+            .toast {
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
+            }
+        }
+
+        /* ===== Print Styles ===== */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            
+            header, .button-group, .toggle-group, .input-group, 
+            .help-text, .sound-toggle, .theme-switcher, .history-timeline,
+            .context-menu, .no-print {
+                display: none !important;
+            }
+            
+            details {
+                background: none;
+                border: 1px solid #ccc;
+                margin-bottom: 0.5rem;
+                page-break-inside: avoid;
+            }
+            
+            .stats-bar {
+                border: 1px solid #ccc;
+                background: none;
+            }
+            
+            .printing-pdf details {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* ===== Dark Mode Support ===== */
+        @media (prefers-color-scheme: light) {
+            :root[data-auto-theme="true"] {
+                --bg-primary: #ffffff;
+                --bg-secondary: #f6f8fa;
+                --bg-tertiary: #f0f3f6;
+                --text-primary: #24292f;
+                --text-secondary: #57606a;
+                --text-muted: #6e7781;
+                --border-color: #d1d9e0;
+            }
+        }
+
+        /* ===== High Contrast Mode ===== */
+        @media (prefers-contrast: high) {
+            :root {
+                --border-color: #ffffff;
+                --focus-ring: 0 0 0 4px #ffffff;
+            }
+            
+            button, .btn {
+                border: 2px solid currentColor;
+            }
+        }
+    </style>
+</head>
+<body class="no-js">
+    <!-- Skip to Content Link -->
+    <a href="#main" class="skip-link">Skip to main content</a>
+
+    <!-- Progressive Enhancement: No-JS Message -->
+    <noscript>
+        <div class="no-js-message" role="alert">
+            <h2>JavaScript Required</h2>
+            <p>The Eye of Sauron Scanner requires JavaScript to function properly.</p>
+            <p>Please enable JavaScript in your browser settings to use this tool.</p>
+        </div>
+    </noscript>
+
+    <header>
+        <h1>
+            👁️ Eye of Sauron Scanner
+            <span class="version-badge">v1.3.0</span>
+        </h1>
+        <nav class="theme-switcher" aria-label="Theme selection">
+            <div class="theme-btn active" data-theme="default" title="Default theme" role="button" tabindex="0" aria-pressed="true"></div>
+            <div class="theme-btn" data-theme="mordor" title="Mordor theme" role="button" tabindex="0" aria-pressed="false"></div>
+            <div class="theme-btn" data-theme="mirkwood" title="Mirkwood theme" role="button" tabindex="0" aria-pressed="false"></div>
+        </nav>
+    </header>
+    
+    <main id="main">
+        <section class="search-bar" id="searchBar" aria-label="Filter controls">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input 
+                type="text" 
+                class="search-input" 
+                id="filterInput" 
+                placeholder="Filter results by filename or issue type..."
+                aria-label="Filter results"
+            >
+        </section>
+        
+        <section class="input-group" aria-label="Scan path controls">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="scanPath" 
+                    placeholder="Enter path to scan (e.g., ./src or /path/to/project)"
+                    aria-label="Scan path"
+                    autocomplete="off"
+                >
+                <input
+                    type="file"
+                    id="folderInput"
+                    webkitdirectory
+                    directory
+                    multiple
+                    style="display: none;"
+                    aria-label="Select folder"
+                >
+                <button class="btn-secondary" id="browseBtn" aria-label="Browse for folder" title="Browse for folder">📁</button>
+                <button class="btn-secondary" id="clearBtn" aria-label="Clear input">✕</button>
+            </div>
+            <div class="recent-paths" id="recentPaths" role="listbox" aria-label="Recent paths"></div>
+        </section>
+        
+        <nav class="scan-profiles" role="radiogroup" aria-label="Scan profile selection">
+            <div class="profile-btn active" data-profile="quick" role="radio" aria-checked="true" tabindex="0">
+                <div>⚡ Quick</div>
+                <small>Basic checks</small>
+            </div>
+            <div class="profile-btn" data-profile="standard" role="radio" aria-checked="false" tabindex="0">
+                <div>👁️ Standard</div>
+                <small>Recommended</small>
+            </div>
+            <div class="profile-btn" data-profile="deep" role="radio" aria-checked="false" tabindex="0">
+                <div>🔥 Deep</div>
+                <small>All checks</small>
+            </div>
+        </nav>
+        
+        <nav class="button-group" aria-label="Scan actions">
+            <button class="btn-primary" id="runScanBtn">Run Full Scan</button>
+            <button class="btn-secondary" id="getSummaryBtn">Get Summary</button>
+            <button class="btn-danger" id="cancelScanBtn" style="display: none;">Cancel Scan</button>
+        </nav>
+        
+        <nav class="toggle-group" aria-label="View options">
+            <button class="toggle-btn" id="advancedToggle" aria-pressed="false">Advanced Options</button>
+            <button class="toggle-btn" id="compactToggle" aria-pressed="false">Compact View</button>
+        </nav>
+        
+        <nav class="button-group no-print" aria-label="Export actions">
+            <button class="btn-secondary" id="expandAllBtn">Expand All</button>
+            <button class="btn-secondary" id="collapseAllBtn">Collapse All</button>
+            <button class="btn-secondary" id="copyJsonBtn">Copy JSON</button>
+            <button class="btn-secondary" id="downloadJsonBtn">Download JSON</button>
+            <button class="btn-secondary" id="downloadCsvBtn">Download CSV</button>
+            <button class="btn-secondary" id="exportPdfBtn">Export PDF</button>
+        </nav>
+        
+        <section class="progress-container card" id="progressContainer" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-info">
+                <span id="progressInfo">Initializing scan...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+        </section>
+        
+        <section class="stats-bar card" id="statsBar" aria-label="Scan statistics">
+            <div class="stat-item" title="Click to filter by scanned files" role="button" tabindex="0">
+                <span class="stat-value stat-info" id="filesScanned">0</span>
+                <span class="stat-label">Files Scanned</span>
+            </div>
+            <div class="stat-item" title="Click to filter by danger issues" role="button" tabindex="0">
+                <span class="stat-value stat-danger" id="dangerCount">0</span>
+                <span class="stat-label">Danger Issues</span>
+            </div>
+            <div class="stat-item" title="Click to filter by warning issues" role="button" tabindex="0">
+                <span class="stat-value stat-warning" id="warningCount">0</span>
+                <span class="stat-label">Warning Issues</span>
+            </div>
+            <div class="stat-item" role="button" tabindex="0">
+                <span class="stat-value stat-success" id="totalIssues">0</span>
+                <span class="stat-label">Total Issues</span>
+            </div>
+        </section>
+        
+        <section id="resultsContainer" class="card" role="region" aria-label="Scan results" aria-busy="false" aria-live="polite">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-state-icon" aria-hidden="true">👁️</div>
+                <p>Ready to scan your codebase</p>
+                <p style="font-size: 0.875rem; margin-top: 0.5rem;">Enter a path or select a folder to begin</p>
+            </div>
+        </section>
+        
+        <div id="announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+        
+        <p class="help-text no-print" id="helpText">Press ? for keyboard shortcuts</p>
+    </main>
+    
+    <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+        <div class="loading-spinner" aria-label="Loading"></div>
+    </div>
+    
+    <div class="help-modal" id="helpModal" role="dialog" aria-label="Keyboard shortcuts" aria-modal="true">
+        <h2>⌨️ Keyboard Shortcuts</h2>
+        <ul class="shortcut-list">
+            <li class="shortcut-item">
+                <span>Run scan</span>
+                <span class="shortcut-key">Enter</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Focus path input</span>
+                <span class="shortcut-key">Ctrl+K</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Filter results</span>
+                <span class="shortcut-key">/</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Expand all</span>
+                <span class="shortcut-key">E</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Collapse all</span>
+                <span class="shortcut-key">C</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Toggle compact view</span>
+                <span class="shortcut-key">V</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Download JSON</span>
+                <span class="shortcut-key">J</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Download CSV</span>
+                <span class="shortcut-key">S</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Export PDF</span>
+                <span class="shortcut-key">P</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Toggle sound</span>
+                <span class="shortcut-key">M</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Show history</span>
+                <span class="shortcut-key">H</span>
+            </li>
+            <li class="shortcut-item">
+                <span>Close dialog</span>
+                <span class="shortcut-key">Esc</span>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="context-menu" id="contextMenu" role="menu" aria-hidden="true">
+        <div class="menu-item" data-action="copy-path" role="menuitem" tabindex="-1">Copy File Path</div>
+        <div class="menu-item" data-action="copy-issues" role="menuitem" tabindex="-1">Copy Issues</div>
+        <div class="menu-item" data-action="exclude" role="menuitem" tabindex="-1">Exclude from Future Scans</div>
+    </div>
+    
+    <button class="sound-toggle no-print" id="soundToggle" title="Toggle sound effects" aria-label="Sound on" aria-pressed="true">
+        🔊
+    </button>
+    
+    <aside class="history-timeline no-print" id="historyTimeline" aria-label="Scan history"></aside>
+    
+    <script>
+        'use strict';
+        
+        /* ===== Configuration ===== */
+        const CONFIG = {
+            VERSION: '1.3.0',
+            API_BASE_URL: window.location.origin + '/api',
+            SOUND_VOLUME: 0.3,
+            DEFAULT_THEME: 'default',
+            DEFAULT_PROFILE: 'quick',
+            MAX_RECENT_PATHS: 5,
+            MAX_HISTORY_ITEMS: 10,
+            TOAST_DURATION: 3000,
+            DEBOUNCE_DELAY: 300,
+            ANIMATION_SPEED: 1,
+            DANGEROUS_PATHS: ['../', '..\\', '/etc/', 'C:\\Windows', '/System/'],
+            VALID_PATH_REGEX: /^[a-zA-Z0-9\-_\.\/\\:\s]+$/
+        };
+        
+        /* ===== App State ===== */
+        const AppState = {
+            currentScanReport: null,
+            isScanning: false,
+            soundEnabled: true,
+            currentTheme: CONFIG.DEFAULT_THEME,
+            currentProfile: CONFIG.DEFAULT_PROFILE,
+            scanHistory: [],
+            filterTerm: '',
+            scanInterval: null,
+            recentPaths: [],
+            contextMenuTarget: null,
+            scanStartTime: null,
+            sounds: {},
+            soundsLoaded: false
+        };
+        
+        /* ===== Safe localStorage Wrapper ===== */
+        const Storage = {
+            get: (key, defaultValue = null) => {
+                try {
+                    const value = localStorage.getItem(key);
+                    return value ? JSON.parse(value) : defaultValue;
+                } catch (e) {
+                    console.warn('Storage read error:', e);
+                    return defaultValue;
+                }
+            },
+            set: (key, value) => {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                    return true;
+                } catch (e) {
+                    console.warn('Storage write error:', e);
+                    return false;
+                }
+            },
+            remove: (key) => {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (e) {
+                    console.warn('Storage remove error:', e);
+                    return false;
+                }
+            }
+        };
+        
+        /* ===== DOM References ===== */
+        const DOM = {};
+        
+        /* ===== Initialize DOM References ===== */
+        function initializeDOMReferences() {
+            const elements = [
+                'scanPath', 'folderInput', 'browseBtn', 'clearBtn', 'runScanBtn',
+                'getSummaryBtn', 'cancelScanBtn', 'advancedToggle', 'compactToggle',
+                'expandAllBtn', 'collapseAllBtn', 'copyJsonBtn', 'downloadJsonBtn',
+                'downloadCsvBtn', 'exportPdfBtn', 'progressContainer', 'progressFill',
+                'progressInfo', 'progressPercent', 'statsBar', 'resultsContainer',
+                'loadingOverlay', 'recentPaths', 'helpModal', 'helpText', 'emptyState',
+                'soundToggle', 'filterInput', 'searchBar', 'historyTimeline', 'announcer',
+                'contextMenu'
+            ];
+            
+            elements.forEach(id => {
+                DOM[id] = document.getElementById(id);
+            });
+        }
+        
+        /* ===== Utility Functions ===== */
+        
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Announce to screen readers
+        function announce(message) {
+            if (DOM.announcer) {
+                DOM.announcer.textContent = message;
+                setTimeout(() => {
+                    DOM.announcer.textContent = '';
+                }, 1000);
+            }
+        }
+        
+        // Lazy load sounds
+        async function loadSounds() {
+            if (AppState.soundsLoaded) return;
+            
+            AppState.sounds = {
+                scan: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBm0='),
+                complete: new Audio('data:audio/wav;base64,UklGRl4FAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YToFAAAAAAEA/v8CAP7/AQABAP//AQD//wIA/v8CAP7/AQABAAEA//8BAP//AgD+/wIA/v8BAAIAAQD//wEA//8CAP7/AgD+/wEAAgD//wEA//8CAP7/AgD+/wEAAgD//wEA//8BAP//AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQD//wEAAQD//wEA//8CAP7/AgD+/wEAAgD//wEA//8CAP7/AgD+/wEAAgD//wEA//8BAP//AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAAAA//8BAP//AgD+/wIA/v8BAAIAAQD//wEA//8CAP7/AgD+/wEAAgD//wEA//8BAP//AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8BAAIAAQD//wEA//8CAP7/AgD+/wEAAgD//wEA//8BAP//AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQABAP//AgD+/wIA/v8CAP7/AQABAP//AQA='),
+                error: new Audio('data:audio/wav;base64,UklGRoYEAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YWIEAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==')
+            };
+            
+            Object.values(AppState.sounds).forEach(sound => {
+                sound.volume = CONFIG.SOUND_VOLUME;
+                sound.load();
+            });
+            
+            AppState.soundsLoaded = true;
+        }
+        
+        // Play sound effect
+        async function playSound(type) {
+            if (AppState.soundEnabled) {
+                await loadSounds();
+                const sound = AppState.sounds[type];
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play().catch(() => {});
+                }
+            }
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <span aria-hidden="true">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, CONFIG.TOAST_DURATION);
+        }
+        
+        // Enhanced clipboard handling
+        async function copyToClipboard(text, successMessage = 'Copied to clipboard') {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    showToast(successMessage, 'success');
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast(successMessage + ' (legacy)', 'success');
+                    } catch (err) {
+                        throw new Error('Legacy copy failed');
+                    } finally {
+                        document.body.removeChild(textArea);
+                    }
+                }
+            } catch (err) {
+                console.error('Clipboard error:', err);
+                showToast('Failed to copy to clipboard. Please try selecting and copying manually.', 'error');
+            }
+        }
+        
+        // Path validation
+        function validateScanPath(path) {
+            // Check for dangerous patterns
+            for (let pattern of CONFIG.DANGEROUS_PATHS) {
+                if (path.includes(pattern)) {
+                    showToast('Invalid path: Security restriction', 'error');
+                    return false;
+                }
+            }
+            
+            // Validate path format
+            if (!CONFIG.VALID_PATH_REGEX.test(path)) {
+                showToast('Invalid path: Contains special characters', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        /* ===== Core Functions ===== */
+        
+        // Render scan results
+        function renderScanResults(report) {
+            const container = DOM.resultsContainer;
+            if (!container) return;
+            
+            // Clear container and hide empty state
+            container.innerHTML = '';
+            DOM.emptyState?.classList.add('hidden');
+            container.setAttribute('aria-busy', 'false');
+            
+            const totalIssues = (report.issuesBySeverity?.WARNING || 0) + (report.issuesBySeverity?.DANGER || 0);
+            
+            if (totalIssues === 0) {
+                const banner = document.createElement('div');
+                banner.className = 'success-banner';
+                banner.textContent = '🎉 No issues found. Your codebase is clean!';
+                banner.setAttribute('role', 'alert');
+                container.appendChild(banner);
+                playSound('complete');
+                return;
+            }
+            
+            // Filter results if filter is active
+            let filteredFiles = report.files;
+            if (AppState.filterTerm) {
+                filteredFiles = report.files.filter(file => {
+                    const matchesFilename = file.file.toLowerCase().includes(AppState.filterTerm.toLowerCase());
+                    const matchesIssues = file.issues?.some(issue => 
+                        issue.type.toLowerCase().includes(AppState.filterTerm.toLowerCase()) ||
+                        issue.message.toLowerCase().includes(AppState.filterTerm.toLowerCase())
+                    );
+                    return matchesFilename || matchesIssues;
+                });
+            }
+            
+            filteredFiles.forEach((fileData, index) => {
+                if (!fileData.issues || fileData.issues.length === 0) return;
+                
+                const hasDanger = fileData.issues.some(i => i.type === 'DANGER');
+                const hasWarning = fileData.issues.some(i => i.type === 'WARNING');
+                
+                const details = document.createElement('details');
+                details.className = hasDanger ? 'danger' : hasWarning ? 'warning' : '';
+                if (AppState.filterTerm && fileData.file.toLowerCase().includes(AppState.filterTerm.toLowerCase())) {
+                    details.classList.add('has-match');
+                }
+                
+                const summary = document.createElement('summary');
+                const summaryContent = document.createElement('span');
+                summaryContent.textContent = fileData.file;
+                
+                const issueCount = document.createElement('span');
+                issueCount.className = 'issue-count';
+                issueCount.textContent = `${fileData.issues.length} issue${fileData.issues.length > 1 ? 's' : ''}`;
+                
+                summary.appendChild(summaryContent);
+                summary.appendChild(issueCount);
+                details.appendChild(summary);
+                
+                const list = document.createElement('ul');
+                fileData.issues.forEach((issue) => {
+                    const item = document.createElement('li');
+                    const typeSpan = document.createElement('span');
+                    typeSpan.className = `issue-type ${issue.type.toLowerCase()}`;
+                    typeSpan.textContent = issue.type;
+                    
+                    const messageSpan = document.createElement('span');
+                    messageSpan.textContent = issue.message;
+                    
+                    item.appendChild(typeSpan);
+                    item.appendChild(messageSpan);
+                    list.appendChild(item);
+                });
+                
+                details.appendChild(list);
+                container.appendChild(details);
+            });
+            
+            playSound('complete');
+        }
+        
+        // Update stats
+        function updateStats(report) {
+            if (!report) return;
+            
+            DOM.filesScanned.textContent = report.files?.length || 0;
+            DOM.dangerCount.textContent = report.issuesBySeverity?.DANGER || 0;
+            DOM.warningCount.textContent = report.issuesBySeverity?.WARNING || 0;
+            DOM.totalIssues.textContent = 
+                (report.issuesBySeverity?.DANGER || 0) + (report.issuesBySeverity?.WARNING || 0);
+            
+            DOM.statsBar.classList.add('visible');
+            DOM.searchBar.classList.add('visible');
+        }
+        
+        // Update history timeline
+        function updateHistory(report) {
+            const totalIssues = (report.issuesBySeverity?.DANGER || 0) + (report.issuesBySeverity?.WARNING || 0);
+            const severity = report.issuesBySeverity?.DANGER > 0 ? 'danger' : 
+                           report.issuesBySeverity?.WARNING > 0 ? 'warning' : 'success';
+            
+            AppState.scanHistory.unshift({
+                timestamp: Date.now(),
+                severity,
+                totalIssues,
+                report
+            });
+            
+            // Keep only last N scans
+            AppState.scanHistory = AppState.scanHistory.slice(0, CONFIG.MAX_HISTORY_ITEMS);
+            
+            // Update timeline
+            DOM.historyTimeline.innerHTML = '';
+            AppState.scanHistory.forEach((scan, index) => {
+                const dot = document.createElement('div');
+                dot.className = `history-dot ${scan.severity}`;
+                dot.title = `${new Date(scan.timestamp).toLocaleTimeString()} - ${scan.totalIssues} issues`;
+                dot.addEventListener('click', () => {
+                    AppState.currentScanReport = scan.report;
+                    renderScanResults(scan.report);
+                    updateStats(scan.report);
+                    showToast('Loaded scan from history');
+                });
+                DOM.historyTimeline.appendChild(dot);
+            });
+            
+            if (AppState.scanHistory.length > 0) {
+                DOM.historyTimeline.classList.add('visible');
+            }
+        }
+        
+        // Mock scan function (replace with actual API call)
+        async function runScan(path) {
+            if (!validateScanPath(path)) return;
+            
+            AppState.isScanning = true;
+            AppState.scanStartTime = performance.now();
+            DOM.runScanBtn.style.display = 'none';
+            DOM.cancelScanBtn.style.display = 'inline-block';
+            DOM.progressContainer.classList.add('visible');
+            DOM.progressContainer.setAttribute('aria-valuenow', '0');
+            DOM.resultsContainer.setAttribute('aria-busy', 'true');
+            DOM.emptyState?.classList.add('hidden');
+            
+            announce('Scan started for ' + path);
+            playSound('scan');
+            
+            // Simulate scan progress
+            let progress = 0;
+            AppState.scanInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                DOM.progressFill.style.width = `${progress}%`;
+                DOM.progressPercent.textContent = `${Math.floor(progress)}%`;
+                DOM.progressContainer.setAttribute('aria-valuenow', Math.floor(progress));
+                
+                // Update progress info based on scan stage
+                if (progress < 30) {
+                    DOM.progressInfo.textContent = 'Discovering files...';
+                } else if (progress < 60) {
+                    DOM.progressInfo.textContent = 'Analyzing patterns...';
+                } else if (progress < 90) {
+                    DOM.progressInfo.textContent = 'Checking dependencies...';
+                } else {
+                    DOM.progressInfo.textContent = 'Finalizing report...';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(AppState.scanInterval);
+                    AppState.scanInterval = null;
+                    
+                    // Calculate scan duration
+                    const duration = ((performance.now() - AppState.scanStartTime) / 1000).toFixed(2);
+                    
+                    // Mock report data based on scan profile
+                    const issueMultiplier = AppState.currentProfile === 'deep' ? 2 : 
+                                          AppState.currentProfile === 'standard' ? 1 : 0.5;
+                    const mockReport = {
+                        profile: AppState.currentProfile,
+                        timestamp: Date.now(),
+                        duration: duration,
+                        files: [
+                            {
+                                file: 'src/components/Header.js',
+                                issues: [
+                                    { type: 'WARNING', message: 'Missing PropTypes validation' },
+                                    { type: 'WARNING', message: 'Unused variable "oldState"' }
+                                ]
+                            },
+                            {
+                                file: 'src/utils/api.js',
+                                issues: [
+                                    { type: 'DANGER', message: 'Potential memory leak in event listener' },
+                                    { type: 'WARNING', message: 'Console.log statement found' }
+                                ]
+                            },
+                            ...(AppState.currentProfile !== 'quick' ? [{
+                                file: 'src/services/auth.service.js',
+                                issues: [
+                                    { type: 'DANGER', message: 'Hardcoded API key detected' },
+                                    { type: 'WARNING', message: 'Missing error handling in async function' }
+                                ]
+                            }] : []),
+                            ...(AppState.currentProfile === 'deep' ? [{
+                                file: 'src/config/webpack.config.js',
+                                issues: [
+                                    { type: 'WARNING', message: 'Deprecated webpack plugin usage' }
+                                ]
+                            }] : [])
+                        ],
+                        issuesBySeverity: {
+                            WARNING: Math.floor(3 * issueMultiplier),
+                            DANGER: Math.floor(2 * issueMultiplier)
+                        }
+                    };
+                    
+                    AppState.currentScanReport = mockReport;
+                    renderScanResults(mockReport);
+                    updateStats(mockReport);
+                    updateHistory(mockReport);
+                    
+                    AppState.isScanning = false;
+                    DOM.runScanBtn.style.display = 'inline-block';
+                    DOM.cancelScanBtn.style.display = 'none';
+                    DOM.progressContainer.classList.remove('visible');
+                    
+                    // Save to recent paths
+                    if (!AppState.recentPaths.includes(path)) {
+                        AppState.recentPaths.unshift(path);
+                        AppState.recentPaths = AppState.recentPaths.slice(0, CONFIG.MAX_RECENT_PATHS);
+                        Storage.set('sauron-recent-paths', AppState.recentPaths);
+                    }
+                    
+                    const totalIssues = mockReport.issuesBySeverity.DANGER + mockReport.issuesBySeverity.WARNING;
+                    showToast(`Scan complete in ${duration}s: ${totalIssues} issues found`, 
+                             mockReport.issuesBySeverity.DANGER > 0 ? 'error' : 'success');
+                    
+                    announce(`Scan complete. Found ${mockReport.issuesBySeverity.DANGER} danger issues and ${mockReport.issuesBySeverity.WARNING} warning issues.`);
+                }
+            }, 200);
+        }
+        
+        // Filter results
+        const filterResults = debounce(() => {
+            AppState.filterTerm = DOM.filterInput.value;
+            if (AppState.currentScanReport) {
+                renderScanResults(AppState.currentScanReport);
+            }
+        }, CONFIG.DEBOUNCE_DELAY);
+        
+        // Export to PDF
+        function exportToPDF() {
+            // Add print-specific class
+            document.body.classList.add('printing-pdf');
+            
+            // Expand all results
+            document.querySelectorAll('details').forEach(d => d.open = true);
+            
+            // Trigger print
+            window.print();
+            
+            // Remove print class after a delay
+            setTimeout(() => {
+                document.body.classList.remove('printing-pdf');
+            }, 1000);
+        }
+        
+        // Context menu functions
+        function showContextMenu(x, y, fileElement) {
+            const menu = DOM.contextMenu;
+            AppState.contextMenuTarget = fileElement;
+            
+            // Position menu
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+            menu.classList.add('visible');
+            menu.setAttribute('aria-hidden', 'false');
+            
+            // Focus first item
+            const firstItem = menu.querySelector('.menu-item');
+            if (firstItem) firstItem.focus();
+        }
+        
+        function hideContextMenu() {
+            DOM.contextMenu.classList.remove('visible');
+            DOM.contextMenu.setAttribute('aria-hidden', 'true');
+            AppState.contextMenuTarget = null;
+        }
+        
+        function handleContextMenuAction(action) {
+            if (!AppState.contextMenuTarget) return;
+            
+            const filePath = AppState.contextMenuTarget.querySelector('summary span').textContent;
+            
+            switch (action) {
+                case 'copy-path':
+                    copyToClipboard(filePath, 'File path copied');
+                    break;
+                case 'copy-issues':
+                    const issues = Array.from(AppState.contextMenuTarget.querySelectorAll('li'))
+                        .map(li => li.textContent).join('\n');
+                    copyToClipboard(issues, 'Issues copied');
+                    break;
+                case 'exclude':
+                    showToast(`"${filePath}" will be excluded from future scans`);
+                    break;
+            }
+            
+            hideContextMenu();
+        }
+        
+        /* ===== Event Handlers Setup ===== */
+        function setupEventHandlers() {
+            // Browse button
+            DOM.browseBtn.addEventListener('click', () => {
+                DOM.folderInput.click();
+            });
+            
+            // Folder input
+            DOM.folderInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const path = e.target.files[0].webkitRelativePath.split('/')[0];
+                    DOM.scanPath.value = path;
+                    showToast(`Selected folder: ${path}`);
+                    announce(`Folder selected: ${path}`);
+                }
+            });
+            
+            // Clear button
+            DOM.clearBtn.addEventListener('click', () => {
+                DOM.scanPath.value = '';
+                DOM.folderInput.value = '';
+                DOM.scanPath.focus();
+                announce('Input cleared');
+            });
+            
+            // Run scan button
+            DOM.runScanBtn.addEventListener('click', () => {
+                const path = DOM.scanPath.value.trim();
+                if (!path) {
+                    showToast('Please enter a path or select a folder to scan', 'error');
+                    DOM.scanPath.focus();
+                    return;
+                }
+                runScan(path);
+            });
+            
+            // Get summary button
+            DOM.getSummaryBtn.addEventListener('click', () => {
+                if (!AppState.currentScanReport) {
+                    showToast('No scan results available. Run a scan first.', 'error');
+                    return;
+                }
+                
+                const report = AppState.currentScanReport;
+                const summary = `
+                    📊 Scan Summary
+                    ━━━━━━━━━━━━━━━
+                    Profile: ${report.profile || 'standard'}
+                    Duration: ${report.duration || 'N/A'}s
+                    Files: ${report.files.length}
+                    Danger Issues: ${report.issuesBySeverity.DANGER}
+                    Warning Issues: ${report.issuesBySeverity.WARNING}
+                    Total Issues: ${report.issuesBySeverity.DANGER + report.issuesBySeverity.WARNING}
+                    Timestamp: ${new Date(report.timestamp).toLocaleString()}
+                `;
+                
+                copyToClipboard(summary, 'Summary copied to clipboard');
+            });
+            
+            // Cancel scan button
+            DOM.cancelScanBtn.addEventListener('click', () => {
+                if (AppState.scanInterval) {
+                    clearInterval(AppState.scanInterval);
+                    AppState.scanInterval = null;
+                }
+                AppState.isScanning = false;
+                DOM.runScanBtn.style.display = 'inline-block';
+                DOM.cancelScanBtn.style.display = 'none';
+                DOM.progressContainer.classList.remove('visible');
+                DOM.resultsContainer.setAttribute('aria-busy', 'false');
+                showToast('Scan cancelled', 'info');
+                announce('Scan cancelled');
+            });
+            
+            // Advanced toggle
+            DOM.advancedToggle.addEventListener('click', () => {
+                const isActive = DOM.advancedToggle.classList.toggle('active');
+                DOM.advancedToggle.setAttribute('aria-pressed', isActive);
+                showToast('Advanced options ' + (isActive ? 'enabled' : 'disabled'));
+            });
+            
+            // Compact toggle
+            DOM.compactToggle.addEventListener('click', () => {
+                const isActive = DOM.compactToggle.classList.toggle('active');
+                DOM.compactToggle.setAttribute('aria-pressed', isActive);
+                DOM.resultsContainer.classList.toggle('compact');
+                Storage.set('sauron-compact', isActive);
+                showToast('Compact view ' + (isActive ? 'enabled' : 'disabled'));
+            });
+            
+            // Expand/Collapse all
+            DOM.expandAllBtn.addEventListener('click', () => {
+                document.querySelectorAll('details').forEach(d => d.open = true);
+            });
+            
+            DOM.collapseAllBtn.addEventListener('click', () => {
+                document.querySelectorAll('details').forEach(d => d.open = false);
+            });
+            
+            // Copy JSON
+            DOM.copyJsonBtn.addEventListener('click', () => {
+                if (!AppState.currentScanReport) {
+                    showToast('No scan results to copy', 'error');
+                    return;
+                }
+                copyToClipboard(JSON.stringify(AppState.currentScanReport, null, 2), 'JSON copied to clipboard');
+            });
+            
+            // Download JSON
+            DOM.downloadJsonBtn.addEventListener('click', () => {
+                if (!AppState.currentScanReport) {
+                    showToast('No scan results to download', 'error');
+                    return;
+                }
+                const blob = new Blob([JSON.stringify(AppState.currentScanReport, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sauron-scan-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('JSON downloaded', 'success');
+            });
+            
+            // Download CSV
+            DOM.downloadCsvBtn.addEventListener('click', () => {
+                if (!AppState.currentScanReport) {
+                    showToast('No scan results to download', 'error');
+                    return;
+                }
+                
+                let csv = 'File,Type,Message\n';
+                AppState.currentScanReport.files.forEach(file => {
+                    file.issues.forEach(issue => {
+                        csv += `"${file.file}","${issue.type}","${issue.message}"\n`;
+                    });
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sauron-scan-${Date.now()}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('CSV downloaded', 'success');
+            });
+            
+            // Export PDF
+            DOM.exportPdfBtn.addEventListener('click', exportToPDF);
+            
+            // Recent paths dropdown
+            DOM.scanPath.addEventListener('focus', () => {
+                if (AppState.recentPaths.length > 0) {
+                    DOM.recentPaths.innerHTML = '';
+                    AppState.recentPaths.forEach((path, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'recent-path-item';
+                        item.setAttribute('role', 'option');
+                        
+                        const pathText = document.createElement('span');
+                        pathText.textContent = path;
+                        
+                        const removeBtn = document.createElement('span');
+                        removeBtn.className = 'recent-path-remove';
+                        removeBtn.textContent = '✕';
+                        removeBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            AppState.recentPaths.splice(index, 1);
+                            Storage.set('sauron-recent-paths', AppState.recentPaths);
+                            DOM.scanPath.focus();
+                        });
+                        
+                        item.appendChild(pathText);
+                        item.appendChild(removeBtn);
+                        
+                        item.addEventListener('click', () => {
+                            DOM.scanPath.value = path;
+                            DOM.recentPaths.classList.remove('show');
+                        });
+                        
+                        DOM.recentPaths.appendChild(item);
+                    });
+                    DOM.recentPaths.classList.add('show');
+                }
+            });
+            
+            DOM.scanPath.addEventListener('blur', (e) => {
+                // Delay to allow clicking on dropdown items
+                setTimeout(() => {
+                    if (!DOM.recentPaths.contains(document.activeElement)) {
+                        DOM.recentPaths.classList.remove('show');
+                    }
+                }, 200);
+            });
+            
+            // Theme switcher
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const theme = btn.dataset.theme;
+                    document.body.setAttribute('data-theme', theme);
+                    document.querySelectorAll('.theme-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-pressed', 'false');
+                    });
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-pressed', 'true');
+                    AppState.currentTheme = theme;
+                    Storage.set('sauron-theme', theme);
+                    playSound('scan');
+                });
+            });
+            
+            // Sound toggle
+            DOM.soundToggle.addEventListener('click', () => {
+                AppState.soundEnabled = !AppState.soundEnabled;
+                Storage.set('sauron-sound', AppState.soundEnabled);
+                DOM.soundToggle.textContent = AppState.soundEnabled ? '🔊' : '🔇';
+                DOM.soundToggle.classList.toggle('muted', !AppState.soundEnabled);
+                DOM.soundToggle.setAttribute('aria-pressed', AppState.soundEnabled);
+                if (AppState.soundEnabled) playSound('scan');
+            });
+            
+            // Help modal
+            DOM.helpText.addEventListener('click', () => {
+                DOM.helpModal.classList.add('visible');
+            });
+            
+            // Scan profiles
+            document.querySelectorAll('.profile-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.profile-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-checked', 'false');
+                    });
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-checked', 'true');
+                    AppState.currentProfile = btn.dataset.profile;
+                    Storage.set('sauron-profile', AppState.currentProfile);
+                    playSound('scan');
+                });
+            });
+            
+            // Stats filtering
+            document.querySelectorAll('.stat-item').forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    if (!AppState.currentScanReport) return;
+                    
+                    switch(index) {
+                        case 1: // Danger
+                            DOM.filterInput.value = 'DANGER';
+                            break;
+                        case 2: // Warning
+                            DOM.filterInput.value = 'WARNING';
+                            break;
+                        default:
+                            DOM.filterInput.value = '';
+                    }
+                    filterResults();
+                    DOM.filterInput.focus();
+                });
+            });
+            
+            // Filter input
+            DOM.filterInput.addEventListener('input', filterResults);
+            
+            // Drag & Drop support
+            DOM.resultsContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                DOM.resultsContainer.classList.add('drag-over');
+            });
+            
+            DOM.resultsContainer.addEventListener('dragleave', (e) => {
+                if (e.target === DOM.resultsContainer) {
+                    DOM.resultsContainer.classList.remove('drag-over');
+                }
+            });
+            
+            DOM.resultsContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                DOM.resultsContainer.classList.remove('drag-over');
+                
+                const items = e.dataTransfer.items;
+                for (let item of items) {
+                    if (item.kind === 'file') {
+                        const entry = item.webkitGetAsEntry();
+                        if (entry && entry.isDirectory) {
+                            DOM.scanPath.value = entry.name;
+                            showToast(`Dropped folder: ${entry.name}`);
+                            announce(`Folder dropped: ${entry.name}`);
+                            break;
+                        }
+                    }
+                }
+            });
+            
+            // Context menu
+            DOM.resultsContainer.addEventListener('contextmenu', (e) => {
+                const fileElement = e.target.closest('details');
+                if (fileElement) {
+                    e.preventDefault();
+                    showContextMenu(e.pageX, e.pageY, fileElement);
+                }
+            });
+            
+            DOM.contextMenu.addEventListener('click', (e) => {
+                const menuItem = e.target.closest('.menu-item');
+                if (menuItem) {
+                    handleContextMenuAction(menuItem.dataset.action);
+                }
+            });
+            
+            // Hide context menu on outside click
+            document.addEventListener('click', (e) => {
+                if (!DOM.contextMenu.contains(e.target)) {
+                    hideContextMenu();
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Help modal
+                if (e.key === '?' && !e.target.matches('input')) {
+                    e.preventDefault();
+                    DOM.helpModal.classList.toggle('visible');
+                }
+                
+                // Close modal/menu
+                if (e.key === 'Escape') {
+                    DOM.helpModal.classList.remove('visible');
+                    hideContextMenu();
+                }
+                
+                // Focus search
+                if (e.key === '/' && !e.target.matches('input')) {
+                    e.preventDefault();
+                    DOM.filterInput.focus();
+                }
+                
+                // Focus path input
+                if (e.ctrlKey && e.key === 'k') {
+                    e.preventDefault();
+                    DOM.scanPath.focus();
+                }
+                
+                // Other shortcuts
+                if (!e.target.matches('input')) {
+                    switch(e.key.toLowerCase()) {
+                        case 'e': DOM.expandAllBtn.click(); break;
+                        case 'c': DOM.collapseAllBtn.click(); break;
+                        case 'v': DOM.compactToggle.click(); break;
+                        case 'j': DOM.downloadJsonBtn.click(); break;
+                        case 's': 
+                            if (!e.ctrlKey) DOM.downloadCsvBtn.click(); 
+                            break;
+                        case 'p': DOM.exportPdfBtn.click(); break;
+                        case 'm': DOM.soundToggle.click(); break;
+                        case 'h': 
+                            DOM.historyTimeline.classList.toggle('visible');
+                            break;
+                    }
+                }
+            });
+            
+            // Enter key to run scan
+            DOM.scanPath.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !AppState.isScanning) {
+                    DOM.runScanBtn.click();
+                }
+            });
+            
+            // Click outside to close help modal
+            document.addEventListener('click', (e) => {
+                if (DOM.helpModal.classList.contains('visible') && 
+                    !DOM.helpModal.contains(e.target) && 
+                    e.target !== DOM.helpText) {
+                    DOM.helpModal.classList.remove('visible');
+                }
+            });
+        }
+        
+        /* ===== Initialization ===== */
+        function initialize() {
+            // Initialize DOM references
+            initializeDOMReferences();
+            
+            // Load saved preferences
+            AppState.soundEnabled = Storage.get('sauron-sound', true) !== false;
+            AppState.currentTheme = Storage.get('sauron-theme', CONFIG.DEFAULT_THEME) || CONFIG.DEFAULT_THEME;
+            AppState.currentProfile = Storage.get('sauron-profile', CONFIG.DEFAULT_PROFILE) || CONFIG.DEFAULT_PROFILE;
+            AppState.recentPaths = Storage.get('sauron-recent-paths', []) || [];
+            
+            const compactView = Storage.get('sauron-compact', false);
+            
+            // Validate and apply theme
+            if (!['default', 'mordor', 'mirkwood'].includes(AppState.currentTheme)) {
+                AppState.currentTheme = CONFIG.DEFAULT_THEME;
+            }
+            document.body.setAttribute('data-theme', AppState.currentTheme);
+            
+            // Apply saved theme button state
+            const activeThemeBtn = document.querySelector(`.theme-btn[data-theme="${AppState.currentTheme}"]`);
+            if (activeThemeBtn) {
+                activeThemeBtn.classList.add('active');
+                activeThemeBtn.setAttribute('aria-pressed', 'true');
+            }
+            
+            // Apply saved profile
+            const activeProfileBtn = document.querySelector(`.profile-btn[data-profile="${AppState.currentProfile}"]`);
+            if (activeProfileBtn) {
+                document.querySelectorAll('.profile-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-checked', 'false');
+                });
+                activeProfileBtn.classList.add('active');
+                activeProfileBtn.setAttribute('aria-checked', 'true');
+            }
+            
+            // Apply compact view if saved
+            if (compactView) {
+                DOM.compactToggle.classList.add('active');
+                DOM.compactToggle.setAttribute('aria-pressed', 'true');
+                DOM.resultsContainer.classList.add('compact');
+            }
+            
+            // Update sound toggle
+            DOM.soundToggle.textContent = AppState.soundEnabled ? '🔊' : '🔇';
+            DOM.soundToggle.classList.toggle('muted', !AppState.soundEnabled);
+            DOM.soundToggle.setAttribute('aria-pressed', AppState.soundEnabled);
+            
+            // Setup event handlers
+            setupEventHandlers();
+            
+            // Initialize history timeline if there's history
+            if (AppState.scanHistory.length > 0) {
+                DOM.historyTimeline.classList.add('visible');
+            }
+            
+            // Remove no-js class
+            document.body.classList.remove('no-js');
+            
+            // Focus on scan path input
+            DOM.scanPath.focus();
+            
+            // Check for updates (optional)
+            // checkForUpdates();
+        }
+        
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
+    </script>
+</body>
+</html>
