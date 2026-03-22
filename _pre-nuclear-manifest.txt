@@ -1,0 +1,689 @@
+PRE-NUCLEAR FILE MANIFEST
+=========================
+AWAITING DAVID REVIEW — Do not delete without sign-off.
+Safe to delete (identical to active): 54 files
+Different from active (review before deleting): 43 files
+Total files: 97
+Total disk space: 1033.1 KB
+
+---
+
+FILE:            .github\workflows\PULL_REQUEST_TEMPLATE.md.pre-nuclear
+ACTIVE:          .github\workflows\PULL_REQUEST_TEMPLATE.md
+LAST MODIFIED:   2025-06-22
+SIZE:            0.3 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            .sauronrc.json.pre-nuclear
+ACTIVE:          .sauronrc.json
+LAST MODIFIED:   2025-06-22
+SIZE:            2.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            build-scripts.js.pre-nuclear
+ACTIVE:          build-scripts.js
+LAST MODIFIED:   2025-06-22
+SIZE:            9.8 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            bulletproof-operational-configs.json.pre-nuclear
+ACTIVE:          bulletproof-operational-configs.json
+LAST MODIFIED:   2025-06-22
+SIZE:            11.6 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            cli\simple-cli.js.pre-nuclear
+ACTIVE:          cli\simple-cli.js
+LAST MODIFIED:   2025-06-22
+SIZE:            3.6 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            config\Config.js.pre-nuclear
+ACTIVE:          config\Config.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.7 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\CharacterForensics.js.pre-nuclear
+ACTIVE:          core\CharacterForensics.js
+LAST MODIFIED:   2025-06-22
+SIZE:            12.0 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            core\ComponentMarketplace.js.pre-nuclear
+ACTIVE:          core\ComponentMarketplace.js
+LAST MODIFIED:   2025-06-22
+SIZE:            2.6 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\EyeOfSauronOmniscient.js.pre-nuclear
+ACTIVE:          core\EyeOfSauronOmniscient.js
+LAST MODIFIED:   2025-06-22
+SIZE:            17.2 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            core\KaizenSettingsPanel.js.pre-nuclear
+ACTIVE:          core\KaizenSettingsPanel.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.6 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\KaizenSnapshot.js.pre-nuclear
+ACTIVE:          core\KaizenSnapshot.js
+LAST MODIFIED:   2025-06-22
+SIZE:            4.1 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\PatternLearningEngine.js.pre-nuclear
+ACTIVE:          core\PatternLearningEngine.js
+LAST MODIFIED:   2025-06-22
+SIZE:            2.3 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\PatternPrecognition.js.pre-nuclear
+ACTIVE:          core\PatternPrecognition.js
+LAST MODIFIED:   2025-06-22
+SIZE:            31.9 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            core\SauronConfigLoader.js.pre-nuclear
+ACTIVE:          core\SauronConfigLoader.js
+LAST MODIFIED:   2025-06-22
+SIZE:            10.1 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\SauronLicenseManager.js.pre-nuclear
+ACTIVE:          core\SauronLicenseManager.js
+LAST MODIFIED:   2025-06-22
+SIZE:            6.7 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\SauronPluginManager.js.pre-nuclear
+ACTIVE:          core\SauronPluginManager.js
+LAST MODIFIED:   2025-06-22
+SIZE:            3.5 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            core\ScanPolicyManager.js.pre-nuclear
+ACTIVE:          core\ScanPolicyManager.js
+LAST MODIFIED:   2025-06-22
+SIZE:            7.8 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            debug-pattern.js.pre-nuclear
+ACTIVE:          debug-pattern.js
+LAST MODIFIED:   2025-06-22
+SIZE:            0.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            dev\new\EOS Local Processing Ecosystem.md.pre-nuclear
+ACTIVE:          dev\new\EOS Local Processing Ecosystem.md
+LAST MODIFIED:   2025-06-22
+SIZE:            28.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            dev\new\EOS Smart Patcher.md.pre-nuclear
+ACTIVE:          dev\new\EOS Smart Patcher.md
+LAST MODIFIED:   2025-06-22
+SIZE:            19.6 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            dev\new\EOS Ultimate Error Prevention & Handling System.md.pre-nuclear
+ACTIVE:          dev\new\EOS Ultimate Error Prevention & Handling System.md
+LAST MODIFIED:   2025-06-22
+SIZE:            71.0 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            dev\new\Strategic Integration Roadmap.md.pre-nuclear
+ACTIVE:          dev\new\Strategic Integration Roadmap.md
+LAST MODIFIED:   2025-06-22
+SIZE:            13.6 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            dev\new\Ultimate AI Development Ecosystem.md.pre-nuclear
+ACTIVE:          dev\new\Ultimate AI Development Ecosystem.md
+LAST MODIFIED:   2025-06-22
+SIZE:            26.0 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            docs\ARCHITECTURE.md.pre-nuclear
+ACTIVE:          docs\ARCHITECTURE.md
+LAST MODIFIED:   2025-06-22
+SIZE:            7.6 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            docs\DEPLOYMENT.md.pre-nuclear
+ACTIVE:          docs\DEPLOYMENT.md
+LAST MODIFIED:   2025-06-22
+SIZE:            9.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            docs\EoS-manifest.md.pre-nuclear
+ACTIVE:          docs\EoS-manifest.md
+LAST MODIFIED:   2025-06-22
+SIZE:            6.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            eos-diagnostic.js.pre-nuclear
+ACTIVE:          eos-diagnostic.js
+LAST MODIFIED:   2025-06-22
+SIZE:            7.9 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            eos.config.json.pre-nuclear
+ACTIVE:          eos.config.json
+LAST MODIFIED:   2025-06-22
+SIZE:            2.6 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            error-logger-example.js.pre-nuclear
+ACTIVE:          error-logger-example.js
+LAST MODIFIED:   2025-06-22
+SIZE:            2.1 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            examine-issue-structure.cjs.pre-nuclear
+ACTIVE:          examine-issue-structure.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            3.9 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            find-cli-output.cjs.pre-nuclear
+ACTIVE:          find-cli-output.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            4.3 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            find-original-15-issues.cjs.pre-nuclear
+ACTIVE:          find-original-15-issues.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            5.7 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            fix-cli-display.cjs.pre-nuclear
+ACTIVE:          fix-cli-display.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            4.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            fix-package.js.pre-nuclear
+ACTIVE:          fix-package.js
+LAST MODIFIED:   2025-06-22
+SIZE:            6.8 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            fixed-investigate.cjs.pre-nuclear
+ACTIVE:          fixed-investigate.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            3.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            full-nuclear-cleaner-suite.cjs.pre-nuclear
+ACTIVE:          full-nuclear-cleaner-suite.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            2.5 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            full-scan-all-analyzers-2025-06-22T02-27-45-995Z.json.pre-nuclear
+ACTIVE:          full-scan-all-analyzers-2025-06-22T02-27-45-995Z.json
+LAST MODIFIED:   2025-06-22
+SIZE:            183.6 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            nuclear-homoglyph-cleaner.cjs.pre-nuclear
+ACTIVE:          nuclear-homoglyph-cleaner.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            5.5 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            OperationalHealthChecker.js.pre-nuclear
+ACTIVE:          OperationalHealthChecker.js
+LAST MODIFIED:   2025-06-22
+SIZE:            18.0 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            performance\BatchProcessor.js.pre-nuclear
+ACTIVE:          performance\BatchProcessor.js
+LAST MODIFIED:   2025-06-22
+SIZE:            1.9 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            quick-test.cjs.pre-nuclear
+ACTIVE:          quick-test.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            2.3 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            README.md.pre-nuclear
+ACTIVE:          README.md
+LAST MODIFIED:   2025-06-22
+SIZE:            0.9 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            reporters\OmniReporterFormatter.js.pre-nuclear
+ACTIVE:          reporters\OmniReporterFormatter.js
+LAST MODIFIED:   2025-06-22
+SIZE:            8.4 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            reporters\SauronReportViewer.js.pre-nuclear
+ACTIVE:          reporters\SauronReportViewer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            13.4 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            run-full-scan-all-analyzers.cjs.pre-nuclear
+ACTIVE:          run-full-scan-all-analyzers.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            6.8 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            sauron-cleanup.js.pre-nuclear
+ACTIVE:          sauron-cleanup.js
+LAST MODIFIED:   2025-06-22
+SIZE:            11.7 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            sauron-cli.js.pre-nuclear
+ACTIVE:          sauron-cli.js
+LAST MODIFIED:   2025-06-22
+SIZE:            22.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            sauron-cli.mjs.pre-nuclear
+ACTIVE:          sauron-cli.mjs
+LAST MODIFIED:   2025-06-22
+SIZE:            10.1 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            SauronCore.js.pre-nuclear
+ACTIVE:          SauronCore.js
+LAST MODIFIED:   2025-06-22
+SIZE:            11.7 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            serve-ui.mjs.pre-nuclear
+ACTIVE:          serve-ui.mjs
+LAST MODIFIED:   2025-06-22
+SIZE:            0.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            server\SauronAPI.js.pre-nuclear
+ACTIVE:          server\SauronAPI.js
+LAST MODIFIED:   2025-06-22
+SIZE:            10.0 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            server.js.pre-nuclear
+ACTIVE:          server.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.2 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            simple-test.js.pre-nuclear
+ACTIVE:          simple-test.js
+LAST MODIFIED:   2025-06-22
+SIZE:            0.1 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            src\core\detectionEngine.js.pre-nuclear
+ACTIVE:          src\core\detectionEngine.js
+LAST MODIFIED:   2025-06-22
+SIZE:            7.0 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            standalone-launcher.cjs.pre-nuclear
+ACTIVE:          standalone-launcher.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            15.2 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            structure-mapper.cjs.pre-nuclear
+ACTIVE:          structure-mapper.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            10.2 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            test plan.md.pre-nuclear
+ACTIVE:          test plan.md
+LAST MODIFIED:   2025-06-22
+SIZE:            1.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            test-all-issues.js.pre-nuclear
+ACTIVE:          test-all-issues.js
+LAST MODIFIED:   2025-06-22
+SIZE:            2.2 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            test-core-analyzers.cjs.pre-nuclear
+ACTIVE:          test-core-analyzers.cjs
+LAST MODIFIED:   2025-06-22
+SIZE:            6.1 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            testing\example-before-after.js.pre-nuclear
+ACTIVE:          testing\example-before-after.js
+LAST MODIFIED:   2025-06-22
+SIZE:            2.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            testing\SauronTestHarness.js.pre-nuclear
+ACTIVE:          testing\SauronTestHarness.js
+LAST MODIFIED:   2025-06-22
+SIZE:            8.1 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            TOKEN_EFFICIENCY_PLAN.md.pre-nuclear
+ACTIVE:          TOKEN_EFFICIENCY_PLAN.md
+LAST MODIFIED:   2025-06-22
+SIZE:            0.9 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            ultimate-operational-cli.js.pre-nuclear
+ACTIVE:          ultimate-operational-cli.js
+LAST MODIFIED:   2025-06-22
+SIZE:            31.4 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+
+FILE:            utils\AuditTrailManager.js.pre-nuclear
+ACTIVE:          utils\AuditTrailManager.js
+LAST MODIFIED:   2025-06-22
+SIZE:            6.3 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\GitHookInstaller.js.pre-nuclear
+ACTIVE:          utils\GitHookInstaller.js
+LAST MODIFIED:   2025-06-22
+SIZE:            12.2 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronAlertNotifier.js.pre-nuclear
+ACTIVE:          utils\SauronAlertNotifier.js
+LAST MODIFIED:   2025-06-22
+SIZE:            7.1 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronAnomalyDetector.js.pre-nuclear
+ACTIVE:          utils\SauronAnomalyDetector.js
+LAST MODIFIED:   2025-06-22
+SIZE:            9.8 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronComplianceChecker.js.pre-nuclear
+ACTIVE:          utils\SauronComplianceChecker.js
+LAST MODIFIED:   2025-06-22
+SIZE:            15.0 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronCveFetcher.js.pre-nuclear
+ACTIVE:          utils\SauronCveFetcher.js
+LAST MODIFIED:   2025-06-22
+SIZE:            12.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronDataSanitizer.js.pre-nuclear
+ACTIVE:          utils\SauronDataSanitizer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            13.6 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronDependencyGraph.js.pre-nuclear
+ACTIVE:          utils\SauronDependencyGraph.js
+LAST MODIFIED:   2025-06-22
+SIZE:            10.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronExecutionTracer.js.pre-nuclear
+ACTIVE:          utils\SauronExecutionTracer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            4.0 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronJobMetricsCollector.js.pre-nuclear
+ACTIVE:          utils\SauronJobMetricsCollector.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.2 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronPerformanceProfiler.js.pre-nuclear
+ACTIVE:          utils\SauronPerformanceProfiler.js
+LAST MODIFIED:   2025-06-22
+SIZE:            11.0 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronReportArchiver.js.pre-nuclear
+ACTIVE:          utils\SauronReportArchiver.js
+LAST MODIFIED:   2025-06-22
+SIZE:            4.7 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronReportCompressor.js.pre-nuclear
+ACTIVE:          utils\SauronReportCompressor.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronReportDecryptor.js.pre-nuclear
+ACTIVE:          utils\SauronReportDecryptor.js
+LAST MODIFIED:   2025-06-22
+SIZE:            6.5 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronReportEncryptor.js.pre-nuclear
+ACTIVE:          utils\SauronReportEncryptor.js
+LAST MODIFIED:   2025-06-22
+SIZE:            4.3 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronReportExporter.js.pre-nuclear
+ACTIVE:          utils\SauronReportExporter.js
+LAST MODIFIED:   2025-06-22
+SIZE:            9.2 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronReportIntegrityVerifier.js.pre-nuclear
+ACTIVE:          utils\SauronReportIntegrityVerifier.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.3 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronReportRestorer.js.pre-nuclear
+ACTIVE:          utils\SauronReportRestorer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.7 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronScanAnonymizer.js.pre-nuclear
+ACTIVE:          utils\SauronScanAnonymizer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            8.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronScanArchiveManager.js.pre-nuclear
+ACTIVE:          utils\SauronScanArchiveManager.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.6 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronScanExporter.js.pre-nuclear
+ACTIVE:          utils\SauronScanExporter.js
+LAST MODIFIED:   2025-06-22
+SIZE:            8.6 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronScanSessionManager.js.pre-nuclear
+ACTIVE:          utils\SauronScanSessionManager.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.0 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronScanVisualizer.js.pre-nuclear
+ACTIVE:          utils\SauronScanVisualizer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            10.4 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronSecurePipelineOrchestrator.js.pre-nuclear
+ACTIVE:          utils\SauronSecurePipelineOrchestrator.js
+LAST MODIFIED:   2025-06-22
+SIZE:            7.7 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronSecurePipelineSummarizer.js.pre-nuclear
+ACTIVE:          utils\SauronSecurePipelineSummarizer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            8.2 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronSecurePipelineValidator.js.pre-nuclear
+ACTIVE:          utils\SauronSecurePipelineValidator.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.4 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronSecurityPolicyEnforcer.js.pre-nuclear
+ACTIVE:          utils\SauronSecurityPolicyEnforcer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            6.2 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronTelemetryReporter.js.pre-nuclear
+ACTIVE:          utils\SauronTelemetryReporter.js
+LAST MODIFIED:   2025-06-22
+SIZE:            4.9 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronThreatCorrelator.js.pre-nuclear
+ACTIVE:          utils\SauronThreatCorrelator.js
+LAST MODIFIED:   2025-06-22
+SIZE:            15.4 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\SauronTrendVisualizer.js.pre-nuclear
+ACTIVE:          utils\SauronTrendVisualizer.js
+LAST MODIFIED:   2025-06-22
+SIZE:            13.3 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\ScanHistoryManager.js.pre-nuclear
+ACTIVE:          utils\ScanHistoryManager.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.3 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\TechnicalDebtCalculator.js.pre-nuclear
+ACTIVE:          utils\TechnicalDebtCalculator.js
+LAST MODIFIED:   2025-06-22
+SIZE:            5.4 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            utils\WebhookNotifier.js.pre-nuclear
+ACTIVE:          utils\WebhookNotifier.js
+LAST MODIFIED:   2025-06-22
+SIZE:            4.4 KB
+IDENTICAL:       YES
+SAFE TO DELETE:  YES
+
+FILE:            view-scan-results.js.pre-nuclear
+ACTIVE:          view-scan-results.js
+LAST MODIFIED:   2025-06-22
+SIZE:            6.9 KB
+IDENTICAL:       NO
+SAFE TO DELETE:  NO
+

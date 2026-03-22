@@ -1,0 +1,24 @@
+﻿node_modules/
+dist/
+coverage/
+*.log
+.env
+.env.*
+
+# Pre-nuclear backup files — never commit
+*.pre-nuclear
+
+# Temp diagnostic/test files from sprint work
+_diag.mjs
+_diag2.mjs
+_manifest-builder.mjs
+_test-run.mjs
+_test-output.txt
+scan-test-output.txt
+scan-diagnostic.txt
+manifest-result.txt
+commit-msg.txt
+
+# OS
+.DS_Store
+Thumbs.db
