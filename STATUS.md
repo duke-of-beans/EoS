@@ -17,10 +17,9 @@ pre-nuclear cleanup manifest.
 - Prophecies generated: 3 (DANGER — character anomalies in src/)
 - Character forensics and pattern precognition both active
 
-**Git:** Initialized. Branch: main. 3 commits. Remote placeholder set — see
-`_github-setup.txt` for GitHub creation instructions.
+**Git:** Initialized. Branch: main. Commits pushed to remote.
 
-**GitHub:** NOT YET CREATED. Run instructions in `_github-setup.txt`.
+**GitHub:** https://github.com/duke-of-beans/EoS ✅ LIVE
 
 ---
 
@@ -49,7 +48,7 @@ GregLite is TypeScript strict mode; integration will require a shim or port when
 
 ## OPEN WORK
 
-- [ ] **Create GitHub repo** — run `_github-setup.txt` instructions (gh CLI or manual)
+- [x] **GitHub repo created** — https://github.com/duke-of-beans/EoS ✅
 - [ ] **Pre-nuclear cleanup** — manifest at `_pre-nuclear-manifest.txt`. 54 files safe to delete,
       43 need David review. DO NOT delete without sign-off.
 - [ ] **GregLite Sprint 44.0 integration** — blocked pending architecture decision
