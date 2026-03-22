@@ -1,55 +1,110 @@
 # EYE OF SAURON (EOS) — STATUS
-**Last Updated:** 2026-03-14
+**Last Updated:** 2026-03-21
+**Sprint:** Sprint 2 — EOS Lift (COMPLETE)
 
 ---
 
 ## CURRENT STATE
 
-Eye of Sauron is a functional Node.js code analysis CLI tool. It is not a prototype — it has demonstrably run against real codebases. The root directory contains confirmed scan output artifacts: `full-scan.json`, `scan-results.json`, `eos-self-scan.json` (the tool has scanned itself), `system-health.json`, `operational-health-report.json`, and a timestamped full-scan from June 2025. The `.sauronrc.json` configuration is mature, with three defined scan profiles (quick, standard, deep), custom rule support, ignore patterns, and output format control.
+Eye of Sauron is a functional Node.js code analysis CLI. Sprint 2 (EOS Lift) has confirmed
+operational state via self-scan and established version control, documentation, and a
+pre-nuclear cleanup manifest.
 
-The tool architecture is structured: `analyzers/`, `core/` (containing `SauronCore.js`), `cli/`, `reporters/`, `utils/`, `src/` directories with a clear separation of concerns. Entry points are `sauron-cli.js` (CLI), `standalone-launcher.cjs` (packaged binary via `pkg`), and `server.js` (REST API mode). A web UI exists (`eye-of-sauron-dashboard.html`, `eye-of-sauron-ui.html`, `serve-ui.mjs`). The `dist/` directory exists for compiled binaries.
+**Self-scan result (2026-03-21):**
+- Command: `node sauron-cli.js --input ./src --mode quick`
+- Result: 13 files scanned, 76 issues (62 critical / 14 warnings), 0.1s runtime
+- Exit code: 1 (critical issues found — expected behavior, not a failure)
+- Prophecies generated: 3 (DANGER — character anomalies in src/)
+- Character forensics and pattern precognition both active
 
-The root contains many `.pre-nuclear` backup files alongside every active file. These are pre-"nuclear cleaner" snapshots preserved intentionally — do not delete without David's explicit approval. They are noise for development purposes but are not harmful.
+**Git:** Initialized. Branch: main. 3 commits. Remote placeholder set — see
+`_github-setup.txt` for GitHub creation instructions.
 
-EOS is the highest strategic priority of the three lift targets. **GregLite Sprint 44.0 (Code Graph Index) is blocked pending EOS integration.** The key unresolved question is whether EOS becomes a GregLite sidecar module, a standalone service that GregLite calls, or is superseded by a new Code Graph Index implementation. This architectural decision must be made in consultation with the GregLite Sprint 44.0 spec before any EOS sprint begins.
+**GitHub:** NOT YET CREATED. Run instructions in `_github-setup.txt`.
 
-An important discovery from this sprint: `D:\Projects\_Archive\T-App-tribunal-assistant\` contains `eye-of-sauron.cjs`, `sauron-report.md`, and `sauron-report-enhanced.json`. This is evidence of a prior EOS integration with another project. Review this before any EOS modernization to understand prior usage patterns.
+---
+
+## ARCHITECTURE CONTEXT
+
+EOS ships inside GregLite as a bundled module powering Sprint 44.0 (Code Graph Index).
+It also functions as a standalone portfolio tool for SHIM's code analysis needs.
+Both roles are valid and non-conflicting.
+
+TypeScript port is DEFERRED — this is a JavaScript project until an explicit mandate.
+GregLite is TypeScript strict mode; integration will require a shim or port when Sprint 44.0 begins.
+
+---
+
+## SPRINT 2 DELIVERABLES (SHIPPED)
+
+- [x] Self-scan executed and documented — tool confirmed operational
+- [x] `.gitignore` created — excludes `.pre-nuclear`, `.backup.*`, `node_modules/`, `dist/`
+- [x] `CLAUDE_INSTRUCTIONS.md` rewritten — full operational findings, CLI flags, architecture
+- [x] `_pre-nuclear-manifest.txt` created — 97 files, 54 safe, 43 need review
+- [x] `PROJECT_DNA.yaml` and `PRODUCT_VISION.md` committed to git
+- [x] Initial lift commit: `3924079`
+- [x] `_github-setup.txt` — exact commands to create GitHub repo
 
 ---
 
 ## OPEN WORK
 
-- [ ] Architecture decision: EOS as GregLite sidecar module vs standalone service called by GregLite? This gates all other EOS work.
-- [ ] Read GregLite STATUS.md and Sprint 44.0 (Code Graph Index) spec — understand exactly what GregLite needs from EOS.
-- [ ] Review `D:\Projects\_Archive\T-App-tribunal-assistant\eye-of-sauron.cjs` — prior integration artifact, review before modernization.
-- [ ] Flag `.pre-nuclear` backup files for David review — confirm whether they can be cleaned up.
-- [ ] Port to TypeScript — required for clean GregLite integration (GregLite is TypeScript strict mode).
-- [ ] Expand CLAUDE_INSTRUCTIONS.md once architecture decision is made.
-- [ ] Create GitHub repo (duke-of-beans/eye-of-sauron).
-- [ ] Define integration spec with GregLite Sprint 44.0 (Code Graph Index).
-- [ ] Assess TESSRYX overlap/complement relationship — both do dependency/pattern analysis.
-- [ ] Verify `server.js` REST API and web UI are still in scope (or document as deprecated).
-- [ ] Run `node sauron-cli.js --input ./src` to verify current working state.
+- [ ] **Create GitHub repo** — run `_github-setup.txt` instructions (gh CLI or manual)
+- [ ] **Pre-nuclear cleanup** — manifest at `_pre-nuclear-manifest.txt`. 54 files safe to delete,
+      43 need David review. DO NOT delete without sign-off.
+- [ ] **GregLite Sprint 44.0 integration** — blocked pending architecture decision
+      (EOS as sidecar module vs standalone service vs superseded by Code Graph Index)
+- [ ] **TypeScript port** — deferred. Required for clean GregLite integration.
+      Do not start without explicit session mandate.
+- [ ] **TESSRYX relationship** — assess overlap/complement with dependency intelligence
+- [ ] **Review tribunal-assistant archive** — `D:\Projects\_Archive\T-App-tribunal-assistant\`
+      contains `eye-of-sauron.cjs` — prior integration artifact, review before modernization
+- [ ] **REST API / web UI scope decision** — `server.js` and `serve-ui.mjs` exist but scope TBD
+- [ ] **node_modules in git** — node_modules was committed in a prior sprint and is now
+      tracked with hundreds of changes. Consider a `git rm -r --cached node_modules` pass
+      to clean this up (separate sprint, not urgent)
 
 ---
 
 ## ARCHITECTURE DECISIONS
 
-**Stack confirmed:** Node.js CLI. Pure JavaScript (no framework). Dependencies are minimal: chalk, commander, ora. `pkg` used for binary compilation. This is intentional — a lean, portable analysis tool.
+**Stack confirmed:** Node.js CLI. Pure JavaScript (ES modules). Dependencies: chalk, commander, ora.
+`pkg` used for binary compilation. Intentionally lean and portable.
 
-**No integration decisions made.** The GregLite integration architecture is the only decision that matters before EOS sprints can run. See GregLite SPRINT_ROADMAP.md for Sprint 44.0 spec.
+**CLI entry confirmed:** `sauron-cli.js` with `--mode quick|deep|quantum` flag.
+NOTE: `--profile` does NOT exist — sprint documentation had this wrong. Correct flag is `--mode`.
+
+**No GregLite integration decisions made.** Sprint 44.0 architecture is the only decision that
+matters before EOS integration sprints can run.
 
 ---
 
-## KNOWN GAPS
+## KNOWN SHELL ENVIRONMENT QUIRK
 
-- GregLite integration architecture not defined — Sprint 44.0 is blocked.
-- Not on GitHub.
-- No CHANGELOG.md, no sprint history under the current system.
-- CLAUDE_INSTRUCTIONS.md is minimal bootstrap only — not sprint-ready.
-- `.pre-nuclear` files need David review before any cleanup.
-- TypeScript port not started — required for GregLite integration.
-- `tribunal-assistant` archive has prior EOS integration artifacts — not yet reviewed.
-- Rename decision pending — "Eye of Sauron" brand not evaluated for enterprise positioning.
-- TESSRYX relationship undefined.
-- `analyzers/`, `core/`, `reporters/` directory contents not read this session — internal architecture details unknown.
+The GREGORE PowerShell profile intercepts all stdout/stderr from Node.js processes in this
+environment. The CLI runs correctly (exit codes work) but console output is swallowed when
+run via Desktop Commander's PowerShell shell. Use `cmd.exe` shell for git operations.
+For Node.js output capture, use file-based output via `writeFileSync` in wrapper scripts.
+
+---
+
+## KEY FILES
+
+| File | Purpose |
+|---|---|
+| `sauron-cli.js` | CLI entry (`--mode quick/deep/quantum`) |
+| `core/EyeOfSauronOmniscient.js` | Main scan engine |
+| `.sauronrc.json` | Scan config (profiles: quick/standard/deep) |
+| `_pre-nuclear-manifest.txt` | Pre-nuclear cleanup manifest (David review required) |
+| `_github-setup.txt` | GitHub repo creation instructions |
+| `CLAUDE_INSTRUCTIONS.md` | Full session bootstrap (read this first) |
+
+---
+
+## SCAN PROFILES (.sauronrc.json)
+
+| Profile | maxDepth | skipTests | builtInAnalyzers | consoleDetect |
+|---|---|---|---|---|
+| quick | 3 | true | false | false |
+| standard | 10 | true | false | false |
+| deep | unlimited | false | true | true |
