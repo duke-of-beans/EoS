@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "slug": "eye-of-sauron",
+  "name": "Eye of Sauron",
+  "brain_entity_id": "01KMWEC413S4ZS3M5ZQC7RWQW5",
+  "type": "infrastructure",
+  "owner": "silent_ampersand",
+  "environment": "dev",
+  "display_register": "project",
+  "tier": 3,
+  "description": "Eye of Sauron is a code quality scanning system integrated into GregLite as lib/eos/. Provides AST-level structural analysis and quality scoring.",
+  "purpose": "Provide continuous automated code quality scanning across portfolio codebases, feeding quality signals to GregLite and Greg.",
+  "success_criteria": [
+    "EoS health score integrated into GregLite Projects panel",
+    "All active codebases scanned on commit"
+  ],
+  "upstream": [],
+  "downstream": [
+    "gregore"
+  ],
+  "peers": [
+    "consensus",
+    "tessryx"
+  ],
+  "repo": null,
+  "local_url": null,
+  "vercel_url": null,
+  "tech_stack": [
+    "TypeScript"
+  ],
+  "language": "TypeScript",
+  "tagline": "Code quality scanning — AST-level structural analysis.",
+  "philosophy": [],
+  "notes": "Integrated into GregLite as lib/eos/. EoS self-scan score feeds Integration Score formula.",
+  "key_decisions": [],
+  "created_date": "2026-03-31",
+  "last_updated": "2026-03-31",
+  "author": "dk-001"
+}
