@@ -214,6 +214,7 @@ class SauronCLI {
       enableCharacterForensics: this.config.enableCharacterForensics,
       enablePatternPrecognition: this.config.enablePatternPrecognition,
       enableBuiltInAnalyzers: this.config.enableBuiltInAnalyzers,
+      skipTribunalContract: this.config.skipTribunalContract,
 
       // File processing settings
       maxFileSize: 1024 * 1024, // 1MB

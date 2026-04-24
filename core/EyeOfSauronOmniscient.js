@@ -31,7 +31,7 @@ export class EyeOfSauronOmniscient {
 
     // Initialize analyzers
     this.characterForensics = new CharacterForensics();
-    this.patternPrecognition = new PatternPrecognition();
+    this.patternPrecognition = new PatternPrecognition(this.config);
     this.batchProcessor = new BatchProcessor();
 
     // Initialize vision state

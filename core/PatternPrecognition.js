@@ -150,6 +150,12 @@ export class PatternPrecognition {
    */
   _detectMissingContractMethods(content, filePath) {
     const issues = [];
+
+    // Skip Tribunal contract checks when flag is set (e.g. React functional components)
+    if (this.config.skipTribunalContract === true) {
+      return issues;
+    }
+
     const foundMethods = new Set();
 
     // Check if this looks like a class/component file
