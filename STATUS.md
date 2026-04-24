@@ -1,21 +1,31 @@
 # EYE OF SAURON (EOS) — STATUS
-**Last Updated:** 2026-03-21
-**Sprint:** Sprint 2 — EOS Lift (COMPLETE)
+
+**Status:** active
+**Phase:** Sprint 2 complete — standalone + GregLite integration
+**Last Sprint:** EOS-NIGHTSHIFT-CONFIG-01
+**Last Updated:** 2026-04-24
 
 ---
 
 ## CURRENT STATE
 
-Eye of Sauron is a functional Node.js code analysis CLI. Sprint 2 (EOS Lift) has confirmed
-operational state via self-scan and established version control, documentation, and a
-pre-nuclear cleanup manifest.
+Eye of Sauron is a functional Node.js code analysis CLI. Sprint EOS-NIGHTSHIFT-CONFIG-01
+resolved a critical false positive bug and completed full NIGHTSHIFT Pass 5B integration.
 
-**Self-scan result (2026-03-21):**
-- Command: `node sauron-cli.js --input ./src --mode quick`
-- Result: 13 files scanned, 76 issues (62 critical / 14 warnings), 0.1s runtime
-- Exit code: 1 (critical issues found — expected behavior, not a failure)
-- Prophecies generated: 3 (DANGER — character anomalies in src/)
-- Character forensics and pattern precognition both active
+**Sprint EOS-NIGHTSHIFT-CONFIG-01 (2026-04-24):**
+- Fixed: `CharacterForensics.js` homoglyphs Map was keyed with Latin ASCII chars ('a','e','o','p','c','x') instead of Cyrillic codepoints (U+0430, U+0435, U+043E, U+0440, U+0441, U+0445). Every common letter in every source file triggered APOCALYPSE — 181,943 false positives in 183 files.
+- Fixed: CRLF normalization added to `CharacterForensics.analyze()` (defensive, strips `\r` before character scanning).
+- Added: `summary.healthScore` (density-based, 0-100) to scan output.
+- Added: `summary.warnings` field alongside existing `criticalIssues`.
+- Fixed: `--output -` now writes JSON to stdout (required for NIGHTSHIFT integration).
+- Fixed: Banner "🔍 Eye of Sauron CLI Starting..." now respects `--silent` flag.
+- Updated: `eos.config.json` with `skipCRLF: true` and `nightshiftMode` config block.
+- Updated: NIGHTSHIFT Pass 5B reads `summary.healthScore` directly, removed proxy calc, improved logging.
+
+**GregLite components scan post-fix (2026-04-24):**
+- 183 files, 198 issues (192 critical / 6 warnings), healthScore: 74/100, 0.24s runtime
+- Remaining criticals: 167 MISSING_METHOD (Tribunal contract), 23 INVISIBLE_CHAR (real), 1 MEMORY_LEAK, 1 MISSING_METHOD:DANGER
+- Down from 181,943 issues (all false positives from homoglyph bug)
 
 **Git:** Initialized. Branch: main. Commits pushed to remote.
 

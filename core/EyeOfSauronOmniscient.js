@@ -353,15 +353,31 @@ export class EyeOfSauronOmniscient {
     }
 
     // Calculate summary statistics
+    const totalIssues = Array.from(this.vision.files.values())
+      .reduce((sum, f) => sum + (f.issues?.length || 0), 0);
+    const criticalIssues = Array.from(this.vision.files.values())
+      .reduce((sum, f) => sum + (f.issues?.filter(i =>
+        i.severity === 'APOCALYPSE' || i.severity === 'DANGER'
+      ).length || 0), 0);
+    const warnings = totalIssues - criticalIssues;
+    // healthScore: density-based formula so projects with many files aren't unfairly penalised.
+    // criticalRate = critical issues per file; warningRate = warnings per file.
+    // Weights: -25 per critical-issue-per-file, -5 per warning-per-file. Clamped 0-100.
+    // Target range: 70-95 for healthy codebases (~0-1 critical per file).
+    const totalFiles = Math.max(this.vision.stats.filesScanned, 1);
+    const criticalRate = criticalIssues / totalFiles;
+    const warningRate = warnings / totalFiles;
+    const healthScore = Math.max(0, Math.min(100, Math.round(
+      100 - (criticalRate * 25) - (warningRate * 5)
+    )));
+
     const summary = {
       totalFiles: this.vision.stats.filesScanned,
       totalCharacters: this.vision.stats.totalCharacters,
-      totalIssues: Array.from(this.vision.files.values())
-        .reduce((sum, f) => sum + (f.issues?.length || 0), 0),
-      criticalIssues: Array.from(this.vision.files.values())
-        .reduce((sum, f) => sum + (f.issues?.filter(i =>
-          i.severity === 'APOCALYPSE' || i.severity === 'DANGER'
-        ).length || 0), 0),
+      totalIssues,
+      criticalIssues,
+      warnings,
+      healthScore,
       duration: this.vision.stats.duration,
       propheciesGenerated: this.vision.prophecies.length
     };

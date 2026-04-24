@@ -75,5 +75,10 @@
     "minSecretLength": 10,
     "confidenceThreshold": 0.8
   },
-  "backupDir": ".eos-backups"
+  "backupDir": ".eos-backups",
+  "skipCRLF": true,
+  "nightshiftMode": {
+    "enabled": false,
+    "outputHealthScore": true
+  }
 }

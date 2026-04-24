@@ -19,13 +19,14 @@ export class CharacterForensics {
       ['\uFEFF', { name: 'ZERO_WIDTH_NO_BREAK_SPACE', code: 65279 }]
     ]);
 
+    // Keys are the CYRILLIC lookalike codepoints (not their Latin equivalents)
     this.homoglyphs = new Map([
-      ['a', { latin: 'a', name: 'CYRILLIC_A' }],  // U+0430
-      ['e', { latin: 'e', name: 'CYRILLIC_E' }],  // U+0435
-      ['o', { latin: 'o', name: 'CYRILLIC_O' }],  // U+043E
-      ['p', { latin: 'p', name: 'CYRILLIC_P' }],  // U+0440
-      ['c', { latin: 'c', name: 'CYRILLIC_C' }],  // U+0441
-      ['x', { latin: 'x', name: 'CYRILLIC_X' }]   // U+0445
+      ['\u0430', { latin: 'a', name: 'CYRILLIC_A' }],  // а U+0430
+      ['\u0435', { latin: 'e', name: 'CYRILLIC_E' }],  // е U+0435
+      ['\u043E', { latin: 'o', name: 'CYRILLIC_O' }],  // о U+043E
+      ['\u0440', { latin: 'p', name: 'CYRILLIC_P' }],  // р U+0440
+      ['\u0441', { latin: 'c', name: 'CYRILLIC_C' }],  // с U+0441
+      ['\u0445', { latin: 'x', name: 'CYRILLIC_X' }]   // х U+0445
     ]);
 
     this.smartQuotes = new Map([
@@ -44,7 +45,10 @@ export class CharacterForensics {
 
   async analyze(content, filePath) {
     const issues = [];
-    const lines = content.split('\n');
+    // Normalize CRLF (\r\n) and bare CR (\r) to LF before analysis.
+    // \r is not a meaningful code character and would generate noise.
+    const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = normalized.split('\n');
     let position = 0;
     let consecutiveNewlines = 0;
     let lastNewlinePosition = -1;
