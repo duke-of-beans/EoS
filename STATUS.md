@@ -1,16 +1,28 @@
 # EYE OF SAURON (EOS) — STATUS
 
-**Status:** active
-**Phase:** Sprint 2 complete — standalone + GregLite integration
-**Last Sprint:** EOS-NIGHTSHIFT-CONFIG-01
-**Last Updated:** 2026-04-24
+**Status:** Production | **Phase:** TypeScript + GregLite integration
+**Last Sprint:** EOS-TYPESCRIPT-01
+**Last Updated:** 2026-05-18
 
 ---
 
 ## CURRENT STATE
 
-Eye of Sauron is a functional Node.js code analysis CLI. Sprint EOS-NIGHTSHIFT-CONFIG-01
-resolved a critical false positive bug and completed full NIGHTSHIFT Pass 5B integration.
+Eye of Sauron is a dual-mode code analysis tool: original JavaScript CLI for NIGHTSHIFT
+and standalone use, plus a new TypeScript-compiled API (`dist/index.js`) importable by
+GregLite's sidecar for live code health in the portfolio dashboard.
+
+**Sprint EOS-TYPESCRIPT-01 (2026-05-18):**
+- TypeScript port: full `src/` directory with strict types, builds to `dist/` as CJS
+- Ported: `EyeOfSauronOmniscient` → `src/scanner.ts`, `CharacterForensics` → `src/rules/character-forensics.ts`, `PatternPrecognition` → `src/rules/pattern-precognition.ts`, `BatchProcessor` → `src/batch-processor.ts`
+- Public API: `scanProject(path, mode?, config?)` → `HealthReport` — typed, importable
+- Types: `src/types.ts` — `HealthReport`, `ScanSummary`, `Issue`, `Severity`, `ScannerConfig`, etc.
+- Build: `npx tsc` → `dist/` with declarations + source maps. `dist/package.json` override for CJS compat (root is ESM)
+- Scripts: `npm run build`, `npm run lint` added to package.json
+- GregLite integration: `GET /api/dashboard/code-health` endpoint scans top 10 portfolio projects, 1-hour cache
+- Dashboard UI: red/yellow/green EoS dot on each portfolio health arc (bottom-right corner)
+- Greg gatherContext: code health signals included — projects scoring <70 or >5 critical issues surface in Greg's briefings
+- Verified: 19 files scanned, 32 issues found, healthScore 64, 389ms — output matches original JS scanner
 
 **Sprint EOS-NIGHTSHIFT-CONFIG-01 (2026-04-24):**
 - Fixed: `CharacterForensics.js` homoglyphs Map was keyed with Latin ASCII chars ('a','e','o','p','c','x') instead of Cyrillic codepoints (U+0430, U+0435, U+043E, U+0440, U+0441, U+0445). Every common letter in every source file triggered APOCALYPSE — 181,943 false positives in 183 files.
@@ -35,12 +47,16 @@ resolved a critical false positive bug and completed full NIGHTSHIFT Pass 5B int
 
 ## ARCHITECTURE CONTEXT
 
-EOS ships inside GregLite as a bundled module powering Sprint 44.0 (Code Graph Index).
-It also functions as a standalone portfolio tool for SHIM's code analysis needs.
-Both roles are valid and non-conflicting.
+EOS has two entry points:
+1. **Original JS CLI** (`sauron-cli.js`) — ESM, used by NIGHTSHIFT Pass 5B, standalone scans
+2. **TypeScript API** (`dist/index.js`) — CJS, used by GregLite sidecar for live dashboard health
 
-TypeScript port is DEFERRED — this is a JavaScript project until an explicit mandate.
-GregLite is TypeScript strict mode; integration will require a shim or port when Sprint 44.0 begins.
+Both coexist. The JS CLI is untouched and backward-compatible. The TypeScript `src/` builds
+to `dist/` as CommonJS (via `dist/package.json` override) for GregLite sidecar compatibility.
+
+GregLite integration is live: `GET /api/dashboard/code-health` endpoint in sidecar `dashboard.ts`.
+Dashboard UI shows EoS health dot on each portfolio arc. Greg's `gatherContext` includes
+code health signals for projects in poor shape.
 
 ---
 
@@ -58,33 +74,23 @@ GregLite is TypeScript strict mode; integration will require a shim or port when
 
 ## OPEN WORK
 
-- [x] **GitHub repo created** — https://github.com/duke-of-beans/EoS ✅
-- [ ] **Pre-nuclear cleanup** — manifest at `_pre-nuclear-manifest.txt`. 54 files safe to delete,
-      43 need David review. DO NOT delete without sign-off.
-- [ ] **GregLite Sprint 44.0 integration** — blocked pending architecture decision
-      (EOS as sidecar module vs standalone service vs superseded by Code Graph Index)
-- [ ] **TypeScript port** — deferred. Required for clean GregLite integration.
-      Do not start without explicit session mandate.
-- [ ] **TESSRYX relationship** — assess overlap/complement with dependency intelligence
-- [ ] **Review tribunal-assistant archive** — `D:\Projects\_Archive\T-App-tribunal-assistant\`
-      contains `eye-of-sauron.cjs` — prior integration artifact, review before modernization
-- [ ] **REST API / web UI scope decision** — `server.js` and `serve-ui.mjs` exist but scope TBD
-- [ ] **node_modules in git** — node_modules was committed in a prior sprint and is now
-      tracked with hundreds of changes. Consider a `git rm -r --cached node_modules` pass
-      to clean this up (separate sprint, not urgent)
+- [ ] 43 pre-nuclear "need review" files remain on disk — awaiting David sign-off before deletion
+
+All architecture decisions (TypeScript port, GregLite integration, REST API scope, TESSRYX relationship) tracked in BACKLOG.md.
 
 ---
 
 ## ARCHITECTURE DECISIONS
 
-**Stack confirmed:** Node.js CLI. Pure JavaScript (ES modules). Dependencies: chalk, commander, ora.
-`pkg` used for binary compilation. Intentionally lean and portable.
+**Dual-mode architecture:** JS CLI (ESM) + TypeScript API (CJS via dist/).
+Original JS CLI unchanged. TypeScript `src/` builds to `dist/` for GregLite import.
 
 **CLI entry confirmed:** `sauron-cli.js` with `--mode quick|deep|quantum` flag.
-NOTE: `--profile` does NOT exist — sprint documentation had this wrong. Correct flag is `--mode`.
+NOTE: `--profile` does NOT exist. Correct flag is `--mode`.
 
-**No GregLite integration decisions made.** Sprint 44.0 architecture is the only decision that
-matters before EOS integration sprints can run.
+**GregLite integration shipped (EOS-TYPESCRIPT-01):** sidecar imports `dist/index.js` directly.
+Dashboard endpoint: `GET /api/dashboard/code-health`. UI: EoS dot on portfolio arcs.
+Greg's gatherContext includes code health signals for projects in poor shape.
 
 ---
 
@@ -101,11 +107,17 @@ For Node.js output capture, use file-based output via `writeFileSync` in wrapper
 
 | File | Purpose |
 |---|---|
-| `sauron-cli.js` | CLI entry (`--mode quick/deep/quantum`) |
-| `core/EyeOfSauronOmniscient.js` | Main scan engine |
+| `sauron-cli.js` | CLI entry (`--mode quick/deep/quantum`) — original JS |
+| `core/EyeOfSauronOmniscient.js` | Main scan engine — original JS |
+| `src/index.ts` | TypeScript public API barrel export |
+| `src/scanner.ts` | TypeScript scan engine + `scanProject()` |
+| `src/types.ts` | All TypeScript interfaces |
+| `src/rules/character-forensics.ts` | Character forensics analyzer (TS) |
+| `src/rules/pattern-precognition.ts` | Pattern/contract analyzer (TS) |
+| `src/batch-processor.ts` | Parallel batch processing (TS) |
+| `dist/` | Compiled CJS output (built via `npm run build`) |
 | `.sauronrc.json` | Scan config (profiles: quick/standard/deep) |
 | `_pre-nuclear-manifest.txt` | Pre-nuclear cleanup manifest (David review required) |
-| `_github-setup.txt` | GitHub repo creation instructions |
 | `CLAUDE_INSTRUCTIONS.md` | Full session bootstrap (read this first) |
 
 ---

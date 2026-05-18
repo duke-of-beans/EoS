@@ -4,6 +4,8 @@
     "sauron-archive": "./cli/SauronReportArchiverCLI.js"
   },
   "scripts": {
+    "build": "npx tsc && echo {\"type\":\"commonjs\"} > dist/package.json",
+    "lint": "npx tsc --noEmit",
     "start": "node ./cli/EyeOfSauronCLI.js",
     "scan": "node ./cli/EyeOfSauronCLI.js scan ./",
     "scan:json": "node ./cli/EyeOfSauronCLI.js scan ./ --format json",
