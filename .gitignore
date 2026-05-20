@@ -21,4 +21,8 @@ commit-msg.txt
 
 # OS
 .DS_Store
-Thumbs.db
+Thumbs.db*.backup*  
+*.backup  
+report.json  
+structure-report.json  
+patch-report.json 
