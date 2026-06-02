@@ -7,6 +7,15 @@ coverage/
 
 # Pre-nuclear backup files — never commit
 *.pre-nuclear
+.pre-nuclear/
+
+# Backup files
+.backup.*
+*.backup
+*.backup-*
+
+# Temp scan output files
+eos_*.json
 
 # Temp diagnostic/test files from sprint work
 _diag.mjs
