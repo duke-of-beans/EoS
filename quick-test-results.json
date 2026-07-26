@@ -1,0 +1,638 @@
+{
+  "metadata": {
+    "scanDate": "2025-06-22T00:05:31.734Z",
+    "duration": 69,
+    "version": "1.1.0",
+    "profile": {
+      "name": "Quick Scan",
+      "maxDepth": 3,
+      "skipTests": true,
+      "analyzers": [
+        "basic"
+      ],
+      "timeout": 100,
+      "enableBuiltInAnalyzers": false
+    },
+    "configUsed": {
+      "maxFileSize": 1048576,
+      "excludePatterns": [
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      "fileExtensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".mjs",
+        ".cjs"
+      ],
+      "batchSize": 10,
+      "allowConsole": false,
+      "skipTests": false,
+      "detectConsoleUsage": true,
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": true,
+      "maxSimilarIssues": 10,
+      "aggregateSimilarIssues": true,
+      "verbose": true
+    }
+  },
+  "summary": {
+    "totalFiles": 17,
+    "totalCharacters": 135652,
+    "totalIssues": 33,
+    "criticalIssues": 0,
+    "skippedFiles": 0,
+    "duration": 69,
+    "propheciesGenerated": 1,
+    "configRespected": {
+      "allowConsole": false,
+      "skipTests": false,
+      "enabledAnalyzers": {
+        "characterForensics": true,
+        "patternPrecognition": true,
+        "builtInAnalyzers": true
+      }
+    }
+  },
+  "files": {
+    "core\\CharacterForensics.js": {
+      "path": "core\\CharacterForensics.js",
+      "size": 12318,
+      "lines": 336,
+      "characters": 12310,
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 2692,
+          "line": 63,
+          "char": " ",
+          "message": "Trailing space detected at end of line 63",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 4915,
+          "line": 123,
+          "char": " ",
+          "message": "Trailing space detected at end of line 123",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 5068,
+          "line": 126,
+          "char": " ",
+          "message": "Trailing space detected at end of line 126",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 10491,
+          "line": 280,
+          "char": " ",
+          "message": "Trailing space detected at end of line 280",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 10576,
+          "line": 284,
+          "char": " ",
+          "message": "Trailing space detected at end of line 284",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 10815,
+          "line": 294,
+          "char": " ",
+          "message": "Trailing space detected at end of line 294",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 11090,
+          "line": 299,
+          "char": " ",
+          "message": "Trailing space detected at end of line 299",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 11210,
+          "line": 302,
+          "char": " ",
+          "message": "Trailing space detected at end of line 302",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "metrics": {
+        "characterCount": 12310,
+        "lineCount": 336,
+        "issueCount": 8
+      },
+      "timestamp": 1750550731750
+    },
+    "core\\SauronConfigLoader.js": {
+      "path": "core\\SauronConfigLoader.js",
+      "size": 10390,
+      "lines": 359,
+      "characters": 10386,
+      "issues": [],
+      "metrics": {
+        "characterCount": 10386,
+        "lineCount": 359,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731754
+    },
+    "core\\ComponentMarketplace.js": {
+      "path": "core\\ComponentMarketplace.js",
+      "size": 2687,
+      "lines": 93,
+      "characters": 2679,
+      "issues": [],
+      "metrics": {
+        "characterCount": 2679,
+        "lineCount": 93,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731757
+    },
+    "core\\SauronLicenseManager.js": {
+      "path": "core\\SauronLicenseManager.js",
+      "size": 6889,
+      "lines": 216,
+      "characters": 6885,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6885,
+        "lineCount": 216,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731759
+    },
+    "core\\DependencyImpactAnalyzer.js": {
+      "path": "core\\DependencyImpactAnalyzer.js",
+      "size": 7641,
+      "lines": 241,
+      "characters": 7641,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7641,
+        "lineCount": 241,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731763
+    },
+    "core\\SauronModuleRegistry.js": {
+      "path": "core\\SauronModuleRegistry.js",
+      "size": 4555,
+      "lines": 165,
+      "characters": 4555,
+      "issues": [],
+      "metrics": {
+        "characterCount": 4555,
+        "lineCount": 165,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731764
+    },
+    "core\\EyeOfSauronOmniscient.js": {
+      "path": "core\\EyeOfSauronOmniscient.js",
+      "size": 17621,
+      "lines": 561,
+      "characters": 17617,
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 1125,
+          "line": 29,
+          "char": " ",
+          "message": "Trailing space detected at end of line 29",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 1584,
+          "line": 37,
+          "char": " ",
+          "message": "Trailing space detected at end of line 37",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 1752,
+          "line": 41,
+          "char": " ",
+          "message": "Trailing space detected at end of line 41",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 2109,
+          "line": 51,
+          "char": " ",
+          "message": "Trailing space detected at end of line 51",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 2376,
+          "line": 58,
+          "char": " ",
+          "message": "Trailing space detected at end of line 58",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 8884,
+          "line": 273,
+          "char": " ",
+          "message": "Trailing space detected at end of line 273",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9112,
+          "line": 277,
+          "char": " ",
+          "message": "Trailing space detected at end of line 277",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9253,
+          "line": 280,
+          "char": " ",
+          "message": "Trailing space detected at end of line 280",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9535,
+          "line": 289,
+          "char": " ",
+          "message": "Trailing space detected at end of line 289",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9574,
+          "line": 292,
+          "char": " ",
+          "message": "Trailing space detected at end of line 292",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "metrics": {
+        "characterCount": 17617,
+        "lineCount": 561,
+        "issueCount": 10
+      },
+      "timestamp": 1750550731769
+    },
+    "core\\SauronPluginManager.js": {
+      "path": "core\\SauronPluginManager.js",
+      "size": 3590,
+      "lines": 118,
+      "characters": 3590,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3590,
+        "lineCount": 118,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731769
+    },
+    "core\\FixImpactAnalyzer.js": {
+      "path": "core\\FixImpactAnalyzer.js",
+      "size": 3552,
+      "lines": 113,
+      "characters": 3552,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3552,
+        "lineCount": 113,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731772
+    },
+    "core\\ScanPolicyManager.js": {
+      "path": "core\\ScanPolicyManager.js",
+      "size": 7987,
+      "lines": 246,
+      "characters": 7987,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7987,
+        "lineCount": 246,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731775
+    },
+    "core\\KaizenSettingsPanel.js": {
+      "path": "core\\KaizenSettingsPanel.js",
+      "size": 5713,
+      "lines": 189,
+      "characters": 5713,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5713,
+        "lineCount": 189,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731776
+    },
+    "core\\ScanProfileManager.js": {
+      "path": "core\\ScanProfileManager.js",
+      "size": 2427,
+      "lines": 88,
+      "characters": 2427,
+      "issues": [],
+      "metrics": {
+        "characterCount": 2427,
+        "lineCount": 88,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731777
+    },
+    "core\\KaizenSnapshot.js": {
+      "path": "core\\KaizenSnapshot.js",
+      "size": 4207,
+      "lines": 128,
+      "characters": 4201,
+      "issues": [],
+      "metrics": {
+        "characterCount": 4201,
+        "lineCount": 128,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731779
+    },
+    "core\\TribunalSentinel.js": {
+      "path": "core\\TribunalSentinel.js",
+      "size": 6791,
+      "lines": 224,
+      "characters": 6791,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6791,
+        "lineCount": 224,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731782
+    },
+    "core\\OneClickHealing.js": {
+      "path": "core\\OneClickHealing.js",
+      "size": 4265,
+      "lines": 115,
+      "characters": 4245,
+      "issues": [
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 739,
+          "line": 18,
+          "char": "„",
+          "expected": "\"",
+          "message": "Smart quote DOUBLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '\"'"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 805,
+          "line": 19,
+          "char": "‚",
+          "expected": "'",
+          "message": "Smart quote SINGLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '''"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 1752,
+          "line": 35,
+          "char": "„",
+          "expected": "\"",
+          "message": "Smart quote DOUBLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '\"'"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 1800,
+          "line": 36,
+          "char": "‚",
+          "expected": "'",
+          "message": "Smart quote SINGLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '''"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4245,
+        "lineCount": 115,
+        "issueCount": 4
+      },
+      "timestamp": 1750550731784
+    },
+    "core\\PatternLearningEngine.js": {
+      "path": "core\\PatternLearningEngine.js",
+      "size": 2404,
+      "lines": 88,
+      "characters": 2404,
+      "issues": [],
+      "metrics": {
+        "characterCount": 2404,
+        "lineCount": 88,
+        "issueCount": 0
+      },
+      "timestamp": 1750550731786
+    },
+    "core\\PatternPrecognition.js": {
+      "path": "core\\PatternPrecognition.js",
+      "size": 32669,
+      "lines": 996,
+      "characters": 32669,
+      "issues": [
+        {
+          "type": "TRAILING_SUMMARY",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "line": 1,
+          "message": "121 total trailing issues detected (showing first 10)",
+          "fix": "Address trailing issues throughout file"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 135,
+          "line": 3,
+          "char": " ",
+          "message": "Trailing space detected at end of line 3",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 696,
+          "line": 17,
+          "char": " ",
+          "message": "Trailing space detected at end of line 17",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1018,
+          "line": 22,
+          "char": " ",
+          "message": "Trailing space detected at end of line 22",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1295,
+          "line": 27,
+          "char": " ",
+          "message": "Trailing space detected at end of line 27",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1657,
+          "line": 34,
+          "char": " ",
+          "message": "Trailing space detected at end of line 34",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1978,
+          "line": 39,
+          "char": " ",
+          "message": "Trailing space detected at end of line 39",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 2396,
+          "line": 58,
+          "char": " ",
+          "message": "Trailing space detected at end of line 58",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 3178,
+          "line": 95,
+          "char": " ",
+          "message": "Trailing space detected at end of line 95",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 3375,
+          "line": 106,
+          "char": " ",
+          "message": "Trailing space detected at end of line 106",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 4525,
+          "line": 136,
+          "char": " ",
+          "message": "Trailing space detected at end of line 136",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "metrics": {
+        "characterCount": 32669,
+        "lineCount": 996,
+        "issueCount": 11
+      },
+      "timestamp": 1750550731803
+    }
+  },
+  "prophecies": [
+    {
+      "type": "warning",
+      "file": "core\\PatternPrecognition.js",
+      "message": "High issue density detected: 11 issues in 996 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    }
+  ],
+  "stats": {
+    "filesScanned": 17,
+    "totalCharacters": 135652,
+    "startTime": 1750550731734,
+    "endTime": 1750550731803,
+    "duration": 69
+  }
+}

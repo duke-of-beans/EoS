@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eye of Sauron - Simple Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { 
+            background: #ccc; 
+            cursor: not-allowed; 
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+            min-height: 100px;
+        }
+        .success { 
+            background: #d4edda; 
+            border-color: #c3e6cb; 
+            color: #155724; 
+        }
+        .error { 
+            background: #f8d7da; 
+            border-color: #f5c6cb; 
+            color: #721c24; 
+        }
+        .loading { 
+            text-align: center; 
+            color: #666; 
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👁️ Eye of Sauron - API Test</h1>
+        
+        <div>
+            <label>Directory to scan:</label>
+            <input type="text" id="scanPath" placeholder="Enter path (e.g., ./ or C:\path\to\project)" value="./">
+        </div>
+        
+        <div>
+            <button onclick="testHealth()">🩺 Test API Connection</button>
+            <button onclick="runScan()" id="scanBtn">🔍 Run Scan</button>
+            <button onclick="clearResults()">🗑️ Clear</button>
+        </div>
+        
+        <div id="results" class="results">
+            <p>Click "Test API Connection" to verify the API is working.</p>
+        </div>
+    </div>
+
+    <script>
+        async function testHealth() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.className = 'results loading';
+            resultsDiv.innerHTML = '<p>🔄 Testing API connection...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.className = 'results success';
+                    resultsDiv.innerHTML = `
+                        <h3>✅ API Connection Successful!</h3>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Version:</strong> ${data.version}</p>
+                        <p><strong>Time:</strong> ${data.timestamp}</p>
+                        <p>Ready to scan! Try entering a directory path and clicking "Run Scan".</p>
+                    `;
+                } else {
+                    throw new Error('API returned error status');
+                }
+            } catch (error) {
+                resultsDiv.className = 'results error';
+                resultsDiv.innerHTML = `
+                    <h3>❌ API Connection Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Check:</strong> Make sure your API server is running on port 3000</p>
+                    <p><strong>Command:</strong> <code>npm run api</code></p>
+                `;
+            }
+        }
+
+        async function runScan() {
+            const scanPath = document.getElementById('scanPath').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const btn = document.getElementById('scanBtn');
+            
+            if (!scanPath) {
+                resultsDiv.className = 'results error';
+                resultsDiv.innerHTML = '<p>❌ Please enter a directory path to scan</p>';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '🔄 Scanning...';
+            
+            resultsDiv.className = 'results loading';
+            resultsDiv.innerHTML = `<p>🔄 Scanning: ${scanPath}</p>`;
+
+            try {
+                const response = await fetch('http://localhost:3000/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        inputPath: scanPath
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultsDiv.className = 'results success';
+                    resultsDiv.innerHTML = `
+                        <h3>✅ Scan Completed Successfully!</h3>
+                        <p><strong>Report ID:</strong> ${data.reportId}</p>
+                        <p><strong>Files Scanned:</strong> ${data.summary.totalFiles}</p>
+                        <p><strong>Issues Found:</strong> ${data.summary.totalIssues}</p>
+                        <p><strong>Critical Issues:</strong> ${data.summary.criticalIssues}</p>
+                        <details>
+                            <summary>Full API Response</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    throw new Error(data.message || 'Unknown error');
+                }
+            } catch (error) {
+                resultsDiv.className = 'results error';
+                resultsDiv.innerHTML = `
+                    <h3>❌ Scan Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Check:</strong> Make sure the API server is running and the path exists</p>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 Run Scan';
+            }
+        }
+
+        function clearResults() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.className = 'results';
+            resultsDiv.innerHTML = '<p>Click "Test API Connection" to verify the API is working.</p>';
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 500);
+        });
+    </script>
+</body>
+</html>

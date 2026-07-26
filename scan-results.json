@@ -1,0 +1,471 @@
+{
+  "metadata": {
+    "scanDate": "2025-06-21T04:01:46.769Z",
+    "duration": 31,
+    "version": "1.1.0",
+    "profile": {
+      "name": "Deep Analysis",
+      "maxDepth": null,
+      "skipTests": false,
+      "analyzers": [
+        "all"
+      ],
+      "timeout": 5000,
+      "enableBuiltInAnalyzers": true
+    },
+    "configUsed": {
+      "maxFileSize": 1048576,
+      "excludePatterns": [
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      "fileExtensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".mjs",
+        ".cjs"
+      ],
+      "batchSize": 10,
+      "allowConsole": false,
+      "skipTests": false,
+      "detectConsoleUsage": true,
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": true,
+      "maxSimilarIssues": 10,
+      "aggregateSimilarIssues": true,
+      "mode": "standard",
+      "maxConcurrentScans": 4,
+      "enableTelemetry": false,
+      "patterns": {
+        "ignoreDirectories": [
+          "node_modules",
+          ".git",
+          "dist",
+          "build"
+        ],
+        "supportedExtensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx",
+          ".mjs",
+          ".cjs"
+        ]
+      }
+    }
+  },
+  "summary": {
+    "totalFiles": 13,
+    "totalCharacters": 75642,
+    "totalIssues": 15,
+    "criticalIssues": 11,
+    "skippedFiles": 0,
+    "duration": 31,
+    "propheciesGenerated": 11,
+    "configRespected": {
+      "allowConsole": false,
+      "skipTests": false,
+      "enabledAnalyzers": {
+        "characterForensics": true,
+        "patternPrecognition": true,
+        "builtInAnalyzers": true
+      }
+    }
+  },
+  "files": {
+    "src\\components\\Header.js": {
+      "path": "src\\components\\Header.js",
+      "size": 5496,
+      "lines": 186,
+      "characters": 5470,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5470,
+        "lineCount": 186,
+        "issueCount": 0
+      },
+      "timestamp": 1750478506778
+    },
+    "src\\detectors\\eventListenerDetector.js": {
+      "path": "src\\detectors\\eventListenerDetector.js",
+      "size": 5356,
+      "lines": 172,
+      "characters": 5356,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\detectors\\eventListenerDetector.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5356,
+        "lineCount": 172,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506780
+    },
+    "src\\utils\\api.js": {
+      "path": "src\\utils\\api.js",
+      "size": 6917,
+      "lines": 235,
+      "characters": 6913,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\utils\\api.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6913,
+        "lineCount": 235,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506782
+    },
+    "src\\utils\\results-renderer.cjs": {
+      "path": "src\\utils\\results-renderer.cjs",
+      "size": 9270,
+      "lines": 319,
+      "characters": 9230,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\utils\\results-renderer.cjs",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 9230,
+        "lineCount": 319,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506784
+    },
+    "src\\config\\eosConfigLoader.js": {
+      "path": "src\\config\\eosConfigLoader.js",
+      "size": 5137,
+      "lines": 212,
+      "characters": 5137,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\config\\eosConfigLoader.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5137,
+        "lineCount": 212,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506787
+    },
+    "src\\utils\\apiKeyDetector.cjs": {
+      "path": "src\\utils\\apiKeyDetector.cjs",
+      "size": 3512,
+      "lines": 108,
+      "characters": 3512,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\utils\\apiKeyDetector.cjs",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 3512,
+        "lineCount": 108,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506788
+    },
+    "src\\detectors\\propTypesDetector.js": {
+      "path": "src\\detectors\\propTypesDetector.js",
+      "size": 3323,
+      "lines": 110,
+      "characters": 3323,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\detectors\\propTypesDetector.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 3323,
+        "lineCount": 110,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506790
+    },
+    "src\\utils\\consoleDetector.cjs": {
+      "path": "src\\utils\\consoleDetector.cjs",
+      "size": 3610,
+      "lines": 113,
+      "characters": 3610,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\utils\\consoleDetector.cjs",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 3610,
+        "lineCount": 113,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506792
+    },
+    "src\\config\\webpack.config.js": {
+      "path": "src\\config\\webpack.config.js",
+      "size": 10059,
+      "lines": 376,
+      "characters": 10059,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\config\\webpack.config.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 10059,
+        "lineCount": 376,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506796
+    },
+    "src\\detectors\\webpackDetector.js": {
+      "path": "src\\detectors\\webpackDetector.js",
+      "size": 5223,
+      "lines": 151,
+      "characters": 5223,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\detectors\\webpackDetector.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5223,
+        "lineCount": 151,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506797
+    },
+    "src\\utils\\example-custom-detector.cjs": {
+      "path": "src\\utils\\example-custom-detector.cjs",
+      "size": 3323,
+      "lines": 116,
+      "characters": 3323,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3323,
+        "lineCount": 116,
+        "issueCount": 0
+      },
+      "timestamp": 1750478506798
+    },
+    "src\\core\\detectionEngine.js": {
+      "path": "src\\core\\detectionEngine.js",
+      "size": 7160,
+      "lines": 272,
+      "characters": 7160,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\core\\detectionEngine.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "src\\core\\detectionEngine.js",
+          "line": 131,
+          "message": "console.error() detected",
+          "fix": "Remove console statement or use proper logging framework",
+          "consoleMethod": "error"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 131,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "src\\core\\detectionEngine.js",
+          "line": 149,
+          "message": "console.error() detected",
+          "fix": "Remove console statement or use proper logging framework",
+          "consoleMethod": "error"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 149,
+          "column": 2,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 7160,
+        "lineCount": 272,
+        "issueCount": 5
+      },
+      "timestamp": 1750478506799
+    },
+    "src\\services\\auth.service.js": {
+      "path": "src\\services\\auth.service.js",
+      "size": 7326,
+      "lines": 290,
+      "characters": 7326,
+      "issues": [
+        {
+          "type": "MISSING_CONTRACT_METHODS",
+          "severity": "DANGER",
+          "file": "src\\services\\auth.service.js",
+          "line": 1,
+          "message": "Missing required Tribunal contract methods: render, destroy, attachTo, toJSON",
+          "fix": "Implement the following methods: render(), destroy(), attachTo(), toJSON()"
+        }
+      ],
+      "metrics": {
+        "characterCount": 7326,
+        "lineCount": 290,
+        "issueCount": 1
+      },
+      "timestamp": 1750478506800
+    }
+  },
+  "prophecies": [
+    {
+      "type": "danger",
+      "file": "src\\detectors\\eventListenerDetector.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\utils\\api.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\utils\\results-renderer.cjs",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\config\\eosConfigLoader.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\utils\\apiKeyDetector.cjs",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\detectors\\propTypesDetector.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\utils\\consoleDetector.cjs",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\config\\webpack.config.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\detectors\\webpackDetector.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\core\\detectionEngine.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "danger",
+      "file": "src\\services\\auth.service.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    }
+  ],
+  "stats": {
+    "filesScanned": 13,
+    "totalCharacters": 75642,
+    "startTime": 1750478506769,
+    "endTime": 1750478506800,
+    "duration": 31
+  }
+}

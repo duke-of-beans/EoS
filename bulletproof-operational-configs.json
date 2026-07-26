@@ -1,0 +1,394 @@
+{
+  "description": "Bulletproof operational configuration profiles for 100% confidence",
+  "version": "2.0.0",
+  "profiles": {
+
+    "bulletproof-production": {
+      "description": "Ultra-conservative for production - zero false positives guaranteed",
+      "scanProfile": "standard",
+      "allowConsole": false,
+      "skipTests": true,
+      "detectConsoleUsage": true,
+
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": false,
+
+      "aggregateSimilarIssues": true,
+      "maxSimilarIssues": 5,
+
+      "characterForensics": {
+        "enableHomoglyphDetection": true,
+        "enableTrailingSpaceDetection": false,
+        "enableSmartQuoteDetection": true,
+        "aggregateSimilarIssues": true,
+        "maxSimilarIssues": 5
+      },
+
+      "patternPrecognition": {
+        "enforceContracts": true,
+        "contractMode": "smart",
+        "onlyEnforceForComponents": true,
+        "detectMemoryLeaks": true,
+        "detectConsoleUsage": true,
+        "allowConsole": false,
+        "consoleInErrorHandling": true,
+        "allowedConsoleMethods": ["error", "warn"],
+        "skipTests": true,
+        "skipUtilityFiles": true,
+        "skipServiceFiles": true,
+        "skipDetectorFiles": true,
+        "skipConfigFiles": true,
+        "strictComponentDetection": true,
+        "requireExplicitComponentMarkers": false,
+        "minimumMethodsForContractEnforcement": 5,
+        "minimumLinesForContractEnforcement": 75,
+        "maxSimilarIssues": 5
+      },
+
+      "fileExtensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".vue"],
+      "excludePatterns": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/*.min.js",
+        "**/*.bundle.js",
+        "**/coverage/**",
+        "**/.git/**",
+        "**/vendor/**",
+        "**/lib/**",
+        "**/libs/**"
+      ],
+
+      "confidenceThresholds": {
+        "minComponentConfidence": 0.8,
+        "minUtilityConfidence": 0.6,
+        "maxFalsePositiveRate": 0.01
+      }
+    },
+
+    "ultra-conservative": {
+      "description": "Maximum confidence - only flags absolutely certain issues",
+      "scanProfile": "standard",
+      "allowConsole": true,
+      "skipTests": true,
+      "detectConsoleUsage": false,
+
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": false,
+
+      "aggregateSimilarIssues": true,
+      "maxSimilarIssues": 3,
+
+      "characterForensics": {
+        "enableHomoglyphDetection": true,
+        "enableTrailingSpaceDetection": false,
+        "enableSmartQuoteDetection": false,
+        "aggregateSimilarIssues": true,
+        "maxSimilarIssues": 3
+      },
+
+      "patternPrecognition": {
+        "enforceContracts": false,
+        "contractMode": "off",
+        "detectMemoryLeaks": true,
+        "detectConsoleUsage": false,
+        "allowConsole": true,
+        "skipTests": true,
+        "skipUtilityFiles": true,
+        "skipServiceFiles": true,
+        "skipDetectorFiles": true,
+        "skipConfigFiles": true,
+        "strictComponentDetection": true,
+        "requireExplicitComponentMarkers": true,
+        "minimumMethodsForContractEnforcement": 10,
+        "minimumLinesForContractEnforcement": 100,
+        "maxSimilarIssues": 3
+      },
+
+      "fileExtensions": [".js", ".jsx", ".ts", ".tsx"],
+      "excludePatterns": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/__tests__/**",
+        "**/*.min.js",
+        "**/coverage/**",
+        "**/vendor/**",
+        "**/lib/**",
+        "**/libs/**",
+        "**/utils/**",
+        "**/helpers/**",
+        "**/services/**",
+        "**/api/**",
+        "**/config/**"
+      ]
+    },
+
+    "development-ready": {
+      "description": "Balanced for development - intelligent detection with minimal noise",
+      "scanProfile": "standard",
+      "allowConsole": true,
+      "skipTests": true,
+      "detectConsoleUsage": false,
+
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": false,
+
+      "aggregateSimilarIssues": true,
+      "maxSimilarIssues": 8,
+
+      "characterForensics": {
+        "enableHomoglyphDetection": true,
+        "enableTrailingSpaceDetection": false,
+        "enableSmartQuoteDetection": false,
+        "aggregateSimilarIssues": true,
+        "maxSimilarIssues": 8
+      },
+
+      "patternPrecognition": {
+        "enforceContracts": true,
+        "contractMode": "smart",
+        "onlyEnforceForComponents": true,
+        "detectMemoryLeaks": true,
+        "detectConsoleUsage": false,
+        "allowConsole": true,
+        "skipTests": true,
+        "skipUtilityFiles": true,
+        "skipServiceFiles": true,
+        "skipDetectorFiles": true,
+        "skipConfigFiles": true,
+        "strictComponentDetection": false,
+        "requireExplicitComponentMarkers": false,
+        "minimumMethodsForContractEnforcement": 4,
+        "minimumLinesForContractEnforcement": 60,
+        "maxSimilarIssues": 8
+      },
+
+      "fileExtensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".vue"],
+      "excludePatterns": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/__tests__/**",
+        "**/*.min.js",
+        "**/coverage/**"
+      ]
+    },
+
+    "legacy-safe": {
+      "description": "Ultra-safe for legacy codebases - finds only critical issues",
+      "scanProfile": "quick",
+      "allowConsole": true,
+      "skipTests": true,
+      "detectConsoleUsage": false,
+
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": false,
+
+      "aggregateSimilarIssues": true,
+      "maxSimilarIssues": 2,
+
+      "characterForensics": {
+        "enableHomoglyphDetection": true,
+        "enableTrailingSpaceDetection": false,
+        "enableSmartQuoteDetection": false,
+        "aggregateSimilarIssues": true,
+        "maxSimilarIssues": 2
+      },
+
+      "patternPrecognition": {
+        "enforceContracts": false,
+        "contractMode": "off",
+        "detectMemoryLeaks": true,
+        "detectConsoleUsage": false,
+        "allowConsole": true,
+        "skipTests": true,
+        "skipUtilityFiles": true,
+        "skipServiceFiles": true,
+        "skipDetectorFiles": true,
+        "skipConfigFiles": true,
+        "strictComponentDetection": true,
+        "requireExplicitComponentMarkers": true,
+        "minimumMethodsForContractEnforcement": 15,
+        "minimumLinesForContractEnforcement": 150,
+        "maxSimilarIssues": 2
+      },
+
+      "fileExtensions": [".js", ".jsx"],
+      "excludePatterns": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/__tests__/**",
+        "**/*.min.js",
+        "**/vendor/**",
+        "**/lib/**",
+        "**/libs/**",
+        "**/utils/**",
+        "**/helpers/**",
+        "**/services/**",
+        "**/api/**",
+        "**/config/**",
+        "**/tools/**",
+        "**/scripts/**"
+      ]
+    },
+
+    "ci-cd-bulletproof": {
+      "description": "Bulletproof for CI/CD - zero false positives, actionable results",
+      "scanProfile": "standard",
+      "allowConsole": false,
+      "skipTests": true,
+      "detectConsoleUsage": true,
+
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": false,
+
+      "aggregateSimilarIssues": true,
+      "maxSimilarIssues": 2,
+
+      "characterForensics": {
+        "enableHomoglyphDetection": true,
+        "enableTrailingSpaceDetection": false,
+        "enableSmartQuoteDetection": true,
+        "aggregateSimilarIssues": true,
+        "maxSimilarIssues": 2
+      },
+
+      "patternPrecognition": {
+        "enforceContracts": true,
+        "contractMode": "smart",
+        "onlyEnforceForComponents": true,
+        "detectMemoryLeaks": true,
+        "detectConsoleUsage": true,
+        "allowConsole": false,
+        "consoleInErrorHandling": true,
+        "allowedConsoleMethods": ["error"],
+        "skipTests": true,
+        "skipUtilityFiles": true,
+        "skipServiceFiles": true,
+        "skipDetectorFiles": true,
+        "skipConfigFiles": true,
+        "strictComponentDetection": true,
+        "requireExplicitComponentMarkers": false,
+        "minimumMethodsForContractEnforcement": 6,
+        "minimumLinesForContractEnforcement": 80,
+        "maxSimilarIssues": 2
+      },
+
+      "fileExtensions": [".js", ".jsx", ".ts", ".tsx"],
+      "excludePatterns": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/__tests__/**",
+        "**/coverage/**"
+      ],
+
+      "thresholds": {
+        "maxIssues": 25,
+        "maxCriticalIssues": 3,
+        "failOnDanger": true
+      },
+
+      "confidenceThresholds": {
+        "minComponentConfidence": 0.85,
+        "minUtilityConfidence": 0.7,
+        "maxFalsePositiveRate": 0.005
+      }
+    }
+  },
+
+  "environmentOverrides": {
+    "development": {
+      "allowConsole": true,
+      "detectConsoleUsage": false,
+      "skipTests": true,
+      "minimumLinesForContractEnforcement": 50
+    },
+    "testing": {
+      "allowConsole": true,
+      "detectConsoleUsage": false,
+      "skipTests": false,
+      "minimumLinesForContractEnforcement": 40
+    },
+    "staging": {
+      "allowConsole": false,
+      "detectConsoleUsage": true,
+      "skipTests": true,
+      "minimumLinesForContractEnforcement": 60
+    },
+    "production": {
+      "allowConsole": false,
+      "detectConsoleUsage": true,
+      "skipTests": true,
+      "contractMode": "smart",
+      "minimumLinesForContractEnforcement": 75,
+      "strictComponentDetection": true
+    }
+  },
+
+  "operationalSettings": {
+    "healthCheckDefaults": {
+      "runOnStartup": true,
+      "skipSlowTests": false,
+      "requiredConfidenceScore": 75,
+      "maxAcceptableWarnings": 3
+    },
+
+    "preflightChecks": {
+      "validateConfiguration": true,
+      "testSampleFiles": true,
+      "checkPerformance": true,
+      "verifyFilePatterns": true
+    },
+
+    "productionReadiness": {
+      "requireHealthCheck": true,
+      "minConfidenceScore": 85,
+      "maxCriticalIssues": 0,
+      "maxWarnings": 2
+    }
+  },
+
+  "frameworkSpecific": {
+    "react": {
+      "patternPrecognition": {
+        "contractMethods": ["render", "componentDidMount", "componentWillUnmount", "componentDidUpdate"],
+        "componentMarkers": ["@component", "React.Component", "useState", "useEffect"]
+      }
+    },
+    "vue": {
+      "patternPrecognition": {
+        "contractMethods": ["render", "mounted", "beforeDestroy", "updated"],
+        "componentMarkers": ["@component", "Vue.component", "export default"]
+      }
+    },
+    "angular": {
+      "patternPrecognition": {
+        "contractMethods": ["ngOnInit", "ngOnDestroy", "ngOnChanges"],
+        "componentMarkers": ["@Component", "@Injectable", "@Directive"]
+      }
+    },
+    "node": {
+      "patternPrecognition": {
+        "contractMethods": ["initialize", "start", "stop", "destroy"],
+        "allowedConsoleMethods": ["error", "warn", "info"],
+        "skipServiceFiles": false
+      }
+    }
+  }
+}

@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye of Sauron - Code Analysis Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁️</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== CSS Variables ===== */
+        :root {
+            /* Colors - Single Dark Theme */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #252525;
+            --bg-hover: #2a2a2a;
+            
+            /* Glassmorphism */
+            --glass-bg: rgba(26, 26, 26, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: 12px;
+            
+            /* Text */
+            --text-primary: #ffffff;
+            --text-secondary: #b2b2b2;
+            --text-muted: #808080;
+            
+            /* Status Colors */
+            --danger: #ff4757;
+            --danger-bg: rgba(255, 71, 87, 0.1);
+            --warning: #ffa502;
+            --warning-bg: rgba(255, 165, 2, 0.1);
+            --success: #2ed573;
+            --success-bg: rgba(46, 213, 115, 0.1);
+            --info: #00d4ff;
+            --info-bg: rgba(0, 212, 255, 0.1);
+            
+            /* Effects */
+            --accent: #00d4ff;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.3);
+            
+            /* Typography */
+            --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', monospace;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            
+            /* Border Radius */
+            --radius: 8px;
+            --radius-lg: 12px;
+            
+            /* Transitions */
+            --transition: all 0.2s ease;
+            --transition-slow: all 0.3s ease;
+        }
+        
+        /* ===== Reset & Base Styles ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-ui);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* ===== Skip Link ===== */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 0 0 var(--radius) 0;
+            z-index: 9999;
+            font-weight: 600;
+        }
+        
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* ===== Header ===== */
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border-bottom: 1px solid var(--glass-border);
+            padding: var(--space-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, var(--accent), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* ===== Main Layout ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: var(--space-xl);
+            min-height: calc(100vh - 200px);
+        }
+        
+        /* ===== Control Panel ===== */
+        .control-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            height: fit-content;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .panel-section {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .panel-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* ===== Input Styles ===== */
+        .input-group {
+            position: relative;
+            margin-bottom: var(--space-md);
+        }
+        
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            gap: var(--space-sm);
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--info-bg);
+        }
+        
+        input[type="text"]::placeholder {
+            color: var(--text-muted);
+        }
+        
+        /* ===== Button Styles ===== */
+        .btn {
+            padding: var(--space-md) var(--space-lg);
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--font-ui);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            min-width: 120px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+        
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent), #0099cc);
+            color: var(--bg-primary);
+            font-weight: 700;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e63946;
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+        
+        .btn-sm {
+            padding: var(--space-sm) var(--space-md);
+            font-size: 0.875rem;
+            min-width: auto;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* ===== Scan Profiles ===== */
+        .scan-profiles {
+            display: grid;
+            gap: var(--space-sm);
+        }
+        
+        .profile-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .profile-option:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+        }
+        
+        .profile-option.active {
+            background: var(--info-bg);
+            border-color: var(--accent);
+        }
+        
+        .profile-radio {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--glass-border);
+            border-radius: 50%;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .profile-option.active .profile-radio {
+            border-color: var(--accent);
+        }
+        
+        .profile-option.active .profile-radio::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .profile-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .profile-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        /* ===== Advanced Options ===== */
+        .advanced-options {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .advanced-options.expanded {
+            max-height: 500px;
+        }
+        
+        .advanced-toggle {
+            width: 100%;
+            background: none;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: var(--space-md);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: var(--space-md);
+        }
+        
+        .advanced-toggle:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        
+        .advanced-toggle.active {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .option-group {
+            margin-bottom: var(--space-md);
+        }
+        
+        .option-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: var(--space-sm);
+            color: var(--text-secondary);
+        }
+        
+        .checkbox-group {
+            display: grid;
+            gap: var(--space-sm);
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+        
+        .checkbox-item:hover {
+            background: var(--bg-hover);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        /* ===== Results Panel ===== */
+        .results-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .export-dropdown {
+            position: relative;
+        }
+        
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .export-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: var(--space-sm);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .export-dropdown.open .export-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .export-item {
+            display: block;
+            width: 100%;
+            padding: var(--space-sm) var(--space-md);
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            text-align: left;
+            cursor: pointer;
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+        
+        .export-item:hover {
+            background: var(--bg-hover);
+        }
+        
+        /* ===== Progress Overlay ===== */
+        .progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(var(--glass-blur));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-slow);
+        }
+        
+        .progress-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .progress-content {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            min-width: 400px;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .progress-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-lg);
+            color: var(--accent);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: var(--space-lg);
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, var(--accent), #0099cc);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .progress-stat {
+            text-align: center;
+        }
+        
+        .progress-stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .progress-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* ===== Summary Stats ===== */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: var(--space-md);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-danger { color: var(--danger); }
+        .stat-warning { color: var(--warning); }
+        .stat-success { color: var(--success); }
+        .stat-info { color: var(--info); }
+        
+        /* ===== File Results ===== */
+        .results-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .file-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .file-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .file-item.has-critical {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .file-item.has-warning {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .file-item.clean {
+            border-left: 4px solid var(--success);
+        }
+        
+        .file-header {
+            padding: var(--space-md);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        
+        .file-header:hover {
+            background: var(--bg-hover);
+        }
+        
+        .file-name {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .file-stats {
+            display: flex;
+            gap: var(--space-md);
+            font-size: 0.875rem;
+        }
+        
+        .file-stat {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        
+        .file-issues {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .file-item.expanded .file-issues {
+            max-height: 1000px;
+        }
+        
+        .issues-list {
+            padding: 0 var(--space-md) var(--space-md);
+        }
+        
+        .issue-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-md);
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .issue-item:last-child {
+            border-bottom: none;
+        }
+        
+        .issue-severity {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        
+        .issue-severity.critical {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+        
+        .issue-severity.warning {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+        
+        .issue-type {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            flex-shrink: 0;
+            min-width: 120px;
+        }
+        
+        .issue-message {
+            flex: 1;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        /* ===== Empty State ===== */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-lg);
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+        
+        .empty-state p {
+            max-width: 300px;
+        }
+        
+        /* ===== Toast Notifications ===== */
+        .toast {
+            position: fixed;
+            top: var(--space-lg);
+            right: var(--space-lg);
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: var(--space-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: var(--transition-slow);
+            max-width: 400px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            border-color: var(--success);
+        }
+        
+        .toast.error {
+            border-color: var(--danger);
+        }
+        
+        .toast.warning {
+            border-color: var(--warning);
+        }
+        
+        .toast.info {
+            border-color: var(--info);
+        }
+        
+        /* ===== Responsive Design ===== */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+            
+            .control-panel {
+                order: 2;
+            }
+            
+            .results-panel {
+                order: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                min-width: auto;
+                padding: var(--space-sm) var(--space-md);
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .progress-content {
+                margin: var(--space-md);
+                min-width: auto;
+            }
+            
+            .progress-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ===== Accessibility ===== */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Focus styles */
+        .btn:focus,
+        input:focus,
+        .profile-option:focus,
+        .advanced-toggle:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content -->
+    <a href="#main" class="skip-link">Skip to main content</a>
+    
+    <!-- Header -->
+    <header class="header">
+        <h1>👁️ Eye of Sauron</h1>
+        <p>The All-Seeing Code Analysis Engine</p>
+    </header>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Control Panel -->
+        <aside class="control-panel" role="complementary" aria-label="Scan Controls">
+            <!-- Path Input -->
+            <section class="panel-section">
+                <h2 class="panel-title">Scan Target</h2>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="scanPath" 
+                            placeholder="Enter path to scan (e.g., ./src)"
+                            aria-label="Path to scan"
+                            value="./"
+                        >
+                        <input 
+                            type="file" 
+                            id="folderInput" 
+                            webkitdirectory 
+                            directory 
+                            multiple 
+                            style="display: none;" 
+                            aria-label="Select folder"
+                        >
+                        <button class="btn btn-secondary btn-sm" id="browseBtn" aria-label="Browse for folder">
+                            📁
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="clearBtn" aria-label="Clear path">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Scan Profiles -->
+            <section class="panel-section">
+                <h2 class="panel-title">Scan Mode</h2>
+                <div class="scan-profiles" role="radiogroup" aria-label="Scan profile selection">
+                    <div class="profile-option active" data-profile="basic" role="radio" aria-checked="true" tabindex="0">
+                        <div class="profile-radio"></div>
+                        <div class="profile-info">
+                            <h3>⚡ Basic Scan</h3>
+                            <p>Quick health check - essential issues only</p>
+                        </div>
+                    </div>
+                    <div class="profile-option" data-profile="apocalyptic" role="radio" aria-checked="false" tabindex="-1">
+                        <div class="profile-radio"></div>
+                        <div class="profile-info">
+                            <h3>🔥 Apocalyptic Scan</h3>
+                            <p>Find EVERYTHING - full forensic analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Advanced Options -->
+            <section class="panel-section">
+                <button class="advanced-toggle" id="advancedToggle" aria-expanded="false">
+                    🔧 Advanced Options
+                </button>
+                <div class="advanced-options" id="advancedOptions">
+                    <div class="option-group">
+                        <label>Analyzers</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="characterForensics" checked>
+                                <label for="characterForensics">Character Forensics</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="patternRecognition" checked>
+                                <label for="patternRecognition">Pattern Recognition</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="dependencyAnalysis" checked>
+                                <label for="dependencyAnalysis">Dependency Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="memoryLeakDetection">
+                                <label for="memoryLeakDetection">Memory Leak Detection</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <label>Performance</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="parallelProcessing" checked>
+                                <label for="parallelProcessing">Parallel Processing</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="incrementalScan">
+                                <label for="incrementalScan">Incremental Scan</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Scan Actions -->
+            <section class="panel-section">
+                <button class="btn btn-primary" id="runScanBtn" style="width: 100%; margin-bottom: var(--space-md);">
+                    🔍 Run Scan
+                </button>
+                <button class="btn btn-danger" id="cancelScanBtn" style="width: 100%; display: none;">
+                    ❌ Cancel Scan
+                </button>
+            </section>
+        </aside>
+        
+        <!-- Results Panel -->
+        <main class="results-panel" id="main" role="main" aria-label="Scan Results">
+            <div class="results-header">
+                <h2 class="results-title">Scan Results</h2>
+                <div class="export-dropdown" id="exportDropdown">
+                    <button class="btn btn-secondary export-btn" id="exportBtn">
+                        📤 Export
+                        <span style="margin-left: auto;">▼</span>
+                    </button>
+                    <div class="export-menu" id="exportMenu">
+                        <button class="export-item" data-format="json">
+                            📄 JSON (Raw data)
+                        </button>
+                        <button class="export-item" data-format="csv">
+                            📊 CSV (Spreadsheet)
+                        </button>
+                        <button class="export-item" data-format="pdf">
+                            📃 PDF (Report)
+                        </button>
+                        <button class="export-item" data-format="summary">
+                            📋 Summary (Copy)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-content" id="resultsContent">
+                <div class="empty-state">
+                    <div class="empty-state-icon">👁️</div>
+                    <h3>Ready to Scan</h3>
+                    <p>Enter a path and click "Run Scan" to begin analysis</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Progress Overlay -->
+    <div class="progress-overlay" id="progressOverlay">
+        <div class="progress-content">
+            <h2 class="progress-title">🔍 Scanning in Progress</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-info">
+                <span id="progressText">Initializing...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-stats">
+                <div class="progress-stat">
+                    <div class="progress-stat-value" id="filesScanned">0</div>
+                    <div class="progress-stat-label">Files</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="progress-stat-value" id="issuesFound">0</div>
+                    <div class="progress-stat-label">Issues</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="progress-stat-value" id="scanTime">00:00</div>
+                    <div class="progress-stat-label">Time</div>
+                </div>
+            </div>
+            <button class="btn btn-danger" id="cancelProgressBtn">
+                ❌ Cancel Scan
+            </button>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+    
+    <script>
+        // ===== Application State =====
+        const AppState = {
+            isScanning: false,
+            currentScan: null,
+            currentResults: null,
+            scanProfile: 'basic',
+            advancedOptions: {
+                characterForensics: true,
+                patternRecognition: true,
+                dependencyAnalysis: true,
+                memoryLeakDetection: false,
+                parallelProcessing: true,
+                incrementalScan: false
+            }
+        };
+        
+        // ===== API Configuration =====
+        const API_BASE = 'http://localhost:3000';
+        
+        // ===== DOM Elements =====
+        const DOM = {
+            scanPath: document.getElementById('scanPath'),
+            folderInput: document.getElementById('folderInput'),
+            browseBtn: document.getElementById('browseBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            runScanBtn: document.getElementById('runScanBtn'),
+            cancelScanBtn: document.getElementById('cancelScanBtn'),
+            advancedToggle: document.getElementById('advancedToggle'),
+            advancedOptions: document.getElementById('advancedOptions'),
+            profileOptions: document.querySelectorAll('.profile-option'),
+            progressOverlay: document.getElementById('progressOverlay'),
+            progressFill: document.getElementById('progressFill'),
+            progressText: document.getElementById('progressText'),
+            progressPercent: document.getElementById('progressPercent'),
+            filesScanned: document.getElementById('filesScanned'),
+            issuesFound: document.getElementById('issuesFound'),
+            scanTime: document.getElementById('scanTime'),
+            cancelProgressBtn: document.getElementById('cancelProgressBtn'),
+            resultsContent: document.getElementById('resultsContent'),
+            exportDropdown: document.getElementById('exportDropdown'),
+            exportBtn: document.getElementById('exportBtn'),
+            exportMenu: document.getElementById('exportMenu'),
+            toastContainer: document.getElementById('toastContainer')
+        };
+        
+        // ===== API Service =====
+        class EyeOfSauronAPI {
+            constructor(baseURL = API_BASE) {
+                this.baseURL = baseURL;
+            }
+            
+            async healthCheck() {
+                try {
+                    const response = await fetch(`${this.baseURL}/health`);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    throw new Error(`Health check failed: ${error.message}`);
+                }
+            }
+            
+            async executeScan(inputPath, profile = 'basic', options = {}) {
+                try {
+                    const body = {
+                        inputPath,
+                        mode: 'web',
+                        profile: profile,
+                        ...options
+                    };
+                    
+                    const response = await fetch(`${this.baseURL}/scan`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(body)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `HTTP ${response.status}`);
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    throw new Error(`Scan failed: ${error.message}`);
+                }
+            }
+        }
+        
+        const api = new EyeOfSauronAPI();
+        
+        // ===== Utility Functions =====
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            DOM.toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove toast
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        function formatDuration(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Copied to clipboard', 'success');
+                }).catch(() => {
+                    showToast('Failed to copy to clipboard', 'error');
+                });
+            } else {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Copied to clipboard', 'success');
+                } catch (err) {
+                    showToast('Failed to copy to clipboard', 'error');
+                }
+                document.body.removeChild(textarea);
+            }
+        }
+        
+        // ===== Result Rendering =====
+        function renderResults(scanData) {
+            // Handle different response formats
+            let filesData = null;
+            let summary = null;
+            
+            // Format 1: { success: true, vision: { files: {...} }, summary: {...} }
+            if (scanData.vision && scanData.vision.files) {
+                filesData = scanData.vision.files;
+                summary = scanData.summary;
+            }
+            // Format 2: { success: true, files: {...}, summary: {...} }
+            else if (scanData.files) {
+                filesData = scanData.files;
+                summary = scanData.summary;
+            }
+            // Format 3: { success: true, report: { files: [...] } }
+            else if (scanData.report && scanData.report.files) {
+                // Convert array format to object format
+                filesData = {};
+                if (Array.isArray(scanData.report.files)) {
+                    scanData.report.files.forEach(fileData => {
+                        if (fileData.file) {
+                            filesData[fileData.file] = { issues: fileData.issues || [] };
+                        }
+                    });
+                } else {
+                    filesData = scanData.report.files;
+                }
+                summary = scanData.report.summary || scanData.summary;
+            }
+            
+            console.log('Rendering results:', { scanData, filesData, summary });
+            
+            if (!filesData) {
+                renderEmptyState('No scan data available');
+                return;
+            }
+            
+            const files = Object.entries(filesData);
+            if (files.length === 0) {
+                renderEmptyState('No files found in scan results');
+                return;
+            }
+            
+            // Calculate summary stats
+            let totalIssues = 0;
+            let criticalIssues = 0;
+            let warningIssues = 0;
+            let cleanFiles = 0;
+            
+            files.forEach(([fileName, fileData]) => {
+                const issues = fileData.issues || [];
+                const critical = issues.filter(i => 
+                    i.severity === 'CRITICAL' || 
+                    i.severity === 'DANGER' || 
+                    i.severity === 'APOCALYPSE'
+                ).length;
+                const warnings = issues.filter(i => 
+                    i.severity === 'WARNING' || 
+                    i.severity === 'warning'
+                ).length;
+                
+                totalIssues += issues.length;
+                criticalIssues += critical;
+                warningIssues += warnings;
+                
+                if (issues.length === 0) cleanFiles++;
+            });
+            
+            // Use summary stats if available, otherwise use calculated
+            const displayStats = {
+                totalFiles: summary?.totalFiles || summary?.filesScanned || files.length,
+                totalIssues: summary?.totalIssues || totalIssues,
+                criticalIssues: summary?.criticalIssues || criticalIssues,
+                warningIssues: summary?.warningIssues || warningIssues,
+                cleanFiles: summary?.cleanFiles || cleanFiles
+            };
+            
+            const summaryHTML = `
+                <div class="summary-stats">
+                    <div class="stat-card">
+                        <div class="stat-value stat-info">${displayStats.totalFiles}</div>
+                        <div class="stat-label">Files Scanned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value stat-danger">${displayStats.criticalIssues}</div>
+                        <div class="stat-label">Critical Issues</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value stat-warning">${displayStats.warningIssues}</div>
+                        <div class="stat-label">Warning Issues</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value stat-success">${displayStats.cleanFiles}</div>
+                        <div class="stat-label">Clean Files</div>
+                    </div>
+                </div>
+            `;
+            
+            const fileListHTML = files.map(([fileName, fileData]) => {
+                const issues = fileData.issues || [];
+                const critical = issues.filter(i => 
+                    i.severity === 'CRITICAL' || 
+                    i.severity === 'DANGER' || 
+                    i.severity === 'APOCALYPSE'
+                ).length;
+                const warnings = issues.filter(i => 
+                    i.severity === 'WARNING' || 
+                    i.severity === 'warning'
+                ).length;
+                
+                let statusClass = 'clean';
+                if (critical > 0) statusClass = 'has-critical';
+                else if (warnings > 0) statusClass = 'has-warning';
+                
+                const issuesHTML = issues.map(issue => {
+                    const severity = issue.severity || 'unknown';
+                    const isCritical = ['CRITICAL', 'DANGER', 'APOCALYPSE'].includes(severity.toUpperCase());
+                    const isWarning = ['WARNING'].includes(severity.toUpperCase());
+                    
+                    return `
+                        <div class="issue-item">
+                            <span class="issue-severity ${isWarning ? 'warning' : (isWarning ? 'warning' : 'critical')}">
+                                ${severity}
+                            </span>
+                            <span class="issue-type">${issue.type || 'Unknown'}</span>
+                            <span class="issue-message">${issue.message || issue.description || 'No description'}</span>
+                        </div>
+                    `;
+                }).join('');
+                
+                return `
+                    <div class="file-item ${statusClass}" data-file="${fileName}">
+                        <div class="file-header" onclick="toggleFileDetails('${fileName}')">
+                            <span class="file-name">${fileName}</span>
+                            <div class="file-stats">
+                                ${critical > 0 ? `<span class="file-stat"><span style="color: var(--danger);">🚨</span> ${critical}</span>` : ''}
+                                ${warnings > 0 ? `<span class="file-stat"><span style="color: var(--warning);">⚠️</span> ${warnings}</span>` : ''}
+                                ${issues.length === 0 ? '<span class="file-stat"><span style="color: var(--success);">✅</span> Clean</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="file-issues">
+                            <div class="issues-list">
+                                ${issuesHTML || '<div style="padding: var(--space-md); color: var(--success);">✅ No issues found</div>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            DOM.resultsContent.innerHTML = summaryHTML + `<div class="file-list">${fileListHTML}</div>`;
+        }
+        
+        function renderEmptyState(message = 'Ready to scan') {
+            DOM.resultsContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">👁️</div>
+                    <h3>${message}</h3>
+                    <p>Enter a path and click "Run Scan" to begin analysis</p>
+                </div>
+            `;
+        }
+        
+        function toggleFileDetails(fileName) {
+            const fileItem = document.querySelector(`[data-file="${fileName}"]`);
+            if (fileItem) {
+                fileItem.classList.toggle('expanded');
+            }
+        }
+        
+        // ===== Progress Simulation =====
+        function simulateProgress() {
+            let progress = 0;
+            let startTime = Date.now();
+            let filesCount = 0;
+            let issuesCount = 0;
+            
+            const updateProgress = () => {
+                if (!AppState.isScanning) return;
+                
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                
+                filesCount += Math.floor(Math.random() * 3);
+                issuesCount += Math.floor(Math.random() * 2);
+                
+                const elapsed = Date.now() - startTime;
+                
+                DOM.progressFill.style.width = progress + '%';
+                DOM.progressPercent.textContent = Math.floor(progress) + '%';
+                DOM.progressText.textContent = progress < 100 ? 'Analyzing patterns...' : 'Finalizing results...';
+                DOM.filesScanned.textContent = filesCount;
+                DOM.issuesFound.textContent = issuesCount;
+                DOM.scanTime.textContent = formatDuration(elapsed);
+                
+                if (progress < 100) {
+                    setTimeout(updateProgress, 200 + Math.random() * 300);
+                }
+            };
+            
+            updateProgress();
+        }
+        
+        // ===== Scan Management =====
+        async function executeScan() {
+            const path = DOM.scanPath.value.trim();
+            if (!path) {
+                showToast('Please enter a path to scan', 'warning');
+                return;
+            }
+            
+            try {
+                console.log('Starting scan:', { path, profile: AppState.scanProfile });
+                
+                // Check API health first
+                console.log('Checking API health...');
+                const healthResponse = await api.healthCheck();
+                console.log('API health response:', healthResponse);
+                
+                AppState.isScanning = true;
+                DOM.runScanBtn.style.display = 'none';
+                DOM.cancelScanBtn.style.display = 'block';
+                DOM.progressOverlay.classList.add('active');
+                
+                // Start progress simulation
+                simulateProgress();
+                
+                // Execute scan
+                console.log('Executing scan with API...');
+                const result = await api.executeScan(path, AppState.scanProfile, AppState.advancedOptions);
+                console.log('Scan API response:', result);
+                
+                if (AppState.isScanning) {
+                    AppState.currentResults = result;
+                    renderResults(result);
+                    showToast('Scan completed successfully', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Scan error:', error);
+                showToast(error.message, 'error');
+                renderEmptyState('Scan failed: ' + error.message);
+            } finally {
+                AppState.isScanning = false;
+                DOM.runScanBtn.style.display = 'block';
+                DOM.cancelScanBtn.style.display = 'none';
+                DOM.progressOverlay.classList.remove('active');
+            }
+        }
+        
+        function cancelScan() {
+            AppState.isScanning = false;
+            DOM.runScanBtn.style.display = 'block';
+            DOM.cancelScanBtn.style.display = 'none';
+            DOM.progressOverlay.classList.remove('active');
+            showToast('Scan cancelled', 'info');
+        }
+        
+        // ===== Export Functions =====
+        function exportData(format) {
+            if (!AppState.currentResults) {
+                showToast('No scan results to export', 'warning');
+                return;
+            }
+            
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            
+            switch (format) {
+                case 'json':
+                    const jsonData = JSON.stringify(AppState.currentResults, null, 2);
+                    downloadFile(jsonData, `eye-of-sauron-${timestamp}.json`, 'application/json');
+                    break;
+                    
+                case 'csv':
+                    const csvData = convertToCSV(AppState.currentResults);
+                    downloadFile(csvData, `eye-of-sauron-${timestamp}.csv`, 'text/csv');
+                    break;
+                    
+                case 'pdf':
+                    showToast('PDF export feature coming soon', 'info');
+                    break;
+                    
+                case 'summary':
+                    const summary = generateSummaryText(AppState.currentResults);
+                    copyToClipboard(summary);
+                    break;
+            }
+            
+            DOM.exportDropdown.classList.remove('open');
+        }
+        
+        function convertToCSV(data) {
+            const rows = [];
+            rows.push(['File', 'Issue Type', 'Severity', 'Message']);
+            
+            // Handle different response formats
+            let filesData = null;
+            if (data.vision && data.vision.files) {
+                filesData = data.vision.files;
+            } else if (data.files) {
+                filesData = data.files;
+            } else if (data.report && data.report.files) {
+                filesData = data.report.files;
+            }
+            
+            if (!filesData) return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            
+            Object.entries(filesData).forEach(([fileName, fileData]) => {
+                const issues = fileData.issues || [];
+                if (issues.length === 0) {
+                    rows.push([fileName, 'No Issues', 'Clean', 'File is clean']);
+                } else {
+                    issues.forEach(issue => {
+                        rows.push([
+                            fileName, 
+                            issue.type || 'Unknown', 
+                            issue.severity || 'Unknown', 
+                            issue.message || issue.description || 'No description'
+                        ]);
+                    });
+                }
+            });
+            
+            return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        }
+        
+        function generateSummaryText(data) {
+            // Handle different response formats
+            let filesData = null;
+            let summary = null;
+            
+            if (data.vision && data.vision.files) {
+                filesData = data.vision.files;
+                summary = data.summary;
+            } else if (data.files) {
+                filesData = data.files;
+                summary = data.summary;
+            } else if (data.report && data.report.files) {
+                filesData = data.report.files;
+                summary = data.report.summary || data.summary;
+            }
+            
+            if (!filesData) return 'No scan data available';
+            
+            const files = Object.entries(filesData);
+            let totalIssues = 0;
+            let criticalIssues = 0;
+            let warningIssues = 0;
+            
+            files.forEach(([, fileData]) => {
+                const issues = fileData.issues || [];
+                totalIssues += issues.length;
+                criticalIssues += issues.filter(i => 
+                    i.severity === 'CRITICAL' || 
+                    i.severity === 'DANGER' || 
+                    i.severity === 'APOCALYPSE'
+                ).length;
+                warningIssues += issues.filter(i => 
+                    i.severity === 'WARNING' || 
+                    i.severity === 'warning'
+                ).length;
+            });
+            
+            const cleanFiles = files.length - files.filter(([, fileData]) => (fileData.issues || []).length > 0).length;
+            
+            return `Eye of Sauron Scan Summary
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Files Scanned: ${summary?.totalFiles || summary?.filesScanned || files.length}
+Total Issues: ${summary?.totalIssues || totalIssues}
+Critical Issues: ${summary?.criticalIssues || criticalIssues}
+Warning Issues: ${summary?.warningIssues || warningIssues}
+Clean Files: ${summary?.cleanFiles || cleanFiles}
+Scan Date: ${new Date().toLocaleString()}`;
+        }
+        
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast(`Downloaded ${filename}`, 'success');
+        }
+        
+        // ===== Event Listeners =====
+        function setupEventListeners() {
+            // Scan controls
+            DOM.runScanBtn.addEventListener('click', executeScan);
+            DOM.cancelScanBtn.addEventListener('click', cancelScan);
+            DOM.cancelProgressBtn.addEventListener('click', cancelScan);
+            
+            // Path controls
+            DOM.clearBtn.addEventListener('click', () => {
+                DOM.scanPath.value = '';
+                DOM.scanPath.focus();
+            });
+            
+            DOM.browseBtn.addEventListener('click', () => {
+                DOM.folderInput.click();
+            });
+            
+            // Folder selection
+            DOM.folderInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    // Get the common path from the first file
+                    const firstFile = files[0];
+                    const pathParts = firstFile.webkitRelativePath.split('/');
+                    const folderName = pathParts[0];
+                    DOM.scanPath.value = `./${folderName}`;
+                    showToast(`Selected folder: ${folderName} (${files.length} files)`, 'success');
+                }
+            });
+            
+            // Profile selection
+            DOM.profileOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    DOM.profileOptions.forEach(opt => {
+                        opt.classList.remove('active');
+                        opt.setAttribute('aria-checked', 'false');
+                        opt.setAttribute('tabindex', '-1');
+                    });
+                    option.classList.add('active');
+                    option.setAttribute('aria-checked', 'true');
+                    option.setAttribute('tabindex', '0');
+                    AppState.scanProfile = option.dataset.profile;
+                });
+                
+                // Keyboard navigation
+                option.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        option.click();
+                    }
+                });
+            });
+            
+            // Advanced options toggle
+            DOM.advancedToggle.addEventListener('click', () => {
+                const isExpanded = DOM.advancedOptions.classList.toggle('expanded');
+                DOM.advancedToggle.classList.toggle('active', isExpanded);
+                DOM.advancedToggle.setAttribute('aria-expanded', isExpanded);
+            });
+            
+            // Advanced options checkboxes
+            document.querySelectorAll('#advancedOptions input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    AppState.advancedOptions[checkbox.id] = checkbox.checked;
+                });
+            });
+            
+            // Export dropdown
+            DOM.exportBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                DOM.exportDropdown.classList.toggle('open');
+            });
+            
+            document.querySelectorAll('.export-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    exportData(item.dataset.format);
+                });
+            });
+            
+            // Close export dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!DOM.exportDropdown.contains(e.target)) {
+                    DOM.exportDropdown.classList.remove('open');
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch (e.key) {
+                        case 'Enter':
+                            e.preventDefault();
+                            if (!AppState.isScanning) executeScan();
+                            break;
+                    }
+                }
+                
+                if (e.key === 'Escape') {
+                    if (AppState.isScanning) {
+                        cancelScan();
+                    } else {
+                        DOM.exportDropdown.classList.remove('open');
+                    }
+                }
+            });
+            
+            // Path input enter key
+            DOM.scanPath.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !AppState.isScanning) {
+                    executeScan();
+                }
+            });
+        }
+        
+        // ===== Global Functions =====
+        window.toggleFileDetails = toggleFileDetails;
+        
+        // ===== Initialize Application =====
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            
+            // Check API connection
+            api.healthCheck()
+                .then(() => {
+                    showToast('Connected to Eye of Sauron API', 'success');
+                })
+                .catch((error) => {
+                    showToast('API connection failed: ' + error.message, 'error');
+                });
+            
+            // Focus on path input
+            DOM.scanPath.focus();
+        });
+    </script>
+</body>
+</html>

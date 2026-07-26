@@ -2,7 +2,7 @@
 
 **Status:** Production | **Phase:** TypeScript + GregLite integration
 **Last Sprint:** EOS-TYPESCRIPT-01
-**Last Updated: 2026-05-18 (auto — EOS-TYPESCRIPT-01: TypeScript port + GregLite code health in)
+**Last Updated: 2026-06-02 (auto — chore: update gitignore + status)
 **Completion:** 88% (auto — 7 done, 1 pending)
 **Tests:** passing (auto)
 

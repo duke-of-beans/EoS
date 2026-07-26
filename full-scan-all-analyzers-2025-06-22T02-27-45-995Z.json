@@ -1,0 +1,6731 @@
+{
+  "metadata": {
+    "scanDate": "2025-06-22T02:27:45.570Z",
+    "duration": 419,
+    "version": "1.1.0",
+    "profile": {
+      "name": "Deep Analysis",
+      "maxDepth": null,
+      "skipTests": false,
+      "analyzers": [
+        "all"
+      ],
+      "timeout": 5000,
+      "enableBuiltInAnalyzers": true
+    },
+    "configUsed": {
+      "maxFileSize": 1048576,
+      "excludePatterns": [
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      "fileExtensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".mjs",
+        ".cjs"
+      ],
+      "batchSize": 10,
+      "allowConsole": false,
+      "skipTests": false,
+      "detectConsoleUsage": true,
+      "enableCharacterForensics": true,
+      "enablePatternPrecognition": true,
+      "enableBuiltInAnalyzers": true,
+      "maxSimilarIssues": 10,
+      "aggregateSimilarIssues": false,
+      "enableMemoryLeakDetection": true,
+      "enableDependencyAnalysis": true,
+      "characterForensics": {
+        "enabled": true,
+        "enableHomoglyphDetection": true,
+        "enableTrailingSpaceDetection": true,
+        "enableSmartQuoteDetection": true,
+        "enableInvisibleCharDetection": true,
+        "enableMixedEncodingDetection": true
+      },
+      "patternPrecognition": {
+        "enabled": true,
+        "enforceContracts": true,
+        "detectMemoryLeaks": true,
+        "detectConsoleUsage": true,
+        "detectSecurityPatterns": true,
+        "contractMode": "strict"
+      },
+      "memoryLeakDetection": {
+        "enabled": true,
+        "checkEventListeners": true,
+        "checkTimers": true,
+        "checkClosures": true,
+        "checkReactComponents": true
+      },
+      "dependencyAnalysis": {
+        "enabled": true,
+        "checkVulnerabilities": true,
+        "checkOutdated": true,
+        "checkLicenses": true
+      },
+      "verbose": true,
+      "showAllIssues": true,
+      "includeHiddenIssues": true,
+      "reportCriticalOnly": false,
+      "severityThreshold": "info",
+      "skipComments": false,
+      "skipStrings": false
+    }
+  },
+  "summary": {
+    "totalFiles": 144,
+    "totalCharacters": 1060839,
+    "totalIssues": 533,
+    "criticalIssues": 8,
+    "skippedFiles": 0,
+    "duration": 419,
+    "propheciesGenerated": 32,
+    "configRespected": {
+      "allowConsole": false,
+      "skipTests": false,
+      "enabledAnalyzers": {
+        "characterForensics": true,
+        "patternPrecognition": true,
+        "builtInAnalyzers": true
+      }
+    }
+  },
+  "files": {
+    "capture-cli-output.cjs": {
+      "path": "capture-cli-output.cjs",
+      "size": 2205,
+      "lines": 71,
+      "characters": 2197,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "11 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 5,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 29,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 33,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 36,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 41,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 42,
+          "column": 38,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 47,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 58,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 63,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 66,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 2197,
+        "lineCount": 71,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265601
+    },
+    "core\\OneClickHealing.js": {
+      "path": "core\\OneClickHealing.js",
+      "size": 4265,
+      "lines": 115,
+      "characters": 4245,
+      "issues": [
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 739,
+          "line": 18,
+          "char": "„",
+          "expected": "\"",
+          "message": "Smart quote DOUBLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '\"'"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 805,
+          "line": 19,
+          "char": "‚",
+          "expected": "'",
+          "message": "Smart quote SINGLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '''"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 1752,
+          "line": 35,
+          "char": "„",
+          "expected": "\"",
+          "message": "Smart quote DOUBLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '\"'"
+        },
+        {
+          "type": "SMART_QUOTE",
+          "severity": "WARNING",
+          "file": "core\\OneClickHealing.js",
+          "position": 1800,
+          "line": 36,
+          "char": "‚",
+          "expected": "'",
+          "message": "Smart quote SINGLE_LOW_9_QUOTE detected",
+          "fix": "Replace with standard quote '''"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4245,
+        "lineCount": 115,
+        "issueCount": 4
+      },
+      "timestamp": 1750559265604
+    },
+    "debug-pattern.js": {
+      "path": "debug-pattern.js",
+      "size": 378,
+      "lines": 8,
+      "characters": 378,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 3,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 6,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 7,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 8,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 378,
+        "lineCount": 8,
+        "issueCount": 4
+      },
+      "timestamp": 1750559265605
+    },
+    "OperationalHealthChecker.js": {
+      "path": "OperationalHealthChecker.js",
+      "size": 18464,
+      "lines": 558,
+      "characters": 18332,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "51 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 38,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 39,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 76,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 86,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 111,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 120,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 130,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 147,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 151,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 155,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 18332,
+        "lineCount": 558,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265620
+    },
+    "sauron-cleanup.js": {
+      "path": "sauron-cleanup.js",
+      "size": 11987,
+      "lines": 332,
+      "characters": 11890,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "26 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 104,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 105,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 106,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 112,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 129,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 136,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 143,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 175,
+          "column": 20,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 186,
+          "column": 20,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 189,
+          "column": 16,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 11890,
+        "lineCount": 332,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265627
+    },
+    "src\\config\\eosConfigLoader.js": {
+      "path": "src\\config\\eosConfigLoader.js",
+      "size": 5137,
+      "lines": 212,
+      "characters": 5137,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5137,
+        "lineCount": 212,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265630
+    },
+    "src\\utils\\example-custom-detector.cjs": {
+      "path": "src\\utils\\example-custom-detector.cjs",
+      "size": 3323,
+      "lines": 116,
+      "characters": 3323,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3323,
+        "lineCount": 116,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265632
+    },
+    "testing\\SauronScanSimulator.js": {
+      "path": "testing\\SauronScanSimulator.js",
+      "size": 9169,
+      "lines": 304,
+      "characters": 9169,
+      "issues": [],
+      "metrics": {
+        "characterCount": 9169,
+        "lineCount": 304,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265636
+    },
+    "utils\\MetricsExporter.js": {
+      "path": "utils\\MetricsExporter.js",
+      "size": 8557,
+      "lines": 262,
+      "characters": 8547,
+      "issues": [],
+      "metrics": {
+        "characterCount": 8547,
+        "lineCount": 262,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265640
+    },
+    "utils\\SauronDependencyAuditor.js": {
+      "path": "utils\\SauronDependencyAuditor.js",
+      "size": 13266,
+      "lines": 424,
+      "characters": 13264,
+      "issues": [],
+      "metrics": {
+        "characterCount": 13264,
+        "lineCount": 424,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265650
+    },
+    "utils\\SauronPolicyValidator.js": {
+      "path": "utils\\SauronPolicyValidator.js",
+      "size": 7333,
+      "lines": 275,
+      "characters": 7333,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7333,
+        "lineCount": 275,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265653
+    },
+    "utils\\SauronSecureTransporter.js": {
+      "path": "utils\\SauronSecureTransporter.js",
+      "size": 9331,
+      "lines": 345,
+      "characters": 9331,
+      "issues": [],
+      "metrics": {
+        "characterCount": 9331,
+        "lineCount": 345,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265656
+    },
+    "utils\\SauronScanOptimizer.js": {
+      "path": "utils\\SauronScanOptimizer.js",
+      "size": 16826,
+      "lines": 519,
+      "characters": 16826,
+      "issues": [],
+      "metrics": {
+        "characterCount": 16826,
+        "lineCount": 519,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265662
+    },
+    "utils\\SauronReportPruner.js": {
+      "path": "utils\\SauronReportPruner.js",
+      "size": 0,
+      "lines": 1,
+      "characters": 0,
+      "issues": [],
+      "metrics": {
+        "characterCount": 0,
+        "lineCount": 1,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265662
+    },
+    "utils\\TechnicalDebtCalculator.js": {
+      "path": "utils\\TechnicalDebtCalculator.js",
+      "size": 5513,
+      "lines": 177,
+      "characters": 5513,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 154,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5513,
+        "lineCount": 177,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265663
+    },
+    "sauron-cli.js": {
+      "path": "sauron-cli.js",
+      "size": 22401,
+      "lines": 749,
+      "characters": 22339,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "14 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 306,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 621,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 676,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 684,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 692,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 702,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 714,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 727,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 728,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 729,
+          "column": 2,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 22339,
+        "lineCount": 749,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265672
+    },
+    "performance\\BatchProcessor.js": {
+      "path": "performance\\BatchProcessor.js",
+      "size": 1904,
+      "lines": 75,
+      "characters": 1902,
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "performance\\BatchProcessor.js",
+          "position": 852,
+          "line": 29,
+          "char": " ",
+          "message": "Trailing space detected at end of line 29",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "performance\\BatchProcessor.js",
+          "position": 1162,
+          "line": 39,
+          "char": " ",
+          "message": "Trailing space detected at end of line 39",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "metrics": {
+        "characterCount": 1902,
+        "lineCount": 75,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265674
+    },
+    "cli\\simple-cli.js": {
+      "path": "cli\\simple-cli.js",
+      "size": 3691,
+      "lines": 101,
+      "characters": 3663,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "14 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 21,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 28,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 29,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 30,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 33,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 35,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 44,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 55,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 65,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 70,
+          "column": 2,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 3663,
+        "lineCount": 101,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265676
+    },
+    "core\\PatternLearningEngine.js": {
+      "path": "core\\PatternLearningEngine.js",
+      "size": 2404,
+      "lines": 88,
+      "characters": 2404,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 82,
+          "column": 3,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 2404,
+        "lineCount": 88,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265677
+    },
+    "eos-diagnostic.js": {
+      "path": "eos-diagnostic.js",
+      "size": 8062,
+      "lines": 241,
+      "characters": 8012,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "40 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 11,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 26,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 34,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 39,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 55,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 56,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 61,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 64,
+          "column": 20,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 68,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 73,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 8012,
+        "lineCount": 241,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265681
+    },
+    "src\\config\\webpack.config.js": {
+      "path": "src\\config\\webpack.config.js",
+      "size": 10059,
+      "lines": 376,
+      "characters": 10059,
+      "issues": [],
+      "metrics": {
+        "characterCount": 10059,
+        "lineCount": 376,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265685
+    },
+    "src\\utils\\results-renderer.cjs": {
+      "path": "src\\utils\\results-renderer.cjs",
+      "size": 9270,
+      "lines": 319,
+      "characters": 9230,
+      "issues": [],
+      "metrics": {
+        "characterCount": 9230,
+        "lineCount": 319,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265692
+    },
+    "testing\\SauronTestHarness.js": {
+      "path": "testing\\SauronTestHarness.js",
+      "size": 8330,
+      "lines": 275,
+      "characters": 8330,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 57,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 71,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 90,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 125,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 164,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 172,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 231,
+          "column": 7,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 8330,
+        "lineCount": 275,
+        "issueCount": 7
+      },
+      "timestamp": 1750559265695
+    },
+    "utils\\SauronAlertNotifier.js": {
+      "path": "utils\\SauronAlertNotifier.js",
+      "size": 7226,
+      "lines": 233,
+      "characters": 7208,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 23,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 30,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 203,
+          "column": 14,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 206,
+          "column": 14,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 213,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 219,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 227,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 7208,
+        "lineCount": 233,
+        "issueCount": 7
+      },
+      "timestamp": 1750559265698
+    },
+    "utils\\SauronDependencyGraph.js": {
+      "path": "utils\\SauronDependencyGraph.js",
+      "size": 11162,
+      "lines": 363,
+      "characters": 11156,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 124,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 208,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 300,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 301,
+          "column": 39,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 343,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 344,
+          "column": 38,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 362,
+          "column": 3,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 363,
+          "column": 3,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 11156,
+        "lineCount": 363,
+        "issueCount": 8
+      },
+      "timestamp": 1750559265701
+    },
+    "utils\\SauronReportAnalyzer.js": {
+      "path": "utils\\SauronReportAnalyzer.js",
+      "size": 15181,
+      "lines": 453,
+      "characters": 15163,
+      "issues": [],
+      "metrics": {
+        "characterCount": 15163,
+        "lineCount": 453,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265708
+    },
+    "utils\\SauronSecurityPolicyEnforcer.js": {
+      "path": "utils\\SauronSecurityPolicyEnforcer.js",
+      "size": 6321,
+      "lines": 222,
+      "characters": 6321,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 101,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 140,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 174,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6321,
+        "lineCount": 222,
+        "issueCount": 3
+      },
+      "timestamp": 1750559265710
+    },
+    "utils\\SauronScanProfiler.js": {
+      "path": "utils\\SauronScanProfiler.js",
+      "size": 2659,
+      "lines": 84,
+      "characters": 2659,
+      "issues": [],
+      "metrics": {
+        "characterCount": 2659,
+        "lineCount": 84,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265712
+    },
+    "utils\\SauronReportRestorer.js": {
+      "path": "utils\\SauronReportRestorer.js",
+      "size": 5796,
+      "lines": 190,
+      "characters": 5796,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 59,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 74,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 94,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5796,
+        "lineCount": 190,
+        "issueCount": 3
+      },
+      "timestamp": 1750559265714
+    },
+    "utils\\TimeEffortOptimizer.js": {
+      "path": "utils\\TimeEffortOptimizer.js",
+      "size": 1916,
+      "lines": 67,
+      "characters": 1916,
+      "issues": [],
+      "metrics": {
+        "characterCount": 1916,
+        "lineCount": 67,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265714
+    },
+    "core\\PatternPrecognition.js": {
+      "path": "core\\PatternPrecognition.js",
+      "size": 32669,
+      "lines": 996,
+      "characters": 32669,
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 135,
+          "line": 3,
+          "char": " ",
+          "message": "Trailing space detected at end of line 3",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 696,
+          "line": 17,
+          "char": " ",
+          "message": "Trailing space detected at end of line 17",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1018,
+          "line": 22,
+          "char": " ",
+          "message": "Trailing space detected at end of line 22",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1295,
+          "line": 27,
+          "char": " ",
+          "message": "Trailing space detected at end of line 27",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1657,
+          "line": 34,
+          "char": " ",
+          "message": "Trailing space detected at end of line 34",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 1978,
+          "line": 39,
+          "char": " ",
+          "message": "Trailing space detected at end of line 39",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 2396,
+          "line": 58,
+          "char": " ",
+          "message": "Trailing space detected at end of line 58",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 3178,
+          "line": 95,
+          "char": " ",
+          "message": "Trailing space detected at end of line 95",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 3375,
+          "line": 106,
+          "char": " ",
+          "message": "Trailing space detected at end of line 106",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\PatternPrecognition.js",
+          "position": 4525,
+          "line": 136,
+          "char": " ",
+          "message": "Trailing space detected at end of line 136",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "metrics": {
+        "characterCount": 32669,
+        "lineCount": 996,
+        "issueCount": 10
+      },
+      "timestamp": 1750559265727
+    },
+    "sauron-cli.mjs": {
+      "path": "sauron-cli.mjs",
+      "size": 10374,
+      "lines": 277,
+      "characters": 10094,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "46 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 20,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 23,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 697,
+          "line": 25,
+          "char": " ",
+          "message": "Trailing space detected at end of line 25",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 799,
+          "line": 28,
+          "char": " ",
+          "message": "Trailing space detected at end of line 28",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 30,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 939,
+          "line": 32,
+          "char": " ",
+          "message": "Trailing space detected at end of line 32",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 1247,
+          "line": 42,
+          "char": " ",
+          "message": "Trailing space detected at end of line 42",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 1310,
+          "line": 44,
+          "char": " ",
+          "message": "Trailing space detected at end of line 44",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 46,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 1451,
+          "line": 48,
+          "char": " ",
+          "message": "Trailing space detected at end of line 48",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 1572,
+          "line": 51,
+          "char": " ",
+          "message": "Trailing space detected at end of line 51",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 53,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 1713,
+          "line": 55,
+          "char": " ",
+          "message": "Trailing space detected at end of line 55",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 60,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 1960,
+          "line": 63,
+          "char": " ",
+          "message": "Trailing space detected at end of line 63",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "sauron-cli.mjs",
+          "position": 2063,
+          "line": 66,
+          "char": " ",
+          "message": "Trailing space detected at end of line 66",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 69,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 72,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 95,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 98,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 10094,
+        "lineCount": 277,
+        "issueCount": 21
+      },
+      "timestamp": 1750559265731
+    },
+    "quick-test.cjs": {
+      "path": "quick-test.cjs",
+      "size": 2322,
+      "lines": 66,
+      "characters": 2304,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "22 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 4,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 9,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 10,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 11,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 13,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 18,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 20,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 29,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 31,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 32,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 2304,
+        "lineCount": 66,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265732
+    },
+    "config\\Config.js": {
+      "path": "config\\Config.js",
+      "size": 5860,
+      "lines": 191,
+      "characters": 5858,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 65,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 98,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5858,
+        "lineCount": 191,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265735
+    },
+    "error-logger-example.js": {
+      "path": "error-logger-example.js",
+      "size": 2105,
+      "lines": 72,
+      "characters": 2105,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 29,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 32,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 37,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 40,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 44,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 48,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 2105,
+        "lineCount": 72,
+        "issueCount": 6
+      },
+      "timestamp": 1750559265736
+    },
+    "src\\core\\detectionEngine.js": {
+      "path": "src\\core\\detectionEngine.js",
+      "size": 7160,
+      "lines": 272,
+      "characters": 7160,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 131,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 149,
+          "column": 2,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 7160,
+        "lineCount": 272,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265739
+    },
+    "standalone-launcher.cjs": {
+      "path": "standalone-launcher.cjs",
+      "size": 15606,
+      "lines": 528,
+      "characters": 15288,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "22 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 54,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 72,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 96,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 118,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 123,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 132,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 142,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 143,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 144,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 150,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 15288,
+        "lineCount": 528,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265746
+    },
+    "ui\\scanResultsRenderer.js": {
+      "path": "ui\\scanResultsRenderer.js",
+      "size": 2002,
+      "lines": 63,
+      "characters": 2000,
+      "issues": [],
+      "metrics": {
+        "characterCount": 2000,
+        "lineCount": 63,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265747
+    },
+    "utils\\SauronDependencyVisualizer.js": {
+      "path": "utils\\SauronDependencyVisualizer.js",
+      "size": 7898,
+      "lines": 267,
+      "characters": 7898,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7898,
+        "lineCount": 267,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265749
+    },
+    "utils\\SauronAnomalyDetector.js": {
+      "path": "utils\\SauronAnomalyDetector.js",
+      "size": 10079,
+      "lines": 368,
+      "characters": 10079,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 55,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 93,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 10079,
+        "lineCount": 368,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265752
+    },
+    "utils\\SauronReportArchiver.js": {
+      "path": "utils\\SauronReportArchiver.js",
+      "size": 4831,
+      "lines": 140,
+      "characters": 4821,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 53,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 56,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 83,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 113,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4821,
+        "lineCount": 140,
+        "issueCount": 4
+      },
+      "timestamp": 1750559265753
+    },
+    "utils\\SauronTelemetryReporter.js": {
+      "path": "utils\\SauronTelemetryReporter.js",
+      "size": 5050,
+      "lines": 162,
+      "characters": 5050,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 19,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 110,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 151,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 158,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5050,
+        "lineCount": 162,
+        "issueCount": 4
+      },
+      "timestamp": 1750559265754
+    },
+    "utils\\SauronScanScheduler.js": {
+      "path": "utils\\SauronScanScheduler.js",
+      "size": 0,
+      "lines": 1,
+      "characters": 0,
+      "issues": [],
+      "metrics": {
+        "characterCount": 0,
+        "lineCount": 1,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265755
+    },
+    "utils\\SauronReportSplitter.js": {
+      "path": "utils\\SauronReportSplitter.js",
+      "size": 5336,
+      "lines": 193,
+      "characters": 5336,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5336,
+        "lineCount": 193,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265758
+    },
+    "utils\\WebhookNotifier.js": {
+      "path": "utils\\WebhookNotifier.js",
+      "size": 4490,
+      "lines": 126,
+      "characters": 4490,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 126,
+          "column": 3,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4490,
+        "lineCount": 126,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265761
+    },
+    "core\\SauronConfigLoader.js": {
+      "path": "core\\SauronConfigLoader.js",
+      "size": 10390,
+      "lines": 359,
+      "characters": 10386,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 319,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 329,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 353,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 10386,
+        "lineCount": 359,
+        "issueCount": 3
+      },
+      "timestamp": 1750559265769
+    },
+    "core\\CharacterForensics.js": {
+      "path": "core\\CharacterForensics.js",
+      "size": 12318,
+      "lines": 336,
+      "characters": 12310,
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 2692,
+          "line": 63,
+          "char": " ",
+          "message": "Trailing space detected at end of line 63",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 4915,
+          "line": 123,
+          "char": " ",
+          "message": "Trailing space detected at end of line 123",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 5068,
+          "line": 126,
+          "char": " ",
+          "message": "Trailing space detected at end of line 126",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 10491,
+          "line": 280,
+          "char": " ",
+          "message": "Trailing space detected at end of line 280",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 10576,
+          "line": 284,
+          "char": " ",
+          "message": "Trailing space detected at end of line 284",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 10815,
+          "line": 294,
+          "char": " ",
+          "message": "Trailing space detected at end of line 294",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 11090,
+          "line": 299,
+          "char": " ",
+          "message": "Trailing space detected at end of line 299",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\CharacterForensics.js",
+          "position": 11210,
+          "line": 302,
+          "char": " ",
+          "message": "Trailing space detected at end of line 302",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "metrics": {
+        "characterCount": 12310,
+        "lineCount": 336,
+        "issueCount": 8
+      },
+      "timestamp": 1750559265777
+    },
+    "examine-issue-structure.cjs": {
+      "path": "examine-issue-structure.cjs",
+      "size": 4014,
+      "lines": 108,
+      "characters": 4006,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "27 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 4,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 9,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 10,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 17,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 18,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 19,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 27,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 30,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 34,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 37,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4006,
+        "lineCount": 108,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265780
+    },
+    "reporters\\HTMLReportFormatter.js": {
+      "path": "reporters\\HTMLReportFormatter.js",
+      "size": 14194,
+      "lines": 509,
+      "characters": 14184,
+      "issues": [],
+      "metrics": {
+        "characterCount": 14184,
+        "lineCount": 509,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265789
+    },
+    "SauronCore.js": {
+      "path": "SauronCore.js",
+      "size": 12011,
+      "lines": 361,
+      "characters": 11997,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 68,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 230,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 338,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 351,
+          "column": 3,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 11997,
+        "lineCount": 361,
+        "issueCount": 4
+      },
+      "timestamp": 1750559265794
+    },
+    "src\\detectors\\eventListenerDetector.js": {
+      "path": "src\\detectors\\eventListenerDetector.js",
+      "size": 5356,
+      "lines": 172,
+      "characters": 5356,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5356,
+        "lineCount": 172,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265795
+    },
+    "structure-mapper.cjs": {
+      "path": "structure-mapper.cjs",
+      "size": 10474,
+      "lines": 365,
+      "characters": 10348,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "21 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 48,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 49,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 50,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 70,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 169,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 198,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 201,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 246,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 247,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 250,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 10348,
+        "lineCount": 365,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265798
+    },
+    "ultimate-operational-cli.js": {
+      "path": "ultimate-operational-cli.js",
+      "size": 32110,
+      "lines": 906,
+      "characters": 31908,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "108 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 136,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 142,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 196,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 207,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 208,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 209,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 214,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 215,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 223,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 228,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 31908,
+        "lineCount": 906,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265806
+    },
+    "utils\\SauronErrorAggregator.js": {
+      "path": "utils\\SauronErrorAggregator.js",
+      "size": 3466,
+      "lines": 120,
+      "characters": 3466,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3466,
+        "lineCount": 120,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265807
+    },
+    "utils\\SauronAuditTrailGenerator.js": {
+      "path": "utils\\SauronAuditTrailGenerator.js",
+      "size": 6164,
+      "lines": 227,
+      "characters": 6164,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6164,
+        "lineCount": 227,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265808
+    },
+    "utils\\SauronThreatCorrelator.js": {
+      "path": "utils\\SauronThreatCorrelator.js",
+      "size": 15750,
+      "lines": 546,
+      "characters": 15748,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 173,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 223,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 283,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 313,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 525,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 15748,
+        "lineCount": 546,
+        "issueCount": 5
+      },
+      "timestamp": 1750559265812
+    },
+    "utils\\SauronReportCompressor.js": {
+      "path": "utils\\SauronReportCompressor.js",
+      "size": 6030,
+      "lines": 167,
+      "characters": 6026,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 131,
+          "column": 10,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6026,
+        "lineCount": 167,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265814
+    },
+    "utils\\SauronRiskScorer.js": {
+      "path": "utils\\SauronRiskScorer.js",
+      "size": 6115,
+      "lines": 218,
+      "characters": 6115,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6115,
+        "lineCount": 218,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265815
+    },
+    "utils\\SauronScanSessionManager.js": {
+      "path": "utils\\SauronScanSessionManager.js",
+      "size": 5102,
+      "lines": 174,
+      "characters": 5102,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 136,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 170,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5102,
+        "lineCount": 174,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265817
+    },
+    "view-scan-results.js": {
+      "path": "view-scan-results.js",
+      "size": 7077,
+      "lines": 179,
+      "characters": 6983,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 1,
+          "message": "49 console statements detected (showing first 10)",
+          "fix": "Review console usage and replace with proper logging framework"
+        },
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "50 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 10,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 10,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 11,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 11,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 14,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 14,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 15,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 15,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 23,
+          "message": "console.log() detected in error handling",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "error-handling",
+          "reasoning": "In error handling context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 23,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 24,
+          "message": "console.log() detected in error handling",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "error-handling",
+          "reasoning": "In error handling context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 24,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 25,
+          "message": "console.log() detected in error handling",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "error-handling",
+          "reasoning": "In error handling context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 25,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 26,
+          "message": "console.log() detected in error handling",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "error-handling",
+          "reasoning": "In error handling context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 26,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 27,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 27,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "view-scan-results.js",
+          "line": 61,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 61,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6983,
+        "lineCount": 179,
+        "issueCount": 22
+      },
+      "timestamp": 1750559265824
+    },
+    "core\\ComponentMarketplace.js": {
+      "path": "core\\ComponentMarketplace.js",
+      "size": 2687,
+      "lines": 93,
+      "characters": 2679,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 88,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 2679,
+        "lineCount": 93,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265826
+    },
+    "core\\SauronLicenseManager.js": {
+      "path": "core\\SauronLicenseManager.js",
+      "size": 6889,
+      "lines": 216,
+      "characters": 6885,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 215,
+          "column": 3,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 216,
+          "column": 3,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6885,
+        "lineCount": 216,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265828
+    },
+    "find-cli-output.cjs": {
+      "path": "find-cli-output.cjs",
+      "size": 4403,
+      "lines": 118,
+      "characters": 4385,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "18 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 4,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 12,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 28,
+          "column": 20,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 29,
+          "column": 20,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 30,
+          "column": 20,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 31,
+          "column": 20,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 35,
+          "column": 24,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 51,
+          "column": 28,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 63,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 77,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4385,
+        "lineCount": 118,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265829
+    },
+    "test-all-issues.js": {
+      "path": "test-all-issues.js",
+      "size": 2205,
+      "lines": 71,
+      "characters": 2197,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "11 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 5,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 29,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 33,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 36,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 41,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 42,
+          "column": 38,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 47,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 58,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 63,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 66,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 2197,
+        "lineCount": 71,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265830
+    },
+    "reporters\\OmniReporterFormatter.js": {
+      "path": "reporters\\OmniReporterFormatter.js",
+      "size": 8577,
+      "lines": 280,
+      "characters": 8161,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 20,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 8161,
+        "lineCount": 280,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265832
+    },
+    "serve-ui.mjs": {
+      "path": "serve-ui.mjs",
+      "size": 918,
+      "lines": 31,
+      "characters": 918,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 21,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 918,
+        "lineCount": 31,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265832
+    },
+    "src\\detectors\\propTypesDetector.js": {
+      "path": "src\\detectors\\propTypesDetector.js",
+      "size": 3323,
+      "lines": 110,
+      "characters": 3323,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3323,
+        "lineCount": 110,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265833
+    },
+    "utils\\AuditTrailManager.js": {
+      "path": "utils\\AuditTrailManager.js",
+      "size": 6466,
+      "lines": 204,
+      "characters": 6466,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 46,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 68,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 87,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 107,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 194,
+          "column": 3,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 201,
+          "column": 23,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 202,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 204,
+          "column": 3,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6466,
+        "lineCount": 204,
+        "issueCount": 8
+      },
+      "timestamp": 1750559265834
+    },
+    "utils\\SauronAutoTuner.js": {
+      "path": "utils\\SauronAutoTuner.js",
+      "size": 10826,
+      "lines": 299,
+      "characters": 10826,
+      "issues": [],
+      "metrics": {
+        "characterCount": 10826,
+        "lineCount": 299,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265836
+    },
+    "utils\\SauronExecutionTracer.js": {
+      "path": "utils\\SauronExecutionTracer.js",
+      "size": 4117,
+      "lines": 139,
+      "characters": 4117,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 88,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 100,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 135,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4117,
+        "lineCount": 139,
+        "issueCount": 3
+      },
+      "timestamp": 1750559265837
+    },
+    "utils\\SauronThreatModeler.js": {
+      "path": "utils\\SauronThreatModeler.js",
+      "size": 13065,
+      "lines": 420,
+      "characters": 13065,
+      "issues": [],
+      "metrics": {
+        "characterCount": 13065,
+        "lineCount": 420,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265840
+    },
+    "utils\\SauronReportDecryptor.js": {
+      "path": "utils\\SauronReportDecryptor.js",
+      "size": 6617,
+      "lines": 248,
+      "characters": 6617,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 187,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 238,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6617,
+        "lineCount": 248,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265842
+    },
+    "utils\\SauronRiskVisualizer.js": {
+      "path": "utils\\SauronRiskVisualizer.js",
+      "size": 11760,
+      "lines": 431,
+      "characters": 11754,
+      "issues": [],
+      "metrics": {
+        "characterCount": 11754,
+        "lineCount": 431,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265844
+    },
+    "utils\\SauronScanSignatureGenerator.js": {
+      "path": "utils\\SauronScanSignatureGenerator.js",
+      "size": 5252,
+      "lines": 214,
+      "characters": 5252,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5252,
+        "lineCount": 214,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265846
+    },
+    "find-original-15-issues.cjs": {
+      "path": "find-original-15-issues.cjs",
+      "size": 5832,
+      "lines": 145,
+      "characters": 5805,
+      "issues": [
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "find-original-15-issues.cjs",
+          "position": 3290,
+          "line": 83,
+          "char": "",
+          "expected": "a",
+          "message": "CYRILLIC_A looks like 'a' but is actually Cyrillic",
+          "fix": "Replace with Latin 'a'"
+        },
+        {
+          "type": "MEMORY_LEAK",
+          "severity": "DANGER",
+          "file": "find-original-15-issues.cjs",
+          "line": 107,
+          "message": "setInterval detected without corresponding clearInterval",
+          "fix": "Store interval ID and call clearInterval() in cleanup/destroy method"
+        },
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 1,
+          "message": "32 console statements detected (showing first 10)",
+          "fix": "Review console usage and replace with proper logging framework"
+        },
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "33 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 4,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 4,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 6,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 6,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 7,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 7,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 8,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 8,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 9,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 9,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 10,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 10,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 11,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 11,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 16,
+          "message": "console.log() detected in error handling",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "error-handling",
+          "reasoning": "In error handling context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 16,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 25,
+          "message": "console.log() detected in error handling",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "error-handling",
+          "reasoning": "In error handling context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 25,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "find-original-15-issues.cjs",
+          "line": 28,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 28,
+          "column": 16,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5805,
+        "lineCount": 145,
+        "issueCount": 24
+      },
+      "timestamp": 1750559265851
+    },
+    "core\\DependencyImpactAnalyzer.js": {
+      "path": "core\\DependencyImpactAnalyzer.js",
+      "size": 7641,
+      "lines": 241,
+      "characters": 7641,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7641,
+        "lineCount": 241,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265854
+    },
+    "core\\SauronModuleRegistry.js": {
+      "path": "core\\SauronModuleRegistry.js",
+      "size": 4555,
+      "lines": 165,
+      "characters": 4555,
+      "issues": [],
+      "metrics": {
+        "characterCount": 4555,
+        "lineCount": 165,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265856
+    },
+    "test-core-analyzers.cjs": {
+      "path": "test-core-analyzers.cjs",
+      "size": 6276,
+      "lines": 157,
+      "characters": 6235,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "28 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 4,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 9,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 27,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 28,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 31,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 35,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 48,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 55,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 56,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 59,
+          "column": 12,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6235,
+        "lineCount": 157,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265858
+    },
+    "reporters\\OmniReportFormatter.js": {
+      "path": "reporters\\OmniReportFormatter.js",
+      "size": 2251,
+      "lines": 80,
+      "characters": 2251,
+      "issues": [],
+      "metrics": {
+        "characterCount": 2251,
+        "lineCount": 80,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265859
+    },
+    "server\\SauronAPI.js": {
+      "path": "server\\SauronAPI.js",
+      "size": 10206,
+      "lines": 327,
+      "characters": 10176,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "23 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 271,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 291,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 292,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 293,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 294,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 295,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 296,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 297,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 298,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 299,
+          "column": 2,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 10176,
+        "lineCount": 327,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265863
+    },
+    "src\\detectors\\webpackDetector.js": {
+      "path": "src\\detectors\\webpackDetector.js",
+      "size": 5223,
+      "lines": 151,
+      "characters": 5223,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5223,
+        "lineCount": 151,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265864
+    },
+    "utils\\CodeEvolutionTracker.js": {
+      "path": "utils\\CodeEvolutionTracker.js",
+      "size": 7880,
+      "lines": 271,
+      "characters": 7880,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7880,
+        "lineCount": 271,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265867
+    },
+    "utils\\SauronCISummaryGenerator.js": {
+      "path": "utils\\SauronCISummaryGenerator.js",
+      "size": 6125,
+      "lines": 204,
+      "characters": 6103,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6103,
+        "lineCount": 204,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265870
+    },
+    "utils\\SauronHealthDashboard.js": {
+      "path": "utils\\SauronHealthDashboard.js",
+      "size": 10982,
+      "lines": 402,
+      "characters": 10982,
+      "issues": [],
+      "metrics": {
+        "characterCount": 10982,
+        "lineCount": 402,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265874
+    },
+    "utils\\SauronTrendVisualizer.js": {
+      "path": "utils\\SauronTrendVisualizer.js",
+      "size": 13658,
+      "lines": 477,
+      "characters": 13646,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 70,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 151,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 13646,
+        "lineCount": 477,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265879
+    },
+    "utils\\SauronReportEncryptor.js": {
+      "path": "utils\\SauronReportEncryptor.js",
+      "size": 4441,
+      "lines": 166,
+      "characters": 4441,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 52,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 99,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 141,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4441,
+        "lineCount": 166,
+        "issueCount": 3
+      },
+      "timestamp": 1750559265881
+    },
+    "utils\\SauronScanAnonymizer.js": {
+      "path": "utils\\SauronScanAnonymizer.js",
+      "size": 9079,
+      "lines": 315,
+      "characters": 9077,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 83,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 9077,
+        "lineCount": 315,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265886
+    },
+    "utils\\SauronScanVisualizer.js": {
+      "path": "utils\\SauronScanVisualizer.js",
+      "size": 10671,
+      "lines": 383,
+      "characters": 10663,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 219,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 10663,
+        "lineCount": 383,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265888
+    },
+    "fix-cli-display.cjs": {
+      "path": "fix-cli-display.cjs",
+      "size": 4527,
+      "lines": 122,
+      "characters": 4504,
+      "issues": [
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "fix-cli-display.cjs",
+          "position": 2025,
+          "line": 63,
+          "char": "",
+          "expected": "a",
+          "message": "CYRILLIC_A looks like 'a' but is actually Cyrillic",
+          "fix": "Replace with Latin 'a'"
+        },
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "26 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 5,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 8,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 26,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 28,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 31,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 35,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 51,
+          "column": 3,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 55,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 58,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 64,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4504,
+        "lineCount": 122,
+        "issueCount": 12
+      },
+      "timestamp": 1750559265891
+    },
+    "core\\EyeOfSauronOmniscient.js": {
+      "path": "core\\EyeOfSauronOmniscient.js",
+      "size": 17621,
+      "lines": 561,
+      "characters": 17617,
+      "issues": [
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 1125,
+          "line": 29,
+          "char": " ",
+          "message": "Trailing space detected at end of line 29",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 1584,
+          "line": 37,
+          "char": " ",
+          "message": "Trailing space detected at end of line 37",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 1752,
+          "line": 41,
+          "char": " ",
+          "message": "Trailing space detected at end of line 41",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 2109,
+          "line": 51,
+          "char": " ",
+          "message": "Trailing space detected at end of line 51",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 2376,
+          "line": 58,
+          "char": " ",
+          "message": "Trailing space detected at end of line 58",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 199,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 209,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 219,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 8884,
+          "line": 273,
+          "char": " ",
+          "message": "Trailing space detected at end of line 273",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9112,
+          "line": 277,
+          "char": " ",
+          "message": "Trailing space detected at end of line 277",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9253,
+          "line": 280,
+          "char": " ",
+          "message": "Trailing space detected at end of line 280",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9535,
+          "line": 289,
+          "char": " ",
+          "message": "Trailing space detected at end of line 289",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "core\\EyeOfSauronOmniscient.js",
+          "position": 9574,
+          "line": 292,
+          "char": " ",
+          "message": "Trailing space detected at end of line 292",
+          "fix": "Remove trailing whitespace"
+        }
+      ],
+      "metrics": {
+        "characterCount": 17617,
+        "lineCount": 561,
+        "issueCount": 13
+      },
+      "timestamp": 1750559265895
+    },
+    "test-homoglyph.js": {
+      "path": "test-homoglyph.js",
+      "size": 147,
+      "lines": 5,
+      "characters": 143,
+      "issues": [
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "test-homoglyph.js",
+          "position": 47,
+          "line": 3,
+          "char": "",
+          "expected": "p",
+          "message": "CYRILLIC_P looks like 'p' but is actually Cyrillic",
+          "fix": "Replace with Latin 'p'"
+        },
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "test-homoglyph.js",
+          "position": 48,
+          "line": 3,
+          "char": "",
+          "expected": "a",
+          "message": "CYRILLIC_A looks like 'a' but is actually Cyrillic",
+          "fix": "Replace with Latin 'a'"
+        }
+      ],
+      "metrics": {
+        "characterCount": 143,
+        "lineCount": 5,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265895
+    },
+    "core\\SauronPluginManager.js": {
+      "path": "core\\SauronPluginManager.js",
+      "size": 3590,
+      "lines": 118,
+      "characters": 3590,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 85,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 3590,
+        "lineCount": 118,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265896
+    },
+    "reporters\\PolicyViolationReporter.js": {
+      "path": "reporters\\PolicyViolationReporter.js",
+      "size": 5274,
+      "lines": 165,
+      "characters": 5230,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5230,
+        "lineCount": 165,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265898
+    },
+    "server\\SauronScheduler.js": {
+      "path": "server\\SauronScheduler.js",
+      "size": 6132,
+      "lines": 222,
+      "characters": 6132,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6132,
+        "lineCount": 222,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265899
+    },
+    "src\\services\\auth.service.js": {
+      "path": "src\\services\\auth.service.js",
+      "size": 7326,
+      "lines": 290,
+      "characters": 7326,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7326,
+        "lineCount": 290,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265900
+    },
+    "utils\\ErrorLogger.js": {
+      "path": "utils\\ErrorLogger.js",
+      "size": 1638,
+      "lines": 59,
+      "characters": 1638,
+      "issues": [],
+      "metrics": {
+        "characterCount": 1638,
+        "lineCount": 59,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265901
+    },
+    "utils\\SauronComplianceChecker.js": {
+      "path": "utils\\SauronComplianceChecker.js",
+      "size": 15328,
+      "lines": 465,
+      "characters": 15324,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 463,
+          "column": 3,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 464,
+          "column": 3,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 465,
+          "column": 3,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 15324,
+        "lineCount": 465,
+        "issueCount": 3
+      },
+      "timestamp": 1750559265904
+    },
+    "utils\\SauronIncidentReporter.js": {
+      "path": "utils\\SauronIncidentReporter.js",
+      "size": 12024,
+      "lines": 414,
+      "characters": 12024,
+      "issues": [],
+      "metrics": {
+        "characterCount": 12024,
+        "lineCount": 414,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265906
+    },
+    "utils\\ScanHistoryManager.js": {
+      "path": "utils\\ScanHistoryManager.js",
+      "size": 5398,
+      "lines": 155,
+      "characters": 5398,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 97,
+          "column": 20,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5398,
+        "lineCount": 155,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265907
+    },
+    "utils\\SauronReportExporter.js": {
+      "path": "utils\\SauronReportExporter.js",
+      "size": 9394,
+      "lines": 337,
+      "characters": 9394,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 34,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 37,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 48,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 76,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 79,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 113,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 177,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 241,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 9394,
+        "lineCount": 337,
+        "issueCount": 8
+      },
+      "timestamp": 1750559265909
+    },
+    "utils\\SauronScanArchiveManager.js": {
+      "path": "utils\\SauronScanArchiveManager.js",
+      "size": 5708,
+      "lines": 193,
+      "characters": 5708,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 129,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 174,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5708,
+        "lineCount": 193,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265910
+    },
+    "utils\\SauronSecureArchiveManager.js": {
+      "path": "utils\\SauronSecureArchiveManager.js",
+      "size": 10542,
+      "lines": 335,
+      "characters": 10542,
+      "issues": [],
+      "metrics": {
+        "characterCount": 10542,
+        "lineCount": 335,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265913
+    },
+    "fix-package.js": {
+      "path": "fix-package.js",
+      "size": 6924,
+      "lines": 195,
+      "characters": 6866,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "39 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 11,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 12,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 23,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 26,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 31,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 33,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 53,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 55,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 86,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 91,
+          "column": 2,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6866,
+        "lineCount": 195,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265916
+    },
+    "test-memory-leak.js": {
+      "path": "test-memory-leak.js",
+      "size": 257,
+      "lines": 10,
+      "characters": 257,
+      "issues": [],
+      "metrics": {
+        "characterCount": 257,
+        "lineCount": 10,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265916
+    },
+    "core\\FixImpactAnalyzer.js": {
+      "path": "core\\FixImpactAnalyzer.js",
+      "size": 3552,
+      "lines": 113,
+      "characters": 3552,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3552,
+        "lineCount": 113,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265917
+    },
+    "core\\ScanPolicyManager.js": {
+      "path": "core\\ScanPolicyManager.js",
+      "size": 7987,
+      "lines": 246,
+      "characters": 7987,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 182,
+          "column": 10,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 7987,
+        "lineCount": 246,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265918
+    },
+    "reporters\\SauronInsightReporter.js": {
+      "path": "reporters\\SauronInsightReporter.js",
+      "size": 16553,
+      "lines": 566,
+      "characters": 16553,
+      "issues": [],
+      "metrics": {
+        "characterCount": 16553,
+        "lineCount": 566,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265922
+    },
+    "server.js": {
+      "path": "server.js",
+      "size": 5281,
+      "lines": 199,
+      "characters": 5281,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "13 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 109,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 117,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 132,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 146,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 149,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 152,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 155,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 161,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 165,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 173,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5281,
+        "lineCount": 199,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265923
+    },
+    "utils\\FileDiscovery.js": {
+      "path": "utils\\FileDiscovery.js",
+      "size": 3940,
+      "lines": 136,
+      "characters": 3938,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3938,
+        "lineCount": 136,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265924
+    },
+    "src\\utils\\api.js": {
+      "path": "src\\utils\\api.js",
+      "size": 6917,
+      "lines": 235,
+      "characters": 6913,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6913,
+        "lineCount": 235,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265926
+    },
+    "utils\\SauronComplianceReporter.js": {
+      "path": "utils\\SauronComplianceReporter.js",
+      "size": 11540,
+      "lines": 346,
+      "characters": 11540,
+      "issues": [],
+      "metrics": {
+        "characterCount": 11540,
+        "lineCount": 346,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265928
+    },
+    "utils\\SauronIntegrityChecker.js": {
+      "path": "utils\\SauronIntegrityChecker.js",
+      "size": 5133,
+      "lines": 195,
+      "characters": 5133,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5133,
+        "lineCount": 195,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265929
+    },
+    "utils\\ScanReportAssembler.js": {
+      "path": "utils\\ScanReportAssembler.js",
+      "size": 4918,
+      "lines": 165,
+      "characters": 4916,
+      "issues": [],
+      "metrics": {
+        "characterCount": 4916,
+        "lineCount": 165,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265930
+    },
+    "utils\\SauronReportIndexer.js": {
+      "path": "utils\\SauronReportIndexer.js",
+      "size": 6782,
+      "lines": 212,
+      "characters": 6782,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6782,
+        "lineCount": 212,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265932
+    },
+    "utils\\SauronScanDiffer.js": {
+      "path": "utils\\SauronScanDiffer.js",
+      "size": 7622,
+      "lines": 301,
+      "characters": 7622,
+      "issues": [],
+      "metrics": {
+        "characterCount": 7622,
+        "lineCount": 301,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265933
+    },
+    "utils\\SauronSecurePipelineOrchestrator.js": {
+      "path": "utils\\SauronSecurePipelineOrchestrator.js",
+      "size": 7927,
+      "lines": 203,
+      "characters": 7925,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 82,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 101,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 114,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 134,
+          "column": 16,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 172,
+          "column": 12,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 7925,
+        "lineCount": 203,
+        "issueCount": 5
+      },
+      "timestamp": 1750559265936
+    },
+    "fixed-investigate.cjs": {
+      "path": "fixed-investigate.cjs",
+      "size": 4012,
+      "lines": 117,
+      "characters": 3902,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "26 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 10,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 16,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 17,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 23,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 33,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 34,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 73,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 74,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 75,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 76,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 3902,
+        "lineCount": 117,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265938
+    },
+    "test-security.js": {
+      "path": "test-security.js",
+      "size": 130,
+      "lines": 5,
+      "characters": 130,
+      "issues": [],
+      "metrics": {
+        "characterCount": 130,
+        "lineCount": 5,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265938
+    },
+    "core\\KaizenSettingsPanel.js": {
+      "path": "core\\KaizenSettingsPanel.js",
+      "size": 5713,
+      "lines": 189,
+      "characters": 5713,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 37,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 43,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 58,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 99,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 145,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 159,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 174,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5713,
+        "lineCount": 189,
+        "issueCount": 7
+      },
+      "timestamp": 1750559265940
+    },
+    "simple-test.js": {
+      "path": "simple-test.js",
+      "size": 97,
+      "lines": 5,
+      "characters": 96,
+      "issues": [
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "simple-test.js",
+          "position": 7,
+          "line": 2,
+          "char": "",
+          "expected": "a",
+          "message": "CYRILLIC_A looks like 'a' but is actually Cyrillic",
+          "fix": "Replace with Latin 'a'"
+        },
+        {
+          "type": "TRAILING_SPACE",
+          "severity": "WARNING",
+          "file": "simple-test.js",
+          "position": 50,
+          "line": 3,
+          "char": " ",
+          "message": "Trailing space detected at end of line 3",
+          "fix": "Remove trailing whitespace"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 3,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 96,
+        "lineCount": 5,
+        "issueCount": 3
+      },
+      "timestamp": 1750559265940
+    },
+    "core\\ScanProfileManager.js": {
+      "path": "core\\ScanProfileManager.js",
+      "size": 2427,
+      "lines": 88,
+      "characters": 2427,
+      "issues": [],
+      "metrics": {
+        "characterCount": 2427,
+        "lineCount": 88,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265941
+    },
+    "reporters\\SauronReportViewer.js": {
+      "path": "reporters\\SauronReportViewer.js",
+      "size": 13720,
+      "lines": 407,
+      "characters": 13676,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 1,
+          "message": "22 console statements detected (showing first 10)",
+          "fix": "Review console usage and replace with proper logging framework"
+        },
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "22 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 51,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 51,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 52,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 52,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 53,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 53,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 56,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 56,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 57,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 57,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 58,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 58,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 59,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 59,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 66,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 66,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 69,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 69,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "file": "reporters\\SauronReportViewer.js",
+          "line": 70,
+          "message": "console.log() detected",
+          "fix": "Replace with proper logging framework (winston, pino, etc.)",
+          "consoleMethod": "log",
+          "context": "code",
+          "reasoning": "Regular code context"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 70,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 13676,
+        "lineCount": 407,
+        "issueCount": 22
+      },
+      "timestamp": 1750559265944
+    },
+    "utils\\GitHookInstaller.js": {
+      "path": "utils\\GitHookInstaller.js",
+      "size": 12494,
+      "lines": 407,
+      "characters": 12454,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "15 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 72,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 89,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 91,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 149,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 291,
+          "column": 14,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 296,
+          "column": 14,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 300,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 307,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 327,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 385,
+          "column": 12,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 12454,
+        "lineCount": 407,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265947
+    },
+    "src\\utils\\apiKeyDetector.cjs": {
+      "path": "src\\utils\\apiKeyDetector.cjs",
+      "size": 3512,
+      "lines": 108,
+      "characters": 3512,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3512,
+        "lineCount": 108,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265948
+    },
+    "utils\\SauronCveFetcher.js": {
+      "path": "utils\\SauronCveFetcher.js",
+      "size": 13241,
+      "lines": 407,
+      "characters": 13241,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "15 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 38,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 43,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 73,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 86,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 90,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 94,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 112,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 122,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 129,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 142,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 13241,
+        "lineCount": 407,
+        "issueCount": 11
+      },
+      "timestamp": 1750559265950
+    },
+    "utils\\SauronJobMetricsCollector.js": {
+      "path": "utils\\SauronJobMetricsCollector.js",
+      "size": 5274,
+      "lines": 186,
+      "characters": 5274,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 39,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 44,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5274,
+        "lineCount": 186,
+        "issueCount": 2
+      },
+      "timestamp": 1750559265951
+    },
+    "utils\\ScanTemplateEngine.js": {
+      "path": "utils\\ScanTemplateEngine.js",
+      "size": 3612,
+      "lines": 127,
+      "characters": 3612,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3612,
+        "lineCount": 127,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265952
+    },
+    "utils\\SauronReportIntegrityVerifier.js": {
+      "path": "utils\\SauronReportIntegrityVerifier.js",
+      "size": 5472,
+      "lines": 186,
+      "characters": 5470,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 110,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5470,
+        "lineCount": 186,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265953
+    },
+    "utils\\SauronScanExporter.js": {
+      "path": "utils\\SauronScanExporter.js",
+      "size": 8764,
+      "lines": 296,
+      "characters": 8756,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 229,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 8756,
+        "lineCount": 296,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265955
+    },
+    "utils\\SauronSecurePipelineSummarizer.js": {
+      "path": "utils\\SauronSecurePipelineSummarizer.js",
+      "size": 8381,
+      "lines": 289,
+      "characters": 8381,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 23,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 52,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 188,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 202,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 8381,
+        "lineCount": 289,
+        "issueCount": 4
+      },
+      "timestamp": 1750559265957
+    },
+    "index.js": {
+      "path": "index.js",
+      "size": 1551,
+      "lines": 47,
+      "characters": 1549,
+      "issues": [],
+      "metrics": {
+        "characterCount": 1549,
+        "lineCount": 47,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265959
+    },
+    "testing\\example-before-after.js": {
+      "path": "testing\\example-before-after.js",
+      "size": 3019,
+      "lines": 103,
+      "characters": 2989,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 16,
+          "column": 2,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 27,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 39,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 43,
+          "column": 4,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 96,
+          "column": 4,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 2989,
+        "lineCount": 103,
+        "issueCount": 5
+      },
+      "timestamp": 1750559265960
+    },
+    "core\\KaizenSnapshot.js": {
+      "path": "core\\KaizenSnapshot.js",
+      "size": 4207,
+      "lines": 128,
+      "characters": 4201,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 59,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 79,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 92,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 94,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 96,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 4201,
+        "lineCount": 128,
+        "issueCount": 5
+      },
+      "timestamp": 1750559265961
+    },
+    "run-full-scan-all-analyzers.cjs": {
+      "path": "run-full-scan-all-analyzers.cjs",
+      "size": 6963,
+      "lines": 184,
+      "characters": 6931,
+      "issues": [
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "run-full-scan-all-analyzers.cjs",
+          "position": 5999,
+          "line": 153,
+          "char": "",
+          "expected": "p",
+          "message": "CYRILLIC_P looks like 'p' but is actually Cyrillic",
+          "fix": "Replace with Latin 'p'"
+        },
+        {
+          "type": "HOMOGLYPH",
+          "severity": "APOCALYPSE",
+          "file": "run-full-scan-all-analyzers.cjs",
+          "position": 6000,
+          "line": 153,
+          "char": "",
+          "expected": "a",
+          "message": "CYRILLIC_A looks like 'a' but is actually Cyrillic",
+          "fix": "Replace with Latin 'a'"
+        },
+        {
+          "type": "CONSOLE_USAGE_SUMMARY",
+          "severity": "WARNING",
+          "description": "29 console statements detected (showing first 10)",
+          "line": 1,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 4,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 72,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 73,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 78,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 79,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 80,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 81,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 82,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 83,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 84,
+          "column": 8,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 6931,
+        "lineCount": 184,
+        "issueCount": 13
+      },
+      "timestamp": 1750559265963
+    },
+    "src\\components\\Header.js": {
+      "path": "src\\components\\Header.js",
+      "size": 5496,
+      "lines": 186,
+      "characters": 5470,
+      "issues": [],
+      "metrics": {
+        "characterCount": 5470,
+        "lineCount": 186,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265964
+    },
+    "core\\TribunalSentinel.js": {
+      "path": "core\\TribunalSentinel.js",
+      "size": 6791,
+      "lines": 224,
+      "characters": 6791,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6791,
+        "lineCount": 224,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265967
+    },
+    "utils\\IncrementalScanCache.js": {
+      "path": "utils\\IncrementalScanCache.js",
+      "size": 6706,
+      "lines": 227,
+      "characters": 6706,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6706,
+        "lineCount": 227,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265969
+    },
+    "src\\utils\\consoleDetector.cjs": {
+      "path": "src\\utils\\consoleDetector.cjs",
+      "size": 3610,
+      "lines": 113,
+      "characters": 3610,
+      "issues": [],
+      "metrics": {
+        "characterCount": 3610,
+        "lineCount": 113,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265970
+    },
+    "utils\\SauronDataSanitizer.js": {
+      "path": "utils\\SauronDataSanitizer.js",
+      "size": 13962,
+      "lines": 467,
+      "characters": 13962,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 101,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 103,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 106,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 111,
+          "column": 10,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 113,
+          "column": 12,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 451,
+          "column": 0,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 455,
+          "column": 0,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 13962,
+        "lineCount": 467,
+        "issueCount": 7
+      },
+      "timestamp": 1750559265977
+    },
+    "utils\\SauronPerformanceProfiler.js": {
+      "path": "utils\\SauronPerformanceProfiler.js",
+      "size": 11294,
+      "lines": 342,
+      "characters": 11278,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.warn() detected",
+          "line": 41,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 138,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 158,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 162,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 164,
+          "column": 8,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 177,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.log() detected",
+          "line": 192,
+          "column": 6,
+          "analyzer": "built-in-console"
+        },
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 195,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 11278,
+        "lineCount": 342,
+        "issueCount": 8
+      },
+      "timestamp": 1750559265981
+    },
+    "utils\\SuaronReportCompressor.js": {
+      "path": "utils\\SuaronReportCompressor.js",
+      "size": 1,
+      "lines": 2,
+      "characters": 1,
+      "issues": [],
+      "metrics": {
+        "characterCount": 1,
+        "lineCount": 2,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265981
+    },
+    "utils\\SauronReportNormalizer.js": {
+      "path": "utils\\SauronReportNormalizer.js",
+      "size": 10966,
+      "lines": 406,
+      "characters": 10966,
+      "issues": [],
+      "metrics": {
+        "characterCount": 10966,
+        "lineCount": 406,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265985
+    },
+    "utils\\SauronScanMerger.js": {
+      "path": "utils\\SauronScanMerger.js",
+      "size": 6208,
+      "lines": 241,
+      "characters": 6208,
+      "issues": [],
+      "metrics": {
+        "characterCount": 6208,
+        "lineCount": 241,
+        "issueCount": 0
+      },
+      "timestamp": 1750559265987
+    },
+    "utils\\SauronSecurePipelineValidator.js": {
+      "path": "utils\\SauronSecurePipelineValidator.js",
+      "size": 5481,
+      "lines": 213,
+      "characters": 5481,
+      "issues": [
+        {
+          "type": "CONSOLE_USAGE",
+          "severity": "WARNING",
+          "description": "console.error() detected",
+          "line": 160,
+          "column": 6,
+          "analyzer": "built-in-console"
+        }
+      ],
+      "metrics": {
+        "characterCount": 5481,
+        "lineCount": 213,
+        "issueCount": 1
+      },
+      "timestamp": 1750559265989
+    }
+  },
+  "prophecies": [
+    {
+      "type": "warning",
+      "file": "capture-cli-output.cjs",
+      "message": "High issue density detected: 11 issues in 71 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "OperationalHealthChecker.js",
+      "message": "High issue density detected: 11 issues in 558 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "sauron-cleanup.js",
+      "message": "High issue density detected: 11 issues in 332 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "sauron-cli.js",
+      "message": "High issue density detected: 11 issues in 749 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "cli\\simple-cli.js",
+      "message": "High issue density detected: 11 issues in 101 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "eos-diagnostic.js",
+      "message": "High issue density detected: 11 issues in 241 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "sauron-cli.mjs",
+      "message": "High issue density detected: 21 issues in 277 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "quick-test.cjs",
+      "message": "High issue density detected: 11 issues in 66 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "standalone-launcher.cjs",
+      "message": "High issue density detected: 11 issues in 528 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "examine-issue-structure.cjs",
+      "message": "High issue density detected: 11 issues in 108 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "structure-mapper.cjs",
+      "message": "High issue density detected: 11 issues in 365 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "ultimate-operational-cli.js",
+      "message": "High issue density detected: 11 issues in 906 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "view-scan-results.js",
+      "message": "High issue density detected: 22 issues in 179 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "find-cli-output.cjs",
+      "message": "High issue density detected: 11 issues in 118 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "test-all-issues.js",
+      "message": "High issue density detected: 11 issues in 71 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "find-original-15-issues.cjs",
+      "message": "High issue density detected: 24 issues in 145 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "danger",
+      "file": "find-original-15-issues.cjs",
+      "message": "Critical character anomalies detected: 2 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "warning",
+      "file": "test-core-analyzers.cjs",
+      "message": "High issue density detected: 11 issues in 157 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "server\\SauronAPI.js",
+      "message": "High issue density detected: 11 issues in 327 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "fix-cli-display.cjs",
+      "message": "High issue density detected: 12 issues in 122 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "danger",
+      "file": "fix-cli-display.cjs",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "warning",
+      "file": "core\\EyeOfSauronOmniscient.js",
+      "message": "High issue density detected: 13 issues in 561 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "danger",
+      "file": "test-homoglyph.js",
+      "message": "Critical character anomalies detected: 2 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "warning",
+      "file": "fix-package.js",
+      "message": "High issue density detected: 11 issues in 195 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "server.js",
+      "message": "High issue density detected: 11 issues in 199 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "fixed-investigate.cjs",
+      "message": "High issue density detected: 11 issues in 117 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "danger",
+      "file": "simple-test.js",
+      "message": "Critical character anomalies detected: 1 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    },
+    {
+      "type": "warning",
+      "file": "reporters\\SauronReportViewer.js",
+      "message": "High issue density detected: 22 issues in 407 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "utils\\GitHookInstaller.js",
+      "message": "High issue density detected: 11 issues in 407 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "utils\\SauronCveFetcher.js",
+      "message": "High issue density detected: 11 issues in 407 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "warning",
+      "file": "run-full-scan-all-analyzers.cjs",
+      "message": "High issue density detected: 13 issues in 184 lines",
+      "severity": "DANGER",
+      "category": "quality"
+    },
+    {
+      "type": "danger",
+      "file": "run-full-scan-all-analyzers.cjs",
+      "message": "Critical character anomalies detected: 2 critical issues",
+      "severity": "APOCALYPSE",
+      "category": "security"
+    }
+  ],
+  "stats": {
+    "filesScanned": 144,
+    "totalCharacters": 1060839,
+    "startTime": 1750559265570,
+    "endTime": 1750559265989,
+    "duration": 419
+  }
+}

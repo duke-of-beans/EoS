@@ -1,0 +1,31 @@
+🔍 Eye of Sauron CLI Starting...
+📁 Input directory validated: C:\Users\DKdKe\OneDrive\Desktop\T-App\eye-of-sauron
+🔧 Scanner initialized with mode: deep
+⚙️  Workers: 4, Batch size: 10
+[36m🔍 Eye of Sauron Scanner v1.1.0[0m
+📁 Scanning: C:\Users\DKdKe\OneDrive\Desktop\T-App\eye-of-sauron
+⏳ Discovering files...
+
+📊 [1mScan Summary[0m
+──────────────────────────────────────────────────
+📁 Total Files: [36m135[0m
+📋 Total Issues: [33m460[0m
+⚠️  Warnings: [33m460[0m
+⏱️  Duration: [32m0.4s[0m
+
+🔍 [1mTop Issues[0m
+  [33mWARNING[0m capture-cli-output.cjs:1 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:5 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:29 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:33 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:36 - undefined
+
+🔮 [1mProphecies[0m
+  [31mWARNING[0m High issue density detected: 11 issues in 71 lines
+  [31mWARNING[0m High issue density detected: 11 issues in 101 lines
+  [31mWARNING[0m High issue density detected: 11 issues in 241 lines
+
+[33m⚠️  Issues found but none are critical.[0m
+
+
+STDERR:

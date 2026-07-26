@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye of Sauron - Scan Analysis</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #ff6b6b;
+        }
+        
+        .section {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .critical {
+            color: #ff4444;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffaa00;
+        }
+        
+        .info {
+            color: #00aaff;
+        }
+        
+        .disabled {
+            color: #666;
+            text-decoration: line-through;
+        }
+        
+        .enabled {
+            color: #00ff00;
+        }
+        
+        .issue-box {
+            background-color: #333;
+            border-left: 4px solid #ff6b6b;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        
+        .analyzer-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .analyzer-card {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #444;
+        }
+        
+        .analyzer-card.disabled {
+            border-color: #ff4444;
+            opacity: 0.7;
+        }
+        
+        .analyzer-card.enabled {
+            border-color: #00ff00;
+        }
+        
+        button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        
+        button:hover {
+            background-color: #ff4444;
+        }
+        
+        pre {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        
+        .fix-command {
+            background-color: #003300;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👁️ Eye of Sauron - Scan Analysis</h1>
+        
+        <div class="section">
+            <h2>📊 Current Scan Results Analysis</h2>
+            <div id="scan-summary"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔍 Analyzer Status</h2>
+            <div id="analyzer-status" class="analyzer-status"></div>
+        </div>
+        
+        <div class="section">
+            <h2>⚠️ Issues Found vs Reported</h2>
+            <div id="issue-analysis"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🚨 Missing Critical Issues</h2>
+            <div id="critical-analysis"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Fix Instructions</h2>
+            <div id="fix-instructions"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📝 Recommended Commands</h2>
+            <div id="commands"></div>
+        </div>
+    </div>
+
+    <script>
+        // Your scan data
+        const scanData = {
+            "success": true,
+            "status": "completed",
+            "scanId": "scan_1750548455785",
+            "timestamp": "2025-06-21T23:27:35.785Z",
+            "target": "./",
+            "mode": "web",
+            "analyzers": [],
+            "summary": {
+                "totalFiles": 48,
+                "totalIssues": 15,
+                "criticalIssues": 3,
+                "warningIssues": 15,
+                "scanDuration": 2909
+            },
+            "results": {
+                "characterForensics": {
+                    "enabled": false,
+                    "issues": 3
+                },
+                "patternRecognition": {
+                    "enabled": false,
+                    "issues": 7
+                },
+                "dependencyAnalysis": {
+                    "enabled": false,
+                    "issues": 0
+                },
+                "memoryLeakDetection": {
+                    "enabled": false,
+                    "issues": 1
+                }
+            },
+            "files": [
+                {
+                    "path": ".//example.js",
+                    "issues": [
+                        {
+                            "type": "WARNING",
+                            "line": 42,
+                            "message": "Potential security vulnerability detected",
+                            "severity": "medium"
+                        }
+                    ]
+                },
+                {
+                    "path": ".//utils.js",
+                    "issues": [
+                        {
+                            "type": "INFO",
+                            "line": 15,
+                            "message": "Code optimization opportunity",
+                            "severity": "low"
+                        }
+                    ]
+                }
+            ]
+        };
+        
+        // Analyze and display results
+        function analyzeResults() {
+            // Summary
+            const summaryHtml = `
+                <p><strong>Total Files Scanned:</strong> ${scanData.summary.totalFiles}</p>
+                <p><strong>Total Issues Reported:</strong> ${scanData.summary.totalIssues}</p>
+                <p class="critical"><strong>Critical Issues:</strong> ${scanData.summary.criticalIssues} ⚠️</p>
+                <p class="warning"><strong>Warning Issues:</strong> ${scanData.summary.warningIssues}</p>
+                <p><strong>Scan Duration:</strong> ${scanData.summary.scanDuration}ms</p>
+                <p><strong>Scan Mode:</strong> ${scanData.mode}</p>
+            `;
+            document.getElementById('scan-summary').innerHTML = summaryHtml;
+            
+            // Analyzer Status
+            let analyzerHtml = '';
+            Object.entries(scanData.results).forEach(([name, data]) => {
+                const statusClass = data.enabled ? 'enabled' : 'disabled';
+                const statusText = data.enabled ? 'ENABLED' : 'DISABLED';
+                analyzerHtml += `
+                    <div class="analyzer-card ${statusClass}">
+                        <h3>${name}</h3>
+                        <p>Status: <span class="${statusClass}">${statusText}</span></p>
+                        <p>Issues Detected: ${data.issues}</p>
+                        ${!data.enabled ? '<p class="critical">⚠️ Analyzer is disabled!</p>' : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('analyzer-status').innerHTML = analyzerHtml;
+            
+            // Issue Analysis
+            const visibleIssues = scanData.files.reduce((sum, file) => sum + (file.issues?.length || 0), 0);
+            const totalReportedIssues = Object.values(scanData.results).reduce((sum, r) => sum + r.issues, 0);
+            
+            const issueAnalysisHtml = `
+                <div class="issue-box">
+                    <p><strong>Issues in Summary:</strong> ${scanData.summary.totalIssues}</p>
+                    <p><strong>Issues from Analyzers:</strong> ${totalReportedIssues}</p>
+                    <p><strong>Issues Shown in Files:</strong> ${visibleIssues}</p>
+                    <p class="critical"><strong>Missing Issues:</strong> ${scanData.summary.totalIssues - visibleIssues} ❌</p>
+                </div>
+                <p>⚠️ <strong>Problem:</strong> ${scanData.summary.totalIssues - visibleIssues} issues are detected but not shown in the output!</p>
+            `;
+            document.getElementById('issue-analysis').innerHTML = issueAnalysisHtml;
+            
+            // Critical Issues Analysis
+            const criticalHtml = `
+                <div class="issue-box">
+                    <p class="critical">🚨 ${scanData.summary.criticalIssues} CRITICAL ISSUES DETECTED BUT NOT VISIBLE!</p>
+                    <p>These critical issues are likely:</p>
+                    <ul>
+                        <li>Character Forensics: Homoglyphs or invisible characters (security risk)</li>
+                        <li>Pattern Precognition: Severe contract violations or memory leaks</li>
+                        <li>System-level issues that could cause crashes</li>
+                    </ul>
+                </div>
+                <p class="warning">All analyzers are currently DISABLED, which is why these issues aren't being shown.</p>
+            `;
+            document.getElementById('critical-analysis').innerHTML = criticalHtml;
+            
+            // Fix Instructions
+            const fixHtml = `
+                <h3>🛠️ To Fix This Issue:</h3>
+                <ol>
+                    <li><strong>Enable All Analyzers:</strong> All analyzers are currently disabled</li>
+                    <li><strong>Run Comprehensive Scan:</strong> Use proper scan configuration</li>
+                    <li><strong>Check Output Format:</strong> Ensure verbose output is enabled</li>
+                </ol>
+                
+                <h3>Create this configuration file (eos.config.json):</h3>
+                <div class="fix-command">
+                    <pre>{
+  "enableCharacterForensics": true,
+  "enablePatternPrecognition": true,
+  "enableMemoryLeakDetection": true,
+  "enableDependencyAnalysis": true,
+  "verbose": true,
+  "showAllIssues": true
+}</pre>
+                </div>
+            `;
+            document.getElementById('fix-instructions').innerHTML = fixHtml;
+            
+            // Commands
+            const commandsHtml = `
+                <div class="fix-command">
+                    <p><strong>Run comprehensive scan with all analyzers:</strong></p>
+                    <pre>npx sauron scan . --enable-all --verbose --output detailed-report.json</pre>
+                </div>
+                
+                <div class="fix-command">
+                    <p><strong>Check current configuration:</strong></p>
+                    <pre>npx sauron config --show</pre>
+                </div>
+                
+                <div class="fix-command">
+                    <p><strong>Enable all analyzers permanently:</strong></p>
+                    <pre>npx sauron config --enable-all-analyzers</pre>
+                </div>
+                
+                <div class="fix-command">
+                    <p><strong>View scan results in different format:</strong></p>
+                    <pre>npx sauron view-results eye-of-sauron-*.json --show-all</pre>
+                </div>
+            `;
+            document.getElementById('commands').innerHTML = commandsHtml;
+        }
+        
+        // Run analysis on page load
+        analyzeResults();
+    </script>
+</body>
+</html>

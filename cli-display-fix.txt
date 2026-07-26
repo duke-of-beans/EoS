@@ -1,0 +1,15 @@
+
+// Add this function to sauron-cli.js to fix issue display
+function getIssueMessage(issue) {
+    // Handle different issue structures
+    return issue.message || 
+           issue.description || 
+           issue.text || 
+           issue.error || 
+           issue.warning ||
+           issue.type ||
+           'Unknown issue';
+}
+
+// Replace lines that show "undefined" with:
+// console.log(`  WARNING ${issue.file || file}:${issue.line || '?'} - ${getIssueMessage(issue)}`);

@@ -1,0 +1,8 @@
+  [33mWARNING[0m capture-cli-output.cjs:1 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:5 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:29 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:33 - undefined
+  [33mWARNING[0m capture-cli-output.cjs:36 - undefined
+  [31mWARNING[0m High issue density detected: 11 issues in 71 lines
+  [31mWARNING[0m High issue density detected: 11 issues in 101 lines
+  [31mWARNING[0m High issue density detected: 11 issues in 241 lines
